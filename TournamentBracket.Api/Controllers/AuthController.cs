@@ -25,9 +25,9 @@ public class AuthController : ControllerBase
     {
         var signUpResult = await authService.Register(registerUserCommand);
 
-        if (signUpResult.IsSuccess)
+        if (!signUpResult.IsSuccess)
             return BadRequest(signUpResult.Error?.Message);
-        return Ok(signUpResult.Item);
+        return Ok(new RegisterUserResponse(signUpResult.Item!.Email!));
     }
 
     [HttpPost("login")]

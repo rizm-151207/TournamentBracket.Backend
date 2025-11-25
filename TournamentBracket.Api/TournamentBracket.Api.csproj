@@ -24,7 +24,6 @@
       <ProjectReference Include="..\TournamentBracket.Application.Users\TournamentBracket.Application.Users.csproj" />
       <ProjectReference Include="..\TournamentBracket.Domain.Users\TournamentBracket.Domain.Users.csproj" />
       <ProjectReference Include="..\TournamentBracket.Infrastructure.Common\TournamentBracket.Infrastructure.Common.csproj" />
-      <ProjectReference Include="..\TournamentBracket.Infrastructure.Users\TournamentBracket.Infrastructure.Users.csproj" />
     </ItemGroup>
 
 </Project>

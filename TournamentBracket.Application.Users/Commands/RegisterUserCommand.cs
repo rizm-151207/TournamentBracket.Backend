@@ -3,4 +3,7 @@
 public record RegisterUserCommand(
     String Username,
     String Password,
-    String Email);
+    String Email,
+    String FirstName,
+    String LastName,
+    String? MiddleName);

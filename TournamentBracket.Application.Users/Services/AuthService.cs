@@ -31,6 +31,9 @@ public class AuthService : IAuthService
             Id = Guid.NewGuid(),
             UserName = command.Username,
             Email = command.Email,
+            FirstName = command.FirstName,
+            LastName = command.LastName,
+            MiddleName = command.MiddleName,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
         };
@@ -81,7 +84,7 @@ public class AuthService : IAuthService
 
         if (user.RefreshToken != command.RefreshToken || user.RefreshTokenExpiryTime < DateTime.UtcNow)
             return Result<TokensPair>.FailedWith("Refresh token expired");
-        
+
         var accessToken = await tokenService.GenerateAccessToken(user, ct);
         var refreshToken = await tokenService.GenerateRefreshToken(ct);
 
