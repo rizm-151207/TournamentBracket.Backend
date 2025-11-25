@@ -1,6 +1,22 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentBracket", "TournamentBracket\TournamentBracket.csproj", "{993859D7-C72C-43A2-8997-26D996DE01A0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentBracket.Api", "TournamentBracket.Api\TournamentBracket.Api.csproj", "{993859D7-C72C-43A2-8997-26D996DE01A0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{5BB73B94-E1A9-49E9-A41B-435C59EF4709}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{62F9975E-8278-4040-8908-2594378B226C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{7ED51165-E2CD-4261-933C-C34C7A17A834}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentBracket.Domain.Users", "TournamentBracket.Domain.Users\TournamentBracket.Domain.Users.csproj", "{3C9AA2A3-7A08-4D78-B6C0-9E5B24E32AE8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentBracket.Domain.Common", "TournamentBracket.Domain.Common\TournamentBracket.Domain.Common.csproj", "{4AA169C7-7091-4C11-AD8F-FB835AB371AB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentBracket.Application.Users", "TournamentBracket.Application.Users\TournamentBracket.Application.Users.csproj", "{69B74324-7379-4083-BD72-464A881025B2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentBracket.Infrastructure.Users", "TournamentBracket.Infrastructure.Users\TournamentBracket.Infrastructure.Users.csproj", "{112B829D-6714-4152-A89B-0812717C45DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentBracket.Infrastructure.Common", "TournamentBracket.Infrastructure.Common\TournamentBracket.Infrastructure.Common.csproj", "{E0049FF7-DC04-4074-B8AF-35446A0F6194}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,5 +28,32 @@ Global
 		{993859D7-C72C-43A2-8997-26D996DE01A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{993859D7-C72C-43A2-8997-26D996DE01A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{993859D7-C72C-43A2-8997-26D996DE01A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C9AA2A3-7A08-4D78-B6C0-9E5B24E32AE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C9AA2A3-7A08-4D78-B6C0-9E5B24E32AE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C9AA2A3-7A08-4D78-B6C0-9E5B24E32AE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C9AA2A3-7A08-4D78-B6C0-9E5B24E32AE8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4AA169C7-7091-4C11-AD8F-FB835AB371AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AA169C7-7091-4C11-AD8F-FB835AB371AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AA169C7-7091-4C11-AD8F-FB835AB371AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AA169C7-7091-4C11-AD8F-FB835AB371AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69B74324-7379-4083-BD72-464A881025B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69B74324-7379-4083-BD72-464A881025B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69B74324-7379-4083-BD72-464A881025B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69B74324-7379-4083-BD72-464A881025B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{112B829D-6714-4152-A89B-0812717C45DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{112B829D-6714-4152-A89B-0812717C45DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{112B829D-6714-4152-A89B-0812717C45DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{112B829D-6714-4152-A89B-0812717C45DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0049FF7-DC04-4074-B8AF-35446A0F6194}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0049FF7-DC04-4074-B8AF-35446A0F6194}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0049FF7-DC04-4074-B8AF-35446A0F6194}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0049FF7-DC04-4074-B8AF-35446A0F6194}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3C9AA2A3-7A08-4D78-B6C0-9E5B24E32AE8} = {5BB73B94-E1A9-49E9-A41B-435C59EF4709}
+		{4AA169C7-7091-4C11-AD8F-FB835AB371AB} = {5BB73B94-E1A9-49E9-A41B-435C59EF4709}
+		{69B74324-7379-4083-BD72-464A881025B2} = {7ED51165-E2CD-4261-933C-C34C7A17A834}
+		{112B829D-6714-4152-A89B-0812717C45DC} = {62F9975E-8278-4040-8908-2594378B226C}
+		{E0049FF7-DC04-4074-B8AF-35446A0F6194} = {62F9975E-8278-4040-8908-2594378B226C}
 	EndGlobalSection
 EndGlobal
