@@ -1,0 +1,164 @@
+﻿openapi: 3.0.0
+info:
+  title: Auth api
+  description: Api for user registration and auth tokens processing
+  version: 0.0.1
+paths:
+  /api/auth/signup:
+    post:
+      summary: Register new user
+      description: Register new user
+      tags:
+        - Auth
+      operationId: signup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/registerUserCommand'
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/registerSuccessResponse'
+        "400":
+          description: "Error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /api/auth/login:
+    post:
+      summary: Login
+      description: Return tokens by emal/password pair
+      tags:
+        - Auth
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/loginUserCommand'
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tokensResponse'
+        "400":
+          description: "Error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /api/auth/logout:
+    post:
+      summary: Logout
+      description: Log out signed-in user
+      tags:
+        - Auth
+      operationId: logout
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: "OK"
+        "401":
+          description: "Unauthorized or access token expired"
+        "400":
+          description: "Error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /api/auth/refreshToken:
+    post:
+      summary: Refresh access token
+      description: Refresh access token by refresh token
+      tags:
+        - Auth
+      operationId: refreshAccessToken
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/refreshTokenCommand'
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tokensResponse'
+        "401":
+          description: "Unauthorized or access token expired"
+        "400":
+          description: "Error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+components:
+  schemas:
+    registerUserCommand:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        middleName:
+          type: string
+    error:
+      type: object
+      properties:
+        message:
+          type: string
+        code:
+          type: integer
+          nullable: true
+        innerError:
+          $ref: '#/components/schemas/error'
+    registerSuccessResponse:
+      type: object
+      properties:
+        email:
+          type: string
+    loginUserCommand:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    refreshTokenCommand:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+      required:
+        - refreshToken
+    tokensResponse:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+  securitySchemes:
+    BearerAuth:
+      description: Bearer token using a JWT
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    

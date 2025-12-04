@@ -10,7 +10,7 @@ using TournamentBracket.Application.Users.Interfaces;
 namespace TournamentBracket.Api.Controllers;
 
 [ApiController]
-[Route("auth")]
+[Route("api/auth")]
 public class AuthController : ControllerBase
 {
     private readonly IAuthService authService;
@@ -26,7 +26,7 @@ public class AuthController : ControllerBase
         var signUpResult = await authService.Register(registerUserCommand);
 
         if (!signUpResult.IsSuccess)
-            return BadRequest(signUpResult.Error?.Message);
+            return BadRequest(signUpResult.Error);
         return Ok(new RegisterUserResponse(signUpResult.Item!.Email!));
     }
 
@@ -35,7 +35,7 @@ public class AuthController : ControllerBase
     {
         var loginResult = await authService.Login(loginUserCommand);
         if (!loginResult.IsSuccess)
-            return BadRequest(loginResult.Error?.Message);
+            return BadRequest(loginResult.Error);
 
         var cookieOptions = new CookieOptions
         {
@@ -47,7 +47,8 @@ public class AuthController : ControllerBase
         HttpContext.Response.Cookies.Append(AuthConstants.AccessTokenName, loginResult.Item!.AccessToken,
             cookieOptions);
 
-        return Ok(new TokensResponse(loginResult.IsSuccess, loginResult.Item.RefreshToken));
+        return Ok(new TokensResponse(
+            loginResult.Item.RefreshToken));
     }
 
     [Authorize]
@@ -60,7 +61,7 @@ public class AuthController : ControllerBase
 
         var result = await authService.Logout(userEmail);
         if (!result.IsSuccess)
-            return BadRequest(result.Error?.Message);
+            return BadRequest(result.Error);
 
         Response.Cookies.Append(AuthConstants.AccessTokenName, string.Empty, new CookieOptions
         {
@@ -84,7 +85,7 @@ public class AuthController : ControllerBase
         var newTokensResult = await authService.RefreshTokens(refreshTokenCommand, userEmail);
 
         if (!newTokensResult.IsSuccess)
-            return BadRequest(newTokensResult.Error?.Message);
+            return BadRequest(newTokensResult.Error);
 
         var cookieOptions = new CookieOptions
         {
@@ -96,6 +97,6 @@ public class AuthController : ControllerBase
         HttpContext.Response.Cookies.Append(AuthConstants.AccessTokenName, newTokensResult.Item!.AccessToken,
             cookieOptions);
 
-        return Ok(new TokensResponse(newTokensResult.IsSuccess, newTokensResult.Item.RefreshToken));
+        return Ok(new TokensResponse(newTokensResult.Item.RefreshToken));
     }
 }
