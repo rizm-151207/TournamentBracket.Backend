@@ -29,15 +29,17 @@ public class AuthService : IAuthService
         var user = new User
         {
             Id = Guid.NewGuid(),
+            UserName = command.Email,
             Email = command.Email,
-            FirstName = command.FirstName,
-            LastName = command.LastName,
-            MiddleName = command.MiddleName,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
         };
 
         var result = await userManager.CreateAsync(user, command.Password);
+        if (!result.Succeeded)
+            return Result<User>.FailedWith(string.Join(',', result.Errors));
+
+        result = await userManager.AddToRoleAsync(user, command.Role);
         return result.Succeeded ? Result<User>.Success(user) : Result<User>.FailedWith(string.Join(',', result.Errors));
     }
 

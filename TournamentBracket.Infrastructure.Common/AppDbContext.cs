@@ -18,14 +18,6 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
 
         builder.Entity<User>(entity =>
         {
-            entity.Property(e => e.FirstName)
-                .IsRequired()
-                .HasMaxLength(100);
-            entity.Property(e => e.LastName)
-                .IsRequired()
-                .HasMaxLength(100);
-            entity.Property(e => e.MiddleName)
-                .HasMaxLength(100);
             entity.Property(e => e.Email)
                 .IsRequired()
                 .HasMaxLength(100);

@@ -115,12 +115,11 @@ components:
           type: string
         password:
           type: string
-        firstName:
+        role:
           type: string
-        lastName:
-          type: string
-        middleName:
-          type: string
+          enum:
+            - Administrator
+            - Organizer
     error:
       type: object
       properties:
