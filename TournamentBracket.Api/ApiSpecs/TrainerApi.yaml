@@ -1,0 +1,163 @@
+﻿openapi: 3.1.0
+info:
+  title: Trainers api
+  description: Api for trainers
+  version: 0.0.1
+paths:
+  /api/trainers:
+    get:
+      summary: Get trainers
+      description: Get page of filtered trainers
+      tags:
+        - Trainers
+      operationId: getPageOfTrainers
+      parameters:
+        - name: fio
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Any part of trainer FirstName, LastName, MiddleName
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Page of trainers list
+        - name: count
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Max count of items
+      responses:
+        "200":
+          description: Page of filtered trainers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/trainersPageResponse'
+        "401":
+          description: Unauthorized or access token expired
+        "400":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: './Common.yaml#/components/schemas/error'
+    post:
+      summary: Create new trainer
+      description: Create new trainer
+      tags:
+        - Trainers
+      operationId: createTrainer
+      security:
+        - BearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createTrainerCommand'
+      responses:
+        '201':
+          description: Trainer created successfully
+        "401":
+          description: Unauthorized or access token expired
+        "400":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: './Common.yaml#/components/schemas/error'
+  /api/trainers/{id}:
+    patch:
+      summary: Update trainer
+      description: Update trainer info by id
+      tags:
+        - Trainers
+      operationId: updateTrainer
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/updateTrainerCommand'
+      responses:
+        '200':
+          description: Trainer updated successfully
+        "401":
+          description: Unauthorized or access token expired
+        "400":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: './Common.yaml#/components/schemas/error'
+    delete:
+      summary: Delete trainer
+      description: Delete trainer by id
+      tags:
+        - Trainers
+      operationId: deleteTrainer
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Trainer deleted successfully
+        "401":
+          description: Unauthorized or access token expired
+        "400":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: './Common.yaml#/components/schemas/error'
+components:
+  schemas:
+    trainersPageResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/trainer'
+        hasNext:
+          type: boolean
+    createTrainerCommand:
+      $ref: '#/components/schemas/trainerBase'
+    updateTrainerCommand:
+      $ref: '#/components/schemas/trainer'
+    trainer:
+      allOf:
+        - $ref: '#/components/schemas/trainerBase'
+      properties:
+        id:
+          type: string
+    trainerBase:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        middleName:
+          type: string
+        club:
+          type: string
+        subject:
+          type: string

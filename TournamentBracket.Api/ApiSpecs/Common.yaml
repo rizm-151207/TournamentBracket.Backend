@@ -1,0 +1,23 @@
+﻿openapi: 3.1.0
+info:
+  title: Common components
+  description: Common components for all APIs
+  version: 0.0.1
+components:
+  schemas:
+    error:
+      type: object
+      properties:
+        message:
+          type: string
+        code:
+          type: integer
+          nullable: true
+        innerError:
+          $ref: '#/components/schemas/error'
+  securitySchemes:
+    BearerAuth:
+      description: Bearer token using a JWT
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

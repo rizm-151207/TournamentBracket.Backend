@@ -1,0 +1,213 @@
+﻿openapi: 3.1.0
+info:
+  title: Competitor api
+  description: Api for competitors
+  version: 0.0.1
+paths:
+  /api/competitors:
+    get:
+      summary: Get competitors
+      description: Get page of filtered competitors
+      tags:
+        - Competitors
+      operationId: get page of competitors
+      parameters:
+        - name: fio
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Any part of competitor FirstName, LastName, MiddleName
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          description: Page of competitors list
+        - name: count
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+          description: Max count of competitors
+      responses:
+        "200":
+          description: Page of filtered competitors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/competitorsPageResponse'
+        "400":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: './Common.yaml#/components/schemas/error'
+    post:
+      summary: Create new competitor
+      description: Create new competitor
+      tags:
+        - Competitor
+      operationId: createCompetitor
+      security:
+        - BearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createCompetitorCommand'
+      responses:
+        "201":
+          description: OK
+        "401":
+          description: Unauthorized or access token expired
+        "400":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: './Common.yaml#/components/schemas/error'
+  /api/competitors/{id}:
+    get:
+      summary: Get competitor info
+      description: Get competitor info by id
+      tags:
+        - Competitors
+      operationId: getCompetitorInfo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/competitor'
+        '400':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: './Common.yaml#/components/schemas/error'
+    patch:
+      summary: Update competitor info
+      description: Update competitor info by id
+      tags:
+        - Competitors
+      operationId: updateCompetitor
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/updateCompetitorCommand'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/competitor'
+        "401":
+          description: Unauthorized or access token expired
+        '400':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: './Common.yaml#/components/schemas/error'
+    delete:
+      summary: Delete competitor
+      description: Delete competitor by id
+      tags:
+        - Competitors
+      operationId: deleteCompetitor
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        "401":
+          description: Unauthorized or access token expired
+        '400':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: './Common.yaml#/components/schemas/error'
+components:
+  schemas:
+    competitorsPageResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/competitor'
+        hasNext:
+          type: boolean
+    createCompetitorCommand:
+      allOf:
+        - $ref: '#/components/schemas/competitorCommon'
+        - trainersIds:
+            type: array
+            items:
+              type: string
+    updateCompetitorCommand:
+      allOf:
+        - $ref: '#/components/schemas/competitorCommon'
+        - trainersIds:
+            type: array
+            items:
+              type: string
+    competitor:
+      allOf:
+        - $ref: '#/components/schemas/competitorCommon'
+        - id:
+            type: string
+        - trainers:
+            type: array
+            items:
+              $ref: './TrainerApi.yaml#/components/schemas/trainer'
+    competitorCommon:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        middleName:
+          type: string
+        gender:
+          type: boolean
+        age:
+          type: integer
+        weight:
+          type: number
+        rank:
+          type: string
+        kyu:
+          type: string
+        subject:
+          type: string
