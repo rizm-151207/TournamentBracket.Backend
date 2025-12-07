@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TournamentBracket.Api.Extensions;
+using TournamentBracket.Application.Competitors.Interfaces;
+using TournamentBracket.Application.Competitors.Services;
 using TournamentBracket.Application.Users.DTO;
 using TournamentBracket.Application.Users.Interfaces;
 using TournamentBracket.Application.Users.Services;
@@ -23,6 +25,7 @@ builder.AddSwaggerWithJwtAuth()
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<ICompetitorService, CompetitorService>();
 
 
 var app = builder.Build();

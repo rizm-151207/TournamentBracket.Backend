@@ -1,12 +1,16 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using TournamentBracket.Domain.Competitors;
 using TournamentBracket.Domain.Users;
 
 namespace TournamentBracket.Infrastructure.Common;
 
 public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
 {
+    public DbSet<Competitor> Competitors { get; set; }
+    public DbSet<Trainer> Trainers { get; set; }
+
     public AppDbContext(DbContextOptions options) : base(options)
     {
         base.Database.EnsureCreated();
@@ -23,7 +27,7 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
                 .HasMaxLength(100);
             entity.HasIndex(e => e.Email)
                 .IsUnique();
-        }) ;
+        });
 
         AddDefaultRoles(builder);
     }

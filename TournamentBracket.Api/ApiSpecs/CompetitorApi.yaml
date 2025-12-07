@@ -23,14 +23,12 @@ paths:
           required: false
           schema:
             type: integer
-            default: 1
           description: Page of competitors list
         - name: count
           in: query
           required: false
           schema:
             type: integer
-            default: 20
           description: Max count of competitors
       responses:
         "200":
@@ -65,32 +63,6 @@ paths:
         "401":
           description: Unauthorized or access token expired
         "400":
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: './Common.yaml#/components/schemas/error'
-  /api/competitors/{id}:
-    get:
-      summary: Get competitor info
-      description: Get competitor info by id
-      tags:
-        - Competitors
-      operationId: getCompetitorInfo
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/competitor'
-        '400':
           description: Error
           content:
             application/json:
@@ -131,6 +103,32 @@ paths:
             application/json:
               schema:
                 $ref: './Common.yaml#/components/schemas/error'
+  /api/competitors/{id}:
+    get:
+      summary: Get competitor info
+      description: Get competitor info by id
+      tags:
+        - Competitors
+      operationId: getCompetitorInfo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/competitor'
+        '400':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: './Common.yaml#/components/schemas/error'
     delete:
       summary: Delete competitor
       description: Delete competitor by id
@@ -165,8 +163,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/competitor'
-        hasNext:
-          type: boolean
+        allCount:
+          type: integer
     createCompetitorCommand:
       allOf:
         - $ref: '#/components/schemas/competitorCommon'
@@ -201,8 +199,9 @@ components:
           type: string
         gender:
           type: boolean
-        age:
-          type: integer
+        dataOfBirth:
+          type: string
+          format: date-time
         weight:
           type: number
         rank:
