@@ -70,7 +70,6 @@ paths:
             application/json:
               schema:
                 $ref: './Common.yaml#/components/schemas/error'
-  /api/trainers/{id}:
     patch:
       summary: Update trainer
       description: Update trainer info by id
@@ -96,7 +95,37 @@ paths:
           description: Trainer updated successfully
         "401":
           description: Unauthorized or access token expired
+        "404":
+          description: Trainer not found by Id
         "400":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: './Common.yaml#/components/schemas/error'
+  /api/trainers/{id}:
+    get:
+      summary: Get trainer info
+      description: Get trainer info by id
+      tags:
+        - Trainers
+      operationId: getTrainerrInfo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/trainer'
+        "404":
+          description: Trainer not found by Id
+        '400':
           description: Error
           content:
             application/json:
@@ -121,6 +150,8 @@ paths:
           description: Trainer deleted successfully
         "401":
           description: Unauthorized or access token expired
+        "404":
+          description: Trainer not found by Id
         "400":
           description: Error
           content:

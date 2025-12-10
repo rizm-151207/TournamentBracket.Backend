@@ -97,6 +97,8 @@ paths:
                 $ref: '#/components/schemas/competitor'
         "401":
           description: Unauthorized or access token expired
+        "404":
+          description: Competitor not found by Id
         '400':
           description: Error
           content:
@@ -123,6 +125,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/competitor'
+        "404":
+          description: Competitor not found by Id
         '400':
           description: Error
           content:
@@ -148,6 +152,8 @@ paths:
           description: OK
         "401":
           description: Unauthorized or access token expired
+        "404":
+          description: Competitor not found by Id
         '400':
           description: Error
           content:

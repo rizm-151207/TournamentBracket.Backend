@@ -26,6 +26,7 @@ builder.AddSwaggerWithJwtAuth()
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ICompetitorService, CompetitorService>();
+builder.Services.AddScoped<ITrainerService, TrainerService>();
 
 
 var app = builder.Build();

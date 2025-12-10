@@ -1,10 +1,12 @@
-﻿using TournamentBracket.Application.Competitors.DTO;
+﻿using TournamentBracket.Application.Common.Queries;
+using TournamentBracket.Application.Competitors.DTO;
 
 namespace TournamentBracket.Application.Competitors.Queries;
 
-public record CompetitorsPageQuery
+public class CompetitorsPageQuery : PageQuery
 {
     public CompetitorsPageQuery(string? fio, int? page, int? count)
+        : base(page, count)
     {
         Filter = new CompetitorsFilter(fio);
         Page = page;
@@ -12,6 +14,4 @@ public record CompetitorsPageQuery
     }
 
     public CompetitorsFilter Filter { get; set; }
-    public int? Page { get; set; }
-    public int Count { get; set; }
 }

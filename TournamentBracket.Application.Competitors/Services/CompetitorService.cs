@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
+using TournamentBracket.Application.Common.Helpers;
 using TournamentBracket.Application.Competitors.Commands;
 using TournamentBracket.Application.Competitors.DTO;
 using TournamentBracket.Application.Competitors.Interfaces;
@@ -21,7 +22,7 @@ public class CompetitorService : ICompetitorService
 
     public async Task<Result> CreateCompetitor(CreateCompetitorCommand command, CancellationToken ct = default)
     {
-        var competitor = new Competitor()
+        var competitor = new Competitor
         {
             Id = Guid.NewGuid(),
             FirstName = command.FirstName,
@@ -53,14 +54,7 @@ public class CompetitorService : ICompetitorService
     public async Task<Result<IReadOnlyCollection<Competitor>>> GetCompetitors(CompetitorsPageQuery query,
         CancellationToken ct = default)
     {
-        var queryable = dbContext.Competitors.AsQueryable();
-        if (query.Page.HasValue)
-        {
-            queryable = queryable
-                .Skip((query.Page.Value - 1) * query.Count)
-                .Take(query.Count);
-        }
-
+        var queryable = dbContext.Competitors.AsQueryable().SelectPage(query);
         queryable = AddFilterToQueryable(queryable, query.Filter);
 
         var competitors = await queryable.ToListAsync(ct);

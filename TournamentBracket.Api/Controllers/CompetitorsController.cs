@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TournamentBracket.Application.Competitors.Commands;
 using TournamentBracket.Application.Competitors.Interfaces;
 using TournamentBracket.Application.Competitors.Queries;
@@ -43,20 +44,32 @@ public class CompetitorsController : ControllerBase
     public async Task<IActionResult> UpdateCompetitor([FromBody] UpdateCompetitorCommand command)
     {
         var updateResult = await competitorService.UpdateCompetitor(command);
-        return updateResult.IsSuccess ? Ok() : BadRequest(updateResult.Error);
+        return updateResult.IsSuccess
+            ? Ok()
+            : updateResult.Error?.Code == 404
+                ? NotFound(updateResult.Error)
+                : BadRequest(updateResult.Error);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetCompetitorById([FromRoute] Guid id)
     {
         var result = await competitorService.GetCompetitor(id);
-        return result.IsSuccess ? Ok(result.Item) : BadRequest(result.Error);
+        return result.IsSuccess
+            ? Ok(result.Item)
+            : result.Error?.Code == 404
+                ? NotFound(result.Error)
+                : BadRequest(result.Error);
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteCompetitor([FromRoute] Guid id)
     {
         var result = await competitorService.DeleteCompetitor(id);
-        return result.IsSuccess ? Ok() : BadRequest(result.Error);
+        return result.IsSuccess
+            ? Ok()
+            : result.Error?.Code == 404
+                ? NotFound(result.Error)
+                : BadRequest(result.Error);
     }
 }

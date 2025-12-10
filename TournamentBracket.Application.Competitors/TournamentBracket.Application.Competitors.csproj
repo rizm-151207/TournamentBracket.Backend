@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\TournamentBracket.Application.Common\TournamentBracket.Application.Common.csproj" />
       <ProjectReference Include="..\TournamentBracket.Domain.Competitors\TournamentBracket.Domain.Competitors.csproj" />
       <ProjectReference Include="..\TournamentBracket.Infrastructure.Common\TournamentBracket.Infrastructure.Common.csproj" />
     </ItemGroup>
