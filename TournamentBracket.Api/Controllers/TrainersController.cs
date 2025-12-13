@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TournamentBracket.Application.Common.Queries;
 using TournamentBracket.Application.Competitors.Commands;
 using TournamentBracket.Application.Competitors.Interfaces;
@@ -26,6 +27,7 @@ public class TrainersController: ControllerBase
     }
     
     [HttpPost]
+    [Authorize(Roles = "Organizer")]
     public async Task<IActionResult> CreateTrainer([FromBody] CreateTrainerCommand command)
     {
         var trainersResult = await trainerService.CreateTrainer(command);
@@ -35,6 +37,7 @@ public class TrainersController: ControllerBase
     }
     
     [HttpPatch]
+    [Authorize(Roles = "Organizer")]
     public async Task<IActionResult> UpdateTrainer([FromBody] UpdateTrainerCommand command)
     {
         var result = await trainerService.UpdateTrainer(command);
@@ -57,6 +60,7 @@ public class TrainersController: ControllerBase
     }
     
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Organizer")]
     public async Task<IActionResult> DeleteTrainer([FromRoute] Guid id)
     {
         var result = await trainerService.GetTrainer(id);

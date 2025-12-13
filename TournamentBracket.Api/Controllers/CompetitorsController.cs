@@ -33,14 +33,15 @@ public class CompetitorsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Organizer")]
     public async Task<IActionResult> CreateCompetitor([FromBody] CreateCompetitorCommand command)
     {
         var creationResult = await competitorService.CreateCompetitor(command);
         return creationResult.IsSuccess ? Created() : BadRequest(creationResult.Error);
     }
 
-
     [HttpPatch]
+    [Authorize(Roles = "Organizer")]
     public async Task<IActionResult> UpdateCompetitor([FromBody] UpdateCompetitorCommand command)
     {
         var updateResult = await competitorService.UpdateCompetitor(command);
@@ -63,6 +64,7 @@ public class CompetitorsController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Organizer")]
     public async Task<IActionResult> DeleteCompetitor([FromRoute] Guid id)
     {
         var result = await competitorService.DeleteCompetitor(id);
