@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.Reflection;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using TournamentBracket.Domain.Competitors;
@@ -19,16 +20,7 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-
-        builder.Entity<User>(entity =>
-        {
-            entity.Property(e => e.Email)
-                .IsRequired()
-                .HasMaxLength(100);
-            entity.HasIndex(e => e.Email)
-                .IsUnique();
-        });
-
+        builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         AddDefaultRoles(builder);
     }
 
