@@ -1,14 +1,16 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TournamentBracket.Application.Common.Queries;
+using TournamentBracket.Application.Common.Responses;
 using TournamentBracket.Application.Competitors.Commands;
 using TournamentBracket.Application.Competitors.Interfaces;
+using TournamentBracket.Domain.Competitors;
 
 namespace TournamentBracket.Api.Controllers;
 
 [ApiController]
 [Route("api/trainers")]
-public class TrainersController: ControllerBase
+public class TrainersController : ControllerBase
 {
     private readonly ITrainerService trainerService;
 
@@ -20,12 +22,17 @@ public class TrainersController: ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetTrainers([FromQuery] PageQuery query)
     {
-        var trainersResult = await trainerService.GetTrainers(query);
-        return trainersResult.IsSuccess
-            ? Ok(trainersResult.Item)
-            : BadRequest(trainersResult.Error);
+        var competitorsResult = await trainerService.GetTrainers(query);
+        if (!competitorsResult.IsSuccess)
+            return BadRequest(competitorsResult.Error);
+
+        var countResult = await trainerService.GetCount();
+        if (!countResult.IsSuccess)
+            return BadRequest(countResult.Error);
+
+        return Ok(new PageResponse<Trainer>(competitorsResult.Item!, countResult.Item));
     }
-    
+
     [HttpPost]
     [Authorize(Roles = "Organizer")]
     public async Task<IActionResult> CreateTrainer([FromBody] CreateTrainerCommand command)
@@ -35,7 +42,7 @@ public class TrainersController: ControllerBase
             ? Ok()
             : BadRequest(trainersResult.Error);
     }
-    
+
     [HttpPatch]
     [Authorize(Roles = "Organizer")]
     public async Task<IActionResult> UpdateTrainer([FromBody] UpdateTrainerCommand command)
@@ -58,14 +65,14 @@ public class TrainersController: ControllerBase
                 ? NotFound(result.Error)
                 : BadRequest(result.Error);
     }
-    
+
     [HttpDelete("{id}")]
     [Authorize(Roles = "Organizer")]
     public async Task<IActionResult> DeleteTrainer([FromRoute] Guid id)
     {
-        var result = await trainerService.GetTrainer(id);
+        var result = await trainerService.DeleteTrainer(id);
         return result.IsSuccess
-            ? Ok(result.Item)
+            ? Ok()
             : result.Error?.Code == 404
                 ? NotFound(result.Error)
                 : BadRequest(result.Error);

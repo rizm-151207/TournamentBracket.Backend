@@ -12,6 +12,10 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     public DbSet<Competitor> Competitors { get; set; }
     public DbSet<Trainer> Trainers { get; set; }
 
+    public AppDbContext()
+    {
+    }
+
     public AppDbContext(DbContextOptions options) : base(options)
     {
         base.Database.EnsureCreated();
@@ -20,7 +24,8 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        var assembly = Assembly.Load("TournamentBracket.Infrastructure.Models");
+        builder.ApplyConfigurationsFromAssembly(assembly);
         AddDefaultRoles(builder);
     }
 

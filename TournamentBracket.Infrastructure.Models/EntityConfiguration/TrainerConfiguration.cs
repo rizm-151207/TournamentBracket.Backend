@@ -9,8 +9,7 @@ public class TrainerConfiguration : IEntityTypeConfiguration<Trainer>
     public void Configure(EntityTypeBuilder<Trainer> builder)
     {
         builder.HasKey(e => e.Id);
-        builder.HasMany(e => e.Competitors)
-            .WithMany(e => e.Trainers);
+        builder.HasMany(e => e.Competitors);
         
         builder.Property(e => e.Id)
             .IsRequired()

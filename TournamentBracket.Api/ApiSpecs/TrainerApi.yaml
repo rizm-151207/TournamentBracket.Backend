@@ -167,8 +167,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/trainer'
-        hasNext:
-          type: boolean
+        allCount:
+          type: integer
     createTrainerCommand:
       $ref: '#/components/schemas/trainerBase'
     updateTrainerCommand:

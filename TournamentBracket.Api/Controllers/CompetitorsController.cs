@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TournamentBracket.Application.Common.Responses;
 using TournamentBracket.Application.Competitors.Commands;
 using TournamentBracket.Application.Competitors.Interfaces;
 using TournamentBracket.Application.Competitors.Queries;
-using TournamentBracket.Application.Competitors.Responses;
+using TournamentBracket.Domain.Competitors;
 
 namespace TournamentBracket.Api.Controllers;
 
@@ -25,11 +26,11 @@ public class CompetitorsController : ControllerBase
         if (!competitorsResult.IsSuccess)
             return BadRequest(competitorsResult.Error);
 
-        var countResult = await competitorService.GetCount(query.Filter);
+        var countResult = await competitorService.GetCount(query.CreateFilter());
         if (!countResult.IsSuccess)
             return BadRequest(countResult.Error);
 
-        return Ok(new CompetitorsPageResponse(competitorsResult.Item!, countResult.Item));
+        return Ok(new PageResponse<Competitor>(competitorsResult.Item!, countResult.Item));
     }
 
     [HttpPost]

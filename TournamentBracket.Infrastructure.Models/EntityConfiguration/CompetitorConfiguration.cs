@@ -11,6 +11,9 @@ public class CompetitorConfiguration : IEntityTypeConfiguration<Competitor>
         builder.HasKey(e => e.Id);
         builder.HasMany(e => e.Trainers)
             .WithMany(e => e.Competitors);
+        
+        builder.Navigation(e => e.Trainers)
+            .AutoInclude();
 
         builder.Property(e => e.Id)
             .IsRequired()
@@ -24,8 +27,7 @@ public class CompetitorConfiguration : IEntityTypeConfiguration<Competitor>
         builder.Property(e => e.MiddleName)
             .HasMaxLength(100);
         builder.Property(e => e.DateOfBirth)
-            .IsRequired()
-            .HasColumnType("datetime");
+            .IsRequired();
         builder.Property(e => e.Gender)
             .IsRequired()
             .HasColumnType("boolean");

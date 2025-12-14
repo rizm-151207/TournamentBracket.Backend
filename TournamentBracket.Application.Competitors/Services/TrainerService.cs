@@ -68,11 +68,11 @@ public class TrainerService : ITrainerService
             return Result.Failed(trainerResult.Error!);
 
         var trainer = trainerResult.Item!;
-        trainer.FirstName = trainer.FirstName;
-        trainer.LastName = trainer.LastName;
-        trainer.MiddleName = trainer.MiddleName;
-        trainer.Club = trainer.Club;
-        trainer.Subject = trainer.Subject;
+        trainer.FirstName = command.FirstName;
+        trainer.LastName = command.LastName;
+        trainer.MiddleName = command.MiddleName;
+        trainer.Club = command.Club;
+        trainer.Subject = command.Subject;
         trainer.UpdatedAt = DateTime.UtcNow;
 
         dbContext.Trainers.Update(trainer);

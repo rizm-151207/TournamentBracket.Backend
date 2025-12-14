@@ -55,7 +55,7 @@ public class CompetitorService : ICompetitorService
         CancellationToken ct = default)
     {
         var queryable = dbContext.Competitors.AsQueryable().SelectPage(query);
-        queryable = AddFilterToQueryable(queryable, query.Filter);
+        queryable = AddFilterToQueryable(queryable, query.CreateFilter());
 
         var competitors = await queryable.ToListAsync(ct);
         return Result<IReadOnlyCollection<Competitor>>.Success(competitors);
@@ -99,6 +99,7 @@ public class CompetitorService : ICompetitorService
         competitor.Kyu = command.Kyu;
         competitor.Subject = command.Subject;
         competitor.UpdatedAt = DateTime.UtcNow;
+        competitor.Trainers.Clear();
         competitor.Trainers = competitorTrainers;
 
         await dbContext.SaveChangesAsync(ct);
@@ -110,8 +111,9 @@ public class CompetitorService : ICompetitorService
         var competitorResult = await GetCompetitor(id, ct);
         if (!competitorResult.IsSuccess)
             return competitorResult;
-        var deletedEntity = dbContext.Competitors.Remove(competitorResult.Item!);
-        return deletedEntity.State == EntityState.Deleted
+        dbContext.Competitors.Remove(competitorResult.Item!);
+        var competitorsDeleted = await dbContext.SaveChangesAsync(ct);
+        return competitorsDeleted == 1
             ? Result.Success()
             : Result.Failed("Some error while deleting");
     }
