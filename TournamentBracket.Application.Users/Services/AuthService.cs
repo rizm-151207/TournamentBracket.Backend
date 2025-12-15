@@ -39,7 +39,7 @@ public class AuthService : IAuthService
         if (!result.Succeeded)
             return Result<User>.FailedWith(string.Join(',', result.Errors));
 
-        result = await userManager.AddToRoleAsync(user, command.Role);
+        result = await userManager.AddToRoleAsync(user, command.Role.ToString());
         return result.Succeeded ? Result<User>.Success(user) : Result<User>.FailedWith(string.Join(',', result.Errors));
     }
 

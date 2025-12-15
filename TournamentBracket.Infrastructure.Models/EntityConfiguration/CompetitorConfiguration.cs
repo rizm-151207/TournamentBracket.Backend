@@ -37,7 +37,7 @@ public class CompetitorConfiguration : IEntityTypeConfiguration<Competitor>
             .HasMaxLength(50);
         builder.Property(e => e.Subject)
             .IsRequired()
-            .HasMaxLength(50);
+            .HasMaxLength(100);
         builder.Property(e => e.Weight)
             .IsRequired()
             .HasColumnType("real");

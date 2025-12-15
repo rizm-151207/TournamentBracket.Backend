@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Reflection;
+using System.Text;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -90,7 +92,7 @@ public static class WebApplicationBuilderExtensions
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = builder.Configuration["Jwt:Issuer"],
                     ValidAudience = builder.Configuration["Jwt:Audience"],
-                    ClockSkew =  TimeSpan.Zero,
+                    ClockSkew = TimeSpan.Zero,
                     IssuerSigningKey =
                         new SymmetricSecurityKey(
                             Encoding.UTF8.GetBytes(builder.Configuration.GetSection("Jwt:Secret").Value!))
@@ -108,6 +110,15 @@ public static class WebApplicationBuilderExtensions
 
         builder.Services.AddAuthorization();
 
+        return builder;
+    }
+
+    public static WebApplicationBuilder AddFluentValidation(this WebApplicationBuilder builder)
+    {
+        var assemblies = Assembly.GetCallingAssembly().GetReferencedAssemblies()
+            .Select(Assembly.Load)
+            .Where(a => a.FullName != null && a.FullName.StartsWith("TournamentBracket.Application"));
+        builder.Services.AddValidatorsFromAssemblies(assemblies);
         return builder;
     }
 }

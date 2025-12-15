@@ -1,5 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using TournamentBracket.Application.Common.Helpers;
 using TournamentBracket.Application.Competitors.Commands;
 using TournamentBracket.Application.Competitors.DTO;
@@ -38,13 +37,15 @@ public class CompetitorService : ICompetitorService
             CreatedAt = DateTime.UtcNow
         };
 
-        var trainersIdsSet = command.TrainersIds.ToHashSet();
+        if (command.TrainersIds != null)
+        {
+            var trainersIdsSet = command.TrainersIds.ToHashSet();
+            var competitorTrainers = await dbContext.Trainers
+                .Where(t => trainersIdsSet.Contains(t.Id))
+                .ToListAsync(cancellationToken: ct);
+            competitor.Trainers = competitorTrainers;
+        }
 
-        var competitorTrainers = await dbContext.Trainers
-            .Where(t => trainersIdsSet.Contains(t.Id))
-            .ToListAsync(cancellationToken: ct);
-
-        competitor.Trainers = competitorTrainers;
         dbContext.Competitors.Add(competitor);
         await dbContext.SaveChangesAsync(ct);
 
@@ -83,10 +84,6 @@ public class CompetitorService : ICompetitorService
         if (!competitorResult.IsSuccess)
             return competitorResult;
 
-        var trainersIdsSet = command.TrainersIds.ToHashSet();
-        var competitorTrainers = await dbContext.Trainers
-            .Where(t => trainersIdsSet.Contains(t.Id))
-            .ToListAsync(cancellationToken: ct);
 
         var competitor = competitorResult.Item!;
         competitor.FirstName = command.FirstName;
@@ -100,7 +97,14 @@ public class CompetitorService : ICompetitorService
         competitor.Subject = command.Subject;
         competitor.UpdatedAt = DateTime.UtcNow;
         competitor.Trainers.Clear();
-        competitor.Trainers = competitorTrainers;
+        if (command.TrainersIds != null)
+        {
+            var trainersIdsSet = command.TrainersIds.ToHashSet();
+            var competitorTrainers = await dbContext.Trainers
+                .Where(t => trainersIdsSet.Contains(t.Id))
+                .ToListAsync(cancellationToken: ct);
+            competitor.Trainers = competitorTrainers;
+        }
 
         await dbContext.SaveChangesAsync(ct);
         return Result.Success();
@@ -113,7 +117,7 @@ public class CompetitorService : ICompetitorService
             return competitorResult;
         dbContext.Competitors.Remove(competitorResult.Item!);
         var competitorsDeleted = await dbContext.SaveChangesAsync(ct);
-        return competitorsDeleted == 1
+        return competitorsDeleted > 0
             ? Result.Success()
             : Result.Failed("Some error while deleting");
     }
@@ -122,11 +126,18 @@ public class CompetitorService : ICompetitorService
     {
         if (!string.IsNullOrWhiteSpace(filter.FIO))
         {
-            var queryFioParts = filter.FIO.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            var anyPartRegex = $"(?i)({string.Join('|', queryFioParts)})";
-            queryable = queryable.Where(c => Regex.IsMatch(c.FirstName, anyPartRegex)
-                                             || Regex.IsMatch(c.LastName, anyPartRegex)
-                                             || (c.MiddleName != null && Regex.IsMatch(c.MiddleName, anyPartRegex)));
+            var queryFioParts = filter.FIO
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => s.ToLower())
+                .ToList();
+            if (queryFioParts.Any())
+            {
+                var anyPartRegex = $"%{string.Join("%|%", queryFioParts)}%";
+                queryable = queryable.Where(c => EF.Functions.Like(c.FirstName.ToLower(), anyPartRegex)
+                                                 || EF.Functions.Like(c.LastName.ToLower(), anyPartRegex)
+                                                 || (c.MiddleName != null &&
+                                                     EF.Functions.Like(c.MiddleName.ToLower(), anyPartRegex)));
+            }
         }
 
         return queryable;

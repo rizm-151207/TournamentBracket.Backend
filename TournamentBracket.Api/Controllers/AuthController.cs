@@ -4,8 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using TournamentBracket.Api.Extensions;
 using TournamentBracket.Application.Users;
 using TournamentBracket.Application.Users.Commands;
-using TournamentBracket.Application.Users.DTO;
 using TournamentBracket.Application.Users.Interfaces;
+using TournamentBracket.Application.Users.Responses;
+using TournamentBracket.Application.Users.Validation;
 
 namespace TournamentBracket.Api.Controllers;
 
@@ -21,8 +22,14 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("signup")]
-    public async Task<IActionResult> SignUp([FromBody] RegisterUserCommand registerUserCommand)
+    public async Task<IActionResult> SignUp(
+        [FromBody] RegisterUserCommand registerUserCommand,
+        [FromServices] RegisterUserCommandValidator commandValidator)
     {
+        var validationResult = await commandValidator.ValidateAsync(registerUserCommand);
+        if(!validationResult.IsValid)
+            return BadRequest(validationResult.Errors);
+        
         var signUpResult = await authService.Register(registerUserCommand);
 
         if (!signUpResult.IsSuccess)
@@ -31,8 +38,14 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginUserCommand loginUserCommand)
+    public async Task<IActionResult> Login(
+        [FromBody] LoginUserCommand loginUserCommand, 
+        [FromServices] LoginUserCommandValidator commandValidator)
     {
+        var validationResult = await commandValidator.ValidateAsync(loginUserCommand);
+        if(!validationResult.IsValid)
+            return BadRequest(validationResult.Errors);
+        
         var loginResult = await authService.Login(loginUserCommand);
         if (!loginResult.IsSuccess)
             return BadRequest(loginResult.Error);
@@ -76,8 +89,14 @@ public class AuthController : ControllerBase
 
     [Authorize]
     [HttpPost("refreshToken")]
-    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenCommand refreshTokenCommand)
+    public async Task<IActionResult> RefreshToken(
+        [FromBody] RefreshTokenCommand refreshTokenCommand,
+        [FromServices] RefreshTokenCommandValidator commandValidator)
     {
+        var validationResult = await commandValidator.ValidateAsync(refreshTokenCommand);
+        if(!validationResult.IsValid)
+            return BadRequest(validationResult.Errors);
+        
         var userEmail = HttpContext.User.GetClaimByType(ClaimTypes.Email);
         if (userEmail == null)
             return Unauthorized();

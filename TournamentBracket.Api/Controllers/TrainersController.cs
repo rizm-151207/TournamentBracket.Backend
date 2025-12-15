@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using TournamentBracket.Application.Common.Queries;
 using TournamentBracket.Application.Common.Responses;
+using TournamentBracket.Application.Common.Validators;
 using TournamentBracket.Application.Competitors.Commands;
 using TournamentBracket.Application.Competitors.Interfaces;
+using TournamentBracket.Application.Competitors.Validators;
 using TournamentBracket.Domain.Competitors;
 
 namespace TournamentBracket.Api.Controllers;
@@ -20,8 +22,14 @@ public class TrainersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetTrainers([FromQuery] PageQuery query)
+    public async Task<IActionResult> GetTrainers(
+        [FromQuery] PageQuery query,
+        [FromServices] PageQueryValidator queryValidator)
     {
+        var validationResult = await queryValidator.ValidateAsync(query);
+        if (!validationResult.IsValid)
+            return BadRequest(validationResult.Errors);
+
         var competitorsResult = await trainerService.GetTrainers(query);
         if (!competitorsResult.IsSuccess)
             return BadRequest(competitorsResult.Error);
@@ -35,8 +43,14 @@ public class TrainersController : ControllerBase
 
     [HttpPost]
     [Authorize(Roles = "Organizer")]
-    public async Task<IActionResult> CreateTrainer([FromBody] CreateTrainerCommand command)
+    public async Task<IActionResult> CreateTrainer(
+        [FromBody] CreateTrainerCommand command,
+        [FromServices] CreateTrainerCommandValidator commandValidator)
     {
+        var validationResult = await commandValidator.ValidateAsync(command);
+        if (!validationResult.IsValid)
+            return BadRequest(validationResult.Errors);
+
         var trainersResult = await trainerService.CreateTrainer(command);
         return trainersResult.IsSuccess
             ? Ok()
@@ -45,8 +59,14 @@ public class TrainersController : ControllerBase
 
     [HttpPatch]
     [Authorize(Roles = "Organizer")]
-    public async Task<IActionResult> UpdateTrainer([FromBody] UpdateTrainerCommand command)
+    public async Task<IActionResult> UpdateTrainer(
+        [FromBody] UpdateTrainerCommand command,
+        [FromServices] UpdateTrainerCommandValidator commandValidator)
     {
+        var validationResult = await commandValidator.ValidateAsync(command);
+        if (!validationResult.IsValid)
+            return BadRequest(validationResult.Errors);
+
         var result = await trainerService.UpdateTrainer(command);
         return result.IsSuccess
             ? Ok()

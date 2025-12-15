@@ -14,6 +14,7 @@ builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -26,7 +27,8 @@ builder.Services.Configure<JwtTokenConfiguration>(builder.Configuration.GetSecti
 builder.AddSwaggerWithJwtAuth()
     .AddIdentityUser()
     .AddJwtBearerAuth()
-    .AddTunedCors();
+    .AddTunedCors()
+    .AddFluentValidation();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();

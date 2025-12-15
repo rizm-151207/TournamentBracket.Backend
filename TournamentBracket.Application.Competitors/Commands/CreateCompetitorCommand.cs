@@ -35,5 +35,5 @@ public class CreateCompetitorCommand
     public string? Rank { get; set; }
     public string? Kyu { get; set; }
     public string Subject { get; set; }
-    public List<Guid> TrainersIds { get; set; }
+    public List<Guid>? TrainersIds { get; set; }
 }

@@ -87,8 +87,9 @@ public class TrainerService : ITrainerService
         if (!trainerResult.IsSuccess)
             return Result.Failed(trainerResult.Error!);
 
-        dbContext.Trainers.Remove(trainerResult.Item!);
-        await dbContext.SaveChangesAsync(ct);
-        return Result.Success();
+        var trainersDeleted = await dbContext.SaveChangesAsync(ct);
+        return trainersDeleted > 0
+            ? Result.Success()
+            : Result.Failed("Some error while deleting");
     }
 }
