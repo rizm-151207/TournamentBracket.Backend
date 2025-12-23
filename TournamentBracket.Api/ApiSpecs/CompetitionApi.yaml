@@ -1,0 +1,210 @@
+﻿openapi: 3.1.0
+info:
+  title: Competition api
+  description: Api for competitions
+  version: 0.0.1
+paths:
+  /api/competitions:
+    get:
+      summary: Get competitions
+      description: Get page of filtered competitions
+      tags:
+        - Competitions
+      operationId: get page of competitions
+      parameters:
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Any part of competition name
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Page of competitions list
+        - name: count
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Max count of competitions
+      responses:
+        "200":
+          description: Page of filtered competitions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/competitionsPageResponse'
+        "400":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: './Common.yaml#/components/schemas/error'
+    post:
+      summary: Create new competition
+      description: Create new competition
+      tags:
+        - Competition
+      operationId: createCompetition
+      security:
+        - BearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createCompetitionCommand'
+      responses:
+        "204":
+          description: OK
+        "401":
+          description: Unauthorized or access token expired
+        "400":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: './Common.yaml#/components/schemas/error'
+    patch:
+      summary: Update competition info
+      description: Update competition info by id
+      tags:
+        - Competitions
+      operationId: updateCompetition
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/updateCompetitionCommand'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/competition'
+        "401":
+          description: Unauthorized or access token expired
+        "404":
+          description: Competition not found by Id
+        '400':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: './Common.yaml#/components/schemas/error'
+  /api/competitions/{id}:
+    get:
+      summary: Get competition info
+      description: Get competition info by id
+      tags:
+        - Competitions
+      operationId: getCompetitionsInfo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/competition'
+        "404":
+          description: Competition not found by Id
+        '400':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: './Common.yaml#/components/schemas/error'
+    delete:
+      summary: Delete competition
+      description: Delete competition by id
+      tags:
+        - Competitions
+      operationId: deleteCompetition
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        "401":
+          description: Unauthorized or access token expired
+        "404":
+          description: Competition not found by Id
+        '400':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: './Common.yaml#/components/schemas/error'
+components:
+  schemas:
+    competitionsPageResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/competitionShort'
+        allCount:
+          type: integer
+    createCompetitionCommand:
+      allOf:
+        - $ref: '#/components/schemas/competition'
+        - trainersIds:
+            type: array
+            items:
+              type: string
+    updateCompetitionCommand:
+      allOf:
+        - $ref: '#/components/schemas/competition'
+        - trainersIds:
+            type: array
+            items:
+              type: string
+    competition:
+      allOf:
+        - $ref: '#/components/schemas/competitionShort'
+        - competitors:
+          type: array
+          items:
+            type: object
+            $ref: './CompetitorApi.yaml#/components/schemas/competitor'
+    competitionShort:
+      allOf:
+        - $ref: '#/components/schemas/competitionCommon'
+        - id:
+            type: string
+    competitionCommon:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        dateTimeOfStart:
+          type: string
+          format: date-time
