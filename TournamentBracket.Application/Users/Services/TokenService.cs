@@ -8,7 +8,6 @@ using Microsoft.IdentityModel.Tokens;
 using TournamentBracket.Application.Users.DTO;
 using TournamentBracket.Application.Users.Interfaces;
 using TournamentBracket.Domain.Users;
-using Newtonsoft.Json;
 
 namespace TournamentBracket.Application.Users.Services;
 

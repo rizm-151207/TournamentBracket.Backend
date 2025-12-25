@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Folder Include="Common\" />
+      <Folder Include="Competitors\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FluentValidation" Version="10.1.0" />
+      <PackageReference Include="FluentValidation.AspNetCore" Version="10.0.0" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+      <PackageReference Include="Pankraty.FluentValidation.HttpExtensions" Version="0.2.0" />
+      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.15.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\TournamentBracket.Domain\TournamentBracket.Domain.csproj" />
+      <ProjectReference Include="..\TournamentBracket.Infrastructure\TournamentBracket.Infrastructure.csproj" />
+    </ItemGroup>
+
+</Project>

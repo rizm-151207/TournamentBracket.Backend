@@ -24,8 +24,7 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        var assembly = Assembly.Load("TournamentBracket.Infrastructure.Models");
-        builder.ApplyConfigurationsFromAssembly(assembly);
+        builder.ApplyConfigurationsFromAssembly(Assembly.GetCallingAssembly());
         AddDefaultRoles(builder);
     }
 
