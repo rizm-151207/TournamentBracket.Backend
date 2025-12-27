@@ -62,6 +62,17 @@ public class CompetitorService : ICompetitorService
         return Result<IReadOnlyCollection<Competitor>>.Success(competitors);
     }
 
+    public async Task<Result<IReadOnlyCollection<Competitor>>> GetCompetitorsById(
+        IReadOnlyCollection<Guid> competitorsIds,
+        CancellationToken ct = default)
+    {
+        var competitors = await dbContext.Competitors
+            .Where(c => competitorsIds.Contains(c.Id))
+            .ToListAsync(ct);
+        
+        return Result<IReadOnlyCollection<Competitor>>.Success(competitors);
+    }
+
     public async Task<Result<int>> GetCount(CompetitorsFilter filter, CancellationToken ct = default)
     {
         var queryable = AddFilterToQueryable(dbContext.Competitors.AsQueryable(), filter);

@@ -1,4 +1,5 @@
-﻿using TournamentBracket.Domain.Share.Abstractions;
+﻿using TournamentBracket.Domain.Competitions;
+using TournamentBracket.Domain.Share.Abstractions;
 
 namespace TournamentBracket.Domain.Competitors;
 
@@ -14,7 +15,8 @@ public class Competitor : IEntity<Guid>
     public string? Rank { get; set; }
     public string? Kyu { get; set; }
     public string Subject { get; set; }
-    public List<Trainer> Trainers { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+    public List<Trainer> Trainers { get; set; }
+    public List<Competition> Competitions { get; set; }
 }

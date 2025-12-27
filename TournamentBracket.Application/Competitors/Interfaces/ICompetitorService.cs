@@ -10,6 +10,7 @@ public interface ICompetitorService
 {
     public Task<Result> CreateCompetitor(CreateCompetitorCommand command, CancellationToken ct = default); 
     public Task<Result<IReadOnlyCollection<Competitor>>> GetCompetitors(CompetitorsPageQuery query, CancellationToken ct = default);
+    public Task<Result<IReadOnlyCollection<Competitor>>> GetCompetitorsById(IReadOnlyCollection<Guid> competitorsIds, CancellationToken ct = default);
     public Task<Result<int>> GetCount(CompetitorsFilter filter, CancellationToken ct = default); 
     public Task<Result<Competitor>> GetCompetitor(Guid id, CancellationToken ct = default);
     public Task<Result> UpdateCompetitor(UpdateCompetitorCommand command, CancellationToken ct = default);

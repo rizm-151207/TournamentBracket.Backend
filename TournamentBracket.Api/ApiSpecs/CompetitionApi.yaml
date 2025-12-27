@@ -173,14 +173,14 @@ components:
           type: integer
     createCompetitionCommand:
       allOf:
-        - $ref: '#/components/schemas/competition'
-        - trainersIds:
+        - $ref: '#/components/schemas/competitionCommon'
+        - competitorsIds:
             type: array
             items:
               type: string
     updateCompetitionCommand:
       allOf:
-        - $ref: '#/components/schemas/competition'
+        - $ref: '#/components/schemas/competitionShort'
         - trainersIds:
             type: array
             items:
@@ -198,6 +198,8 @@ components:
         - $ref: '#/components/schemas/competitionCommon'
         - id:
             type: string
+        - status:
+            type: string
     competitionCommon:
       type: object
       properties:
@@ -208,5 +210,3 @@ components:
         startDateTime:
           type: string
           format: date-time
-        status:
-          type: string

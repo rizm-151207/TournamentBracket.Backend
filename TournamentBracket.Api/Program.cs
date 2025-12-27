@@ -1,6 +1,9 @@
+using System.Reflection;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using TournamentBracket.Api.Extensions;
+using TournamentBracket.Application.Competitions.Interfaces;
+using TournamentBracket.Application.Competitions.Services;
 using TournamentBracket.Application.Competitors.Interfaces;
 using TournamentBracket.Application.Competitors.Services;
 using TournamentBracket.Application.Users.DTO;
@@ -19,7 +22,8 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), 
+        b => b.MigrationsAssembly("TournamentBracket.Api"));
 });
 
 builder.Services.Configure<JwtTokenConfiguration>(builder.Configuration.GetSection("Jwt"));
@@ -34,6 +38,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ICompetitorService, CompetitorService>();
 builder.Services.AddScoped<ITrainerService, TrainerService>();
+builder.Services.AddScoped<ICompetitionsService, CompetitionsService>();
 
 
 var app = builder.Build();
