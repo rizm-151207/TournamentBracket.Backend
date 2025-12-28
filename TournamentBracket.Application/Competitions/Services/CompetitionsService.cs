@@ -51,7 +51,20 @@ public class CompetitionsService : ICompetitionsService
         CancellationToken ct = default)
     {
         var competitionsQueryable = ApplyFilter(dbContext.Competitions.AsQueryable(), query.CreateFilter());
-        var competitions = await competitionsQueryable.SelectPage(query).ToListAsync(ct);
+        var competitions = await competitionsQueryable
+            .SelectPage(query)
+            .Include(e => e.Competitors)
+            .ToListAsync(ct);
+        return Result<IReadOnlyCollection<Competition>>.Success(competitions);
+    }
+
+    public async Task<Result<IReadOnlyCollection<Competition>>> GetCompetitionsShorts(CompetitionsPageQuery query,
+        CancellationToken ct = default)
+    {
+        var competitionsQueryable = ApplyFilter(dbContext.Competitions.AsQueryable(), query.CreateFilter());
+        var competitions = await competitionsQueryable
+            .SelectPage(query)
+            .ToListAsync(ct);
         return Result<IReadOnlyCollection<Competition>>.Success(competitions);
     }
 
@@ -63,7 +76,9 @@ public class CompetitionsService : ICompetitionsService
 
     public async Task<Result<Competition>> GetCompetition(Guid id, CancellationToken ct = default)
     {
-        var competition = await dbContext.Competitions.FindAsync([id], cancellationToken: ct);
+        var competition = await dbContext.Competitions
+            .Include(e => e.Competitors)
+            .FirstOrDefaultAsync(e => e.Id == id, cancellationToken: ct);
         return competition == null
             ? Result<Competition>.FailedWith(new Error("Not found", 404))
             : Result<Competition>.Success(competition);
@@ -81,7 +96,7 @@ public class CompetitionsService : ICompetitionsService
         competition.StartDateTime = command.StartDateTime;
         competition.Status = command.Status;
         competition.UpdatedAt = DateTime.UtcNow;
-        competition.Competitors.Clear();
+        competition.Competitors?.Clear();
         if (command.CompetitorsIds != null)
         {
             var competitorsResult = await competitorService.GetCompetitorsById(command.CompetitorsIds, ct);

@@ -4,6 +4,7 @@ using TournamentBracket.Application.Common.Responses;
 using TournamentBracket.Application.Competitions.Commands;
 using TournamentBracket.Application.Competitions.Interfaces;
 using TournamentBracket.Application.Competitions.Queries;
+using TournamentBracket.Application.Competitions.Validators;
 using TournamentBracket.Domain.Competitions;
 
 namespace TournamentBracket.Api.Controllers;
@@ -20,9 +21,15 @@ public class CompetitionsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetCompetitions([FromQuery] CompetitionsPageQuery query)
+    public async Task<IActionResult> GetCompetitions(
+        [FromQuery] CompetitionsPageQuery query,
+        [FromServices] CompetitionsPageQueryValidator validator)
     {
-        var findResult = await competitionsService.GetCompetitions(query);
+        var validationResult = await validator.ValidateAsync(query);
+        if(!validationResult.IsValid)
+            return BadRequest(validationResult.Errors);
+        
+        var findResult = await competitionsService.GetCompetitionsShorts(query);
         if (!findResult.IsSuccess)
             return BadRequest(findResult);
 
@@ -35,8 +42,13 @@ public class CompetitionsController : ControllerBase
     [HttpPost]
     [Authorize(Roles = "Organizer")]
     public async Task<IActionResult> CreateCompetition(
-        [FromBody] CreateCompetitionCommand command)
+        [FromBody] CreateCompetitionCommand command,
+        [FromServices] CreateCompetitionCommandValidator validator)
     {
+        var validationResult = await validator.ValidateAsync(command);
+        if(!validationResult.IsValid)
+            return BadRequest(validationResult.Errors);
+        
         var creationResult = await competitionsService.CreateCompetition(command);
         return creationResult.IsSuccess ? Created() : BadRequest(creationResult.Error);
     }
@@ -44,8 +56,13 @@ public class CompetitionsController : ControllerBase
     [HttpPatch]
     [Authorize(Roles = "Organizer")]
     public async Task<IActionResult> UpdateCompetition(
-        [FromBody] UpdateCompetitionCommand command)
+        [FromBody] UpdateCompetitionCommand command,
+        [FromServices] UpdateCompetitionCommandValidator validator)
     {
+        var validationResult = await validator.ValidateAsync(command);
+        if(!validationResult.IsValid)
+            return BadRequest(validationResult.Errors);
+        
         var updateResult = await competitionsService.UpdateCompetition(command);
         return updateResult.IsSuccess
             ? Ok()

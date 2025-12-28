@@ -66,11 +66,22 @@ public class CompetitorService : ICompetitorService
         IReadOnlyCollection<Guid> competitorsIds,
         CancellationToken ct = default)
     {
+        var distinctCompetitorsIds = competitorsIds.ToHashSet();
         var competitors = await dbContext.Competitors
-            .Where(c => competitorsIds.Contains(c.Id))
+            .Where(c => distinctCompetitorsIds.Contains(c.Id))
             .ToListAsync(ct);
         
-        return Result<IReadOnlyCollection<Competitor>>.Success(competitors);
+        return competitors.Count == distinctCompetitorsIds.Count 
+            ? Result<IReadOnlyCollection<Competitor>>.Success(competitors)
+            : Result<IReadOnlyCollection<Competitor>>.FailedWith(new Error(GetNotFoundCompetitorsIdsMessage(), 404));
+
+        string GetNotFoundCompetitorsIdsMessage()
+        {
+            var notFoundCompetitors = competitors
+                .Select(c => c.Id)
+                .Except(distinctCompetitorsIds);
+            return $"Competitors not found: {string.Join(", ", notFoundCompetitors)}";
+        }
     }
 
     public async Task<Result<int>> GetCount(CompetitorsFilter filter, CancellationToken ct = default)

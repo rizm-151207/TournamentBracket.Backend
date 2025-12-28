@@ -12,5 +12,5 @@ public class Competition : IEntity<Guid>
     public string Description { get; set; }
     public DateTime StartDateTime { get; set; }
     public CompetitionStatus Status { get; set; }
-    public List<Competitor> Competitors { get; set; }
+    public List<Competitor>? Competitors { get; set; }
 }

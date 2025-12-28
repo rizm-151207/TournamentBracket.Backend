@@ -49,7 +49,7 @@ public class CreateCompetitorCommandValidator : AbstractValidator<CreateCompetit
                 .AsNotFound());
     }
 
-    protected async Task<bool> TrainerExist(ITrainerService trainerService, Guid trainerId, CancellationToken ct)
+    private async Task<bool> TrainerExist(ITrainerService trainerService, Guid trainerId, CancellationToken ct)
     {
         return (await trainerService.GetTrainer(trainerId, ct)).IsSuccess;
     }

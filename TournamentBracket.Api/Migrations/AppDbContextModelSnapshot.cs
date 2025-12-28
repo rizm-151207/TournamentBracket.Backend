@@ -81,21 +81,21 @@ namespace TournamentBracket.Api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("ab35c188-74ad-45f2-a5a7-622c70a258a5"),
+                            Id = new Guid("8dc0a8b1-8c17-4c05-81e5-666929d51d9d"),
                             ConcurrencyStamp = "1",
                             Name = "SuperAdmin",
                             NormalizedName = "SUPERADMIN"
                         },
                         new
                         {
-                            Id = new Guid("a4b76ce4-a052-4da1-889c-e4299da37465"),
+                            Id = new Guid("86cb690d-5a9f-4bf0-b210-38926b9a4f96"),
                             ConcurrencyStamp = "2",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         },
                         new
                         {
-                            Id = new Guid("4ad8cc44-c4be-4c48-852a-a0d85a9a69eb"),
+                            Id = new Guid("99bfc245-e1bc-49c4-a41d-fb75028e6299"),
                             ConcurrencyStamp = "3",
                             Name = "Organizer",
                             NormalizedName = "ORGANIZER"
