@@ -12,7 +12,7 @@ namespace TournamentBracket.Api.Controllers;
 
 [ApiController]
 [Route("api/trainers")]
-public class TrainersController : ControllerBase
+public class TrainersController : ExtendedControllerBase
 {
     private readonly ITrainerService trainerService;
 
@@ -52,9 +52,7 @@ public class TrainersController : ControllerBase
             return BadRequest(validationResult.Errors);
 
         var trainersResult = await trainerService.CreateTrainer(command);
-        return trainersResult.IsSuccess
-            ? Ok()
-            : BadRequest(trainersResult.Error);
+        return ToActionResult(trainersResult, 204);
     }
 
     [HttpPatch]
@@ -68,22 +66,14 @@ public class TrainersController : ControllerBase
             return BadRequest(validationResult.Errors);
 
         var result = await trainerService.UpdateTrainer(command);
-        return result.IsSuccess
-            ? Ok()
-            : result.Error?.Code == 404
-                ? NotFound(result.Error)
-                : BadRequest(result.Error);
+        return ToActionResult(result);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetTrainerById([FromRoute] Guid id)
     {
         var result = await trainerService.GetTrainer(id);
-        return result.IsSuccess
-            ? Ok(result.Item)
-            : result.Error?.Code == 404
-                ? NotFound(result.Error)
-                : BadRequest(result.Error);
+        return ToActionResult(result);
     }
 
     [HttpDelete("{id}")]
@@ -91,10 +81,6 @@ public class TrainersController : ControllerBase
     public async Task<IActionResult> DeleteTrainer([FromRoute] Guid id)
     {
         var result = await trainerService.DeleteTrainer(id);
-        return result.IsSuccess
-            ? Ok()
-            : result.Error?.Code == 404
-                ? NotFound(result.Error)
-                : BadRequest(result.Error);
+        return ToActionResult(result);
     }
 }

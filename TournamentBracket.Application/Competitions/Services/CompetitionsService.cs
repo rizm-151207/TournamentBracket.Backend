@@ -5,6 +5,7 @@ using TournamentBracket.Application.Competitions.DTO;
 using TournamentBracket.Application.Competitions.Interfaces;
 using TournamentBracket.Application.Competitions.Queries;
 using TournamentBracket.Application.Competitors.Interfaces;
+using TournamentBracket.Application.Divisions.Interfaces;
 using TournamentBracket.Domain.Competitions;
 using TournamentBracket.Infrastructure.Common;
 using TournamentBracket.Infrastructure.Common.Results;
@@ -15,11 +16,15 @@ public class CompetitionsService : ICompetitionsService
 {
     private readonly AppDbContext dbContext;
     private readonly ICompetitorService competitorService;
+    private readonly IDivisionsService divisionsService;
 
-    public CompetitionsService(AppDbContext dbContext, ICompetitorService competitorService)
+    public CompetitionsService(AppDbContext dbContext, 
+        ICompetitorService competitorService,
+        IDivisionsService divisionsService)
     {
         this.dbContext = dbContext;
         this.competitorService = competitorService;
+        this.divisionsService = divisionsService;
     }
 
     public async Task<Result> CreateCompetition(CreateCompetitionCommand command, CancellationToken ct = default)
@@ -33,14 +38,6 @@ public class CompetitionsService : ICompetitionsService
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
-
-        if (command.CompetitorsIds != null)
-        {
-            var competitorsResult = await competitorService.GetCompetitorsById(command.CompetitorsIds, ct);
-            if (!competitorsResult.IsSuccess)
-                return competitorsResult;
-            competition.Competitors = competitorsResult.Item!.ToList();
-        }
 
         dbContext.Competitions.Add(competition);
         await dbContext.SaveChangesAsync(ct);
@@ -97,13 +94,6 @@ public class CompetitionsService : ICompetitionsService
         competition.Status = command.Status;
         competition.UpdatedAt = DateTime.UtcNow;
         competition.Competitors?.Clear();
-        if (command.CompetitorsIds != null)
-        {
-            var competitorsResult = await competitorService.GetCompetitorsById(command.CompetitorsIds, ct);
-            if (!competitorsResult.IsSuccess)
-                return competitorsResult;
-            competition.Competitors = competitorsResult.Item!.ToList();
-        }
 
         await dbContext.SaveChangesAsync(ct);
         return Result.Success();
@@ -119,6 +109,81 @@ public class CompetitionsService : ICompetitionsService
         return competitionsDeleted > 0
             ? Result.Success()
             : Result.Failed("Some error while deleting");
+    }
+
+    public async Task<Result> AddCompetitor(Guid competitionId, AddCompetitorCommand command, CancellationToken ct = default)
+    {
+        var competitionResult = await GetCompetition(competitionId, ct);
+        if (!competitionResult.IsSuccess)
+            return competitionResult;
+        var competition = competitionResult.Item!;
+        
+        var competitorResult = await competitorService.GetCompetitor(command.CompetitorId, ct);
+        if (!competitorResult.IsSuccess)
+            return competitorResult;
+        var competitor = competitorResult.Item!;
+
+        if (competition.Competitors?.Contains(competitor) ?? false)
+            return Result.Failed($"Competitor {competitor.Id} already added in competition {competition.Id}");
+
+        var suitableDivisionResult = await divisionsService.GetSuitableDivision(competitionId, competitor, ct);
+        if (!suitableDivisionResult.IsSuccess)
+            return suitableDivisionResult;
+
+        var suitableDivision = suitableDivisionResult.Item;
+        if (suitableDivision is null)
+        {
+            var defaultSuitableDivisionResult = await divisionsService.ConstructSuitableDivision(competitionId, competitor, ct);
+            if (!defaultSuitableDivisionResult.IsSuccess)
+                return defaultSuitableDivisionResult;
+            suitableDivision = defaultSuitableDivisionResult.Item!;
+        }
+
+        var successAddCompetitor = suitableDivision.TryAddCompetitor(competitor);
+        if(!successAddCompetitor)
+            return Result.Failed($"Some error while adding competitor {competitor.Id}");
+        var successAddDivision = competition.TryAddDivision(suitableDivision);
+        if (!successAddDivision)
+            return Result.Failed($"Some error while adding division to competition {competitionId}");
+        
+        dbContext.Divisions.Add(suitableDivision);
+        await dbContext.SaveChangesAsync(ct);
+        
+        return Result.Success();
+    }
+
+    public async Task<Result> RemoveCompetitor(Guid competitionId, RemoveCompetitorCommand command, CancellationToken ct = default)
+    {
+        var competitionResult = await GetCompetition(competitionId, ct);
+        if (!competitionResult.IsSuccess)
+            return competitionResult;
+        var competition = competitionResult.Item!;
+        
+        var competitorResult = await competitorService.GetCompetitor(command.CompetitorId, ct);
+        if (!competitorResult.IsSuccess)
+            return competitorResult;
+        var competitor = competitorResult.Item!;
+
+        var divisionsResult = await divisionsService.GetDivisionByCompetitionId(competitionId, ct);
+        if (!divisionsResult.IsSuccess)
+            return divisionsResult;
+        var divisions = divisionsResult.Item!;
+        
+        var division = divisions.FirstOrDefault(d => d.Competitors.Contains(competitor));
+        if(division is null)
+            return Result.Failed($"Competition {competition.Id} does not contains division with competitor {competitor.Id}");
+        
+        var successRemoveFromDivision= division.TryRemoveCompetitor(competitor);
+        if (!successRemoveFromDivision)
+            return Result.Failed($"Some error while removing from division {competitor.Id}");
+
+        if (division.Competitors.Count == 0)
+        {
+            dbContext.Divisions.Remove(division);
+        }
+        
+        await dbContext.SaveChangesAsync(ct);
+        return Result.Success();
     }
 
     private IQueryable<Competition> ApplyFilter(IQueryable<Competition> queryable, CompetitionsFilter filter)

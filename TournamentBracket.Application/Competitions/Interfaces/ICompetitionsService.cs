@@ -15,4 +15,6 @@ public interface ICompetitionsService
     public Task<Result<Competition>> GetCompetition(Guid id, CancellationToken ct = default);
     public Task<Result> UpdateCompetition(UpdateCompetitionCommand command, CancellationToken ct = default);
     public Task<Result> DeleteCompetition(Guid id, CancellationToken ct = default);
+    public Task<Result> AddCompetitor(Guid competitionId, AddCompetitorCommand command, CancellationToken ct = default);
+    public Task<Result> RemoveCompetitor(Guid competitionId, RemoveCompetitorCommand command, CancellationToken ct = default);
 }

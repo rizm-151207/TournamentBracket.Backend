@@ -2,16 +2,14 @@
 using FluentValidation.HttpExtensions;
 using TournamentBracket.Application.Competitions.Commands;
 using TournamentBracket.Application.Competitions.Interfaces;
-using TournamentBracket.Application.Competitors.Interfaces;
 
 namespace TournamentBracket.Application.Competitions.Validators;
 
 public class UpdateCompetitionCommandValidator : AbstractValidator<UpdateCompetitionCommand>
 {
-    public UpdateCompetitionCommandValidator(ICompetitorService competitorService,
-        ICompetitionsService competitionsService)
+    public UpdateCompetitionCommandValidator(ICompetitionsService competitionsService)
     {
-        Include(new CreateCompetitionCommandValidator(competitorService));
+        Include(new CreateCompetitionCommandValidator());
         RuleFor(command => command.Id)
             .NotEmpty()
             .Must(g => Guid.TryParse(g.ToString(), out _))

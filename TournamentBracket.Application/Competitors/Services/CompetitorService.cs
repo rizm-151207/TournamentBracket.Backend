@@ -106,7 +106,6 @@ public class CompetitorService : ICompetitorService
         if (!competitorResult.IsSuccess)
             return competitorResult;
 
-
         var competitor = competitorResult.Item!;
         competitor.FirstName = command.FirstName;
         competitor.LastName = command.LastName;

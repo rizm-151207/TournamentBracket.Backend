@@ -1,4 +1,3 @@
-using System.Reflection;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using TournamentBracket.Api.Extensions;
@@ -6,9 +5,12 @@ using TournamentBracket.Application.Competitions.Interfaces;
 using TournamentBracket.Application.Competitions.Services;
 using TournamentBracket.Application.Competitors.Interfaces;
 using TournamentBracket.Application.Competitors.Services;
+using TournamentBracket.Application.Divisions.Interfaces;
+using TournamentBracket.Application.Divisions.Services;
 using TournamentBracket.Application.Users.DTO;
 using TournamentBracket.Application.Users.Interfaces;
 using TournamentBracket.Application.Users.Services;
+using TournamentBracket.Domain.Divisions;
 using TournamentBracket.Infrastructure.Common;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,6 +41,8 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ICompetitorService, CompetitorService>();
 builder.Services.AddScoped<ITrainerService, TrainerService>();
 builder.Services.AddScoped<ICompetitionsService, CompetitionsService>();
+builder.Services.AddScoped<IDivisionsService, DivisionsService>();
+builder.Services.AddScoped<DivisionsFactory>();
 
 
 var app = builder.Build();

@@ -172,19 +172,9 @@ components:
         allCount:
           type: integer
     createCompetitionCommand:
-      allOf:
-        - $ref: '#/components/schemas/competitionCommon'
-        - competitorsIds:
-            type: array
-            items:
-              type: string
+      $ref: '#/components/schemas/competitionCommon'
     updateCompetitionCommand:
-      allOf:
-        - $ref: '#/components/schemas/competitionShort'
-        - trainersIds:
-            type: array
-            items:
-              type: string
+      $ref: '#/components/schemas/competitionShort'
     competition:
       allOf:
         - $ref: '#/components/schemas/competitionShort'

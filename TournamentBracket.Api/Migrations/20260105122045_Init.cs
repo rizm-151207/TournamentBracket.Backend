@@ -9,7 +9,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TournamentBracket.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class InitMigration : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -221,6 +221,32 @@ namespace TournamentBracket.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Divisions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CompetitionId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    MinAge = table.Column<int>(type: "integer", nullable: true),
+                    MaxAge = table.Column<int>(type: "integer", nullable: true),
+                    MinWeight = table.Column<float>(type: "real", nullable: true),
+                    MaxWeight = table.Column<float>(type: "real", nullable: true),
+                    Gender = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Divisions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Divisions_Competitions_CompetitionId",
+                        column: x => x.CompetitionId,
+                        principalTable: "Competitions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CompetitionCompetitor",
                 columns: table => new
                 {
@@ -268,14 +294,38 @@ namespace TournamentBracket.Api.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "CompetitorDivision",
+                columns: table => new
+                {
+                    CompetitorsId = table.Column<Guid>(type: "uuid", nullable: false),
+                    DivisionsId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CompetitorDivision", x => new { x.CompetitorsId, x.DivisionsId });
+                    table.ForeignKey(
+                        name: "FK_CompetitorDivision_Competitors_CompetitorsId",
+                        column: x => x.CompetitorsId,
+                        principalTable: "Competitors",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CompetitorDivision_Divisions_DivisionsId",
+                        column: x => x.DivisionsId,
+                        principalTable: "Divisions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { new Guid("4ad8cc44-c4be-4c48-852a-a0d85a9a69eb"), "3", "Organizer", "ORGANIZER" },
-                    { new Guid("a4b76ce4-a052-4da1-889c-e4299da37465"), "2", "Administrator", "ADMINISTRATOR" },
-                    { new Guid("ab35c188-74ad-45f2-a5a7-622c70a258a5"), "1", "SuperAdmin", "SUPERADMIN" }
+                    { new Guid("10a1a059-bbea-42a3-a2e2-c7f4c248eb11"), "3", "Organizer", "ORGANIZER" },
+                    { new Guid("32018d01-edf4-4035-8921-c8cba937ef60"), "2", "Administrator", "ADMINISTRATOR" },
+                    { new Guid("c44c02b2-6f22-4c39-8115-dac5072285dd"), "1", "SuperAdmin", "SUPERADMIN" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -321,9 +371,19 @@ namespace TournamentBracket.Api.Migrations
                 column: "CompetitorsId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CompetitorDivision_DivisionsId",
+                table: "CompetitorDivision",
+                column: "DivisionsId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CompetitorTrainer_TrainersId",
                 table: "CompetitorTrainer",
                 column: "TrainersId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Divisions_CompetitionId",
+                table: "Divisions",
+                column: "CompetitionId");
         }
 
         /// <inheritdoc />
@@ -348,6 +408,9 @@ namespace TournamentBracket.Api.Migrations
                 name: "CompetitionCompetitor");
 
             migrationBuilder.DropTable(
+                name: "CompetitorDivision");
+
+            migrationBuilder.DropTable(
                 name: "CompetitorTrainer");
 
             migrationBuilder.DropTable(
@@ -357,13 +420,16 @@ namespace TournamentBracket.Api.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "Competitions");
+                name: "Divisions");
 
             migrationBuilder.DropTable(
                 name: "Competitors");
 
             migrationBuilder.DropTable(
                 name: "Trainers");
+
+            migrationBuilder.DropTable(
+                name: "Competitions");
         }
     }
 }

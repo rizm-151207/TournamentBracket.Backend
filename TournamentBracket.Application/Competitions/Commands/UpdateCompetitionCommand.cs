@@ -9,9 +9,8 @@ public class UpdateCompetitionCommand : CreateCompetitionCommand
         string name,
         string description,
         DateTime startDateTime,
-        List<Guid>? competitorsIds,
         CompetitionStatus status)
-        : base(name, description, startDateTime, competitorsIds)
+        : base(name, description, startDateTime)
     {
         Id = id;
         Status = status;

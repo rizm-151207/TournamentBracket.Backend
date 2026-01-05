@@ -11,7 +11,7 @@ namespace TournamentBracket.Api.Controllers;
 
 [ApiController]
 [Route("api/competitors")]
-public class CompetitorsController : ControllerBase
+public class CompetitorsController : ExtendedControllerBase
 {
     private readonly ICompetitorService competitorService;
 
@@ -51,7 +51,7 @@ public class CompetitorsController : ControllerBase
             return BadRequest(validationResult.Errors);
         
         var creationResult = await competitorService.CreateCompetitor(command);
-        return creationResult.IsSuccess ? Created() : BadRequest(creationResult.Error);
+        return ToActionResult(creationResult, 204);
     }
 
     [HttpPatch]
@@ -65,22 +65,14 @@ public class CompetitorsController : ControllerBase
             return BadRequest(validationResult.Errors);
         
         var updateResult = await competitorService.UpdateCompetitor(command);
-        return updateResult.IsSuccess
-            ? Ok()
-            : updateResult.Error?.Code == 404
-                ? NotFound(updateResult.Error)
-                : BadRequest(updateResult.Error);
+        return ToActionResult(updateResult);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetCompetitorById([FromRoute] Guid id)
     {
         var result = await competitorService.GetCompetitor(id);
-        return result.IsSuccess
-            ? Ok(result.Item)
-            : result.Error?.Code == 404
-                ? NotFound(result.Error)
-                : BadRequest(result.Error);
+        return ToActionResult(result);
     }
 
     [HttpDelete("{id}")]
@@ -88,10 +80,6 @@ public class CompetitorsController : ControllerBase
     public async Task<IActionResult> DeleteCompetitor([FromRoute] Guid id)
     {
         var result = await competitorService.DeleteCompetitor(id);
-        return result.IsSuccess
-            ? Ok()
-            : result.Error?.Code == 404
-                ? NotFound(result.Error)
-                : BadRequest(result.Error);
+        return ToActionResult(result);
     }
 }

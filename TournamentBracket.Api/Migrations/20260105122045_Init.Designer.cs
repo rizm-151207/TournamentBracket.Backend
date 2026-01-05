@@ -12,8 +12,8 @@ using TournamentBracket.Infrastructure.Common;
 namespace TournamentBracket.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251227123823_InitMigration")]
-    partial class InitMigration
+    [Migration("20260105122045_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -38,6 +38,21 @@ namespace TournamentBracket.Api.Migrations
                     b.HasIndex("CompetitorsId");
 
                     b.ToTable("CompetitionCompetitor");
+                });
+
+            modelBuilder.Entity("CompetitorDivision", b =>
+                {
+                    b.Property<Guid>("CompetitorsId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("DivisionsId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("CompetitorsId", "DivisionsId");
+
+                    b.HasIndex("DivisionsId");
+
+                    b.ToTable("CompetitorDivision");
                 });
 
             modelBuilder.Entity("CompetitorTrainer", b =>
@@ -84,21 +99,21 @@ namespace TournamentBracket.Api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("ab35c188-74ad-45f2-a5a7-622c70a258a5"),
+                            Id = new Guid("c44c02b2-6f22-4c39-8115-dac5072285dd"),
                             ConcurrencyStamp = "1",
                             Name = "SuperAdmin",
                             NormalizedName = "SUPERADMIN"
                         },
                         new
                         {
-                            Id = new Guid("a4b76ce4-a052-4da1-889c-e4299da37465"),
+                            Id = new Guid("32018d01-edf4-4035-8921-c8cba937ef60"),
                             ConcurrencyStamp = "2",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         },
                         new
                         {
-                            Id = new Guid("4ad8cc44-c4be-4c48-852a-a0d85a9a69eb"),
+                            Id = new Guid("10a1a059-bbea-42a3-a2e2-c7f4c248eb11"),
                             ConcurrencyStamp = "3",
                             Name = "Organizer",
                             NormalizedName = "ORGANIZER"
@@ -320,6 +335,47 @@ namespace TournamentBracket.Api.Migrations
                     b.ToTable("Trainers");
                 });
 
+            modelBuilder.Entity("TournamentBracket.Domain.Divisions.Division", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CompetitionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("Gender")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("MaxAge")
+                        .HasColumnType("integer");
+
+                    b.Property<float?>("MaxWeight")
+                        .HasColumnType("real");
+
+                    b.Property<int?>("MinAge")
+                        .HasColumnType("integer");
+
+                    b.Property<float?>("MinWeight")
+                        .HasColumnType("real");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompetitionId");
+
+                    b.ToTable("Divisions");
+                });
+
             modelBuilder.Entity("TournamentBracket.Domain.Users.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -412,6 +468,21 @@ namespace TournamentBracket.Api.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("CompetitorDivision", b =>
+                {
+                    b.HasOne("TournamentBracket.Domain.Competitors.Competitor", null)
+                        .WithMany()
+                        .HasForeignKey("CompetitorsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TournamentBracket.Domain.Divisions.Division", null)
+                        .WithMany()
+                        .HasForeignKey("DivisionsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("CompetitorTrainer", b =>
                 {
                     b.HasOne("TournamentBracket.Domain.Competitors.Competitor", null)
@@ -476,6 +547,22 @@ namespace TournamentBracket.Api.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("TournamentBracket.Domain.Divisions.Division", b =>
+                {
+                    b.HasOne("TournamentBracket.Domain.Competitions.Competition", "Competition")
+                        .WithMany("Divisions")
+                        .HasForeignKey("CompetitionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Competition");
+                });
+
+            modelBuilder.Entity("TournamentBracket.Domain.Competitions.Competition", b =>
+                {
+                    b.Navigation("Divisions");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,4 +1,5 @@
 ﻿using TournamentBracket.Domain.Competitors;
+using TournamentBracket.Domain.Divisions;
 using TournamentBracket.Domain.Share.Abstractions;
 
 namespace TournamentBracket.Domain.Competitions;
@@ -13,4 +14,13 @@ public class Competition : IEntity<Guid>
     public DateTime StartDateTime { get; set; }
     public CompetitionStatus Status { get; set; }
     public List<Competitor>? Competitors { get; set; }
+    
+    //links
+    public List<Division>? Divisions { get; set; }
+
+    public bool TryAddDivision(Division division)
+    {
+        division.CompetitionId = Id;
+        return true;
+    }
 }

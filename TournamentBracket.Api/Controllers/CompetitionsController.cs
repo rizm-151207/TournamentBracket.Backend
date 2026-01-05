@@ -11,7 +11,7 @@ namespace TournamentBracket.Api.Controllers;
 
 [ApiController]
 [Route("api/competitions")]
-public class CompetitionsController : ControllerBase
+public class CompetitionsController : ExtendedControllerBase
 {
     private readonly ICompetitionsService competitionsService;
 
@@ -26,9 +26,9 @@ public class CompetitionsController : ControllerBase
         [FromServices] CompetitionsPageQueryValidator validator)
     {
         var validationResult = await validator.ValidateAsync(query);
-        if(!validationResult.IsValid)
+        if (!validationResult.IsValid)
             return BadRequest(validationResult.Errors);
-        
+
         var findResult = await competitionsService.GetCompetitionsShorts(query);
         if (!findResult.IsSuccess)
             return BadRequest(findResult);
@@ -46,11 +46,11 @@ public class CompetitionsController : ControllerBase
         [FromServices] CreateCompetitionCommandValidator validator)
     {
         var validationResult = await validator.ValidateAsync(command);
-        if(!validationResult.IsValid)
+        if (!validationResult.IsValid)
             return BadRequest(validationResult.Errors);
-        
+
         var creationResult = await competitionsService.CreateCompetition(command);
-        return creationResult.IsSuccess ? Created() : BadRequest(creationResult.Error);
+        return ToActionResult(creationResult, 204);
     }
 
     [HttpPatch]
@@ -60,26 +60,28 @@ public class CompetitionsController : ControllerBase
         [FromServices] UpdateCompetitionCommandValidator validator)
     {
         var validationResult = await validator.ValidateAsync(command);
-        if(!validationResult.IsValid)
+        if (!validationResult.IsValid)
             return BadRequest(validationResult.Errors);
-        
+
         var updateResult = await competitionsService.UpdateCompetition(command);
-        return updateResult.IsSuccess
-            ? Ok()
-            : updateResult.Error?.Code == 404
-                ? NotFound(updateResult.Error)
-                : BadRequest(updateResult.Error);
+        return ToActionResult(updateResult);
+    }
+
+    [HttpPatch("{id}")]
+    [Authorize(Roles = "Organizer")]
+    public async Task<IActionResult> AddCompetitor(
+        [FromRoute] Guid id,
+        [FromBody] AddCompetitorCommand command)
+    {
+        var result = await competitionsService.AddCompetitor(id, command);
+        return ToActionResult(result);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetCompetitionById([FromRoute] Guid id)
     {
         var result = await competitionsService.GetCompetition(id);
-        return result.IsSuccess
-            ? Ok(result.Item)
-            : result.Error?.Code == 404
-                ? NotFound(result.Error)
-                : BadRequest(result.Error);
+        return ToActionResult(result);
     }
 
     [HttpDelete("{id}")]
@@ -87,10 +89,16 @@ public class CompetitionsController : ControllerBase
     public async Task<IActionResult> DeleteCompetition([FromRoute] Guid id)
     {
         var result = await competitionsService.DeleteCompetition(id);
-        return result.IsSuccess
-            ? Ok()
-            : result.Error?.Code == 404
-                ? NotFound(result.Error)
-                : BadRequest(result.Error);
+        return ToActionResult(result);
+    }
+
+    [HttpDelete("{id}/removecompetitor")]
+    [Authorize(Roles = "Organizer")]
+    public async Task<IActionResult> RemoveCompetitor(
+        [FromRoute] Guid id,
+        [FromBody] RemoveCompetitorCommand command)
+    {
+        var result = await competitionsService.RemoveCompetitor(id, command);
+        return ToActionResult(result);
     }
 }
