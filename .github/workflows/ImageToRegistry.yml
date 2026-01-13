@@ -30,6 +30,6 @@ jobs:
       with:
         context: .
         push: true
-          
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag Tournament:$(date +%s)
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+
