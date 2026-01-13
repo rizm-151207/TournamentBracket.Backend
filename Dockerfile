@@ -8,7 +8,6 @@ EXPOSE 5141
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-#COPY ["./TournamentBracket.Api/TournamentBracket.Api.csproj", "TournamentBracket.Api/"]
 COPY . .
 RUN dotnet restore ./TournamentBracket.Api/TournamentBracket.Api.csproj
 WORKDIR "/src"
@@ -22,3 +21,4 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "TournamentBracket.Api.dll"]
+CMD ["--migrate"]
