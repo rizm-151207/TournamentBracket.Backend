@@ -14,6 +14,7 @@ using TournamentBracket.Domain.Divisions;
 using TournamentBracket.Infrastructure.Common;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -24,7 +25,7 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), 
+    options.UseNpgsql(builder.Configuration.GetConnectionStringWithEnvironmentVariables("DefaultConnection"), 
         b => b.MigrationsAssembly("TournamentBracket.Api"));
 });
 

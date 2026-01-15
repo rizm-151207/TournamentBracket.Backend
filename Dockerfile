@@ -17,7 +17,14 @@ FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish ./TournamentBracket.Api/TournamentBracket.Api.csproj -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
+
 FROM base AS final
+
+ARG TOURNAMENT_DB_USER
+ARG TOURNAMENT_DB_PASSWORD
+ENV TOURNAMENT_DB_USER=$TOURNAMENT_DB_USER
+ENV TOURNAMENT_DB_PASSWORD=$TOURNAMENT_DB_PASSWORD
+
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "TournamentBracket.Api.dll"]
