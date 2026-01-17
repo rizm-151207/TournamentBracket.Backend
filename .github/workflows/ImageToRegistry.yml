@@ -47,7 +47,7 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
-          echo "$SSH_PRIVATE_KEY" &gt; private_key
+          echo "$SSH_PRIVATE_KEY" > private_key
           chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key Kirill@2.59.80.141 &lt;&lt; 'EOF'
             sudo docker stop test || true
