@@ -50,8 +50,8 @@ jobs:
           username: Kirill
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            sudo docker stop test || true
-            sudo docker rm test || true
+            sudo docker stop tournament || true
+            sudo docker rm tournament || true
             docker pull ghcr.io/rizm-151207/tournamentbracket.backend:master
-            docker run -p 80:8080 ghcr.io/rizm-151207/tournamentbracket.backend:master --name test --migrate
+            docker run --name tournament -d -p 80:8080 ghcr.io/rizm-151207/tournamentbracket.backend:master --migrate
             echo "Deployment successful!"
