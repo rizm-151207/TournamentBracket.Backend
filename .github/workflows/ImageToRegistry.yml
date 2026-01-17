@@ -43,15 +43,15 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: SSH into VM and deploy
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        run: |
-          echo "$SSH_PRIVATE_KEY" > private_key
-          chmod 600 private_key
-          ssh -o StrictHostKeyChecking=no -i private_key Kirill@2.59.80.141 &lt;&lt; 'EOF'
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: 2.59.80.141
+          username: Kirill
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
             sudo docker stop test || true
             sudo docker rm test || true
             docker pull ghcr.io/rizm-151207/tournamentbracket.backend:master
             docker run -p 80:8080 ghcr.io/rizm-151207/tournamentbracket.backend:master --name test --migrate
-          EOF
+            echo "Deployment successful!"
