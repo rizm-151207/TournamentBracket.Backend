@@ -17,8 +17,8 @@ public class CreateCompetitionCommandValidator : AbstractValidator<CreateCompeti
         RuleFor(command => command.StartDateTime)
             .NotEmpty()
             .Must(d => DateTime.TryParse(d.ToString(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture,
-                DateTimeStyles.None, out var date) && date > DateTime.Now)
+                DateTimeStyles.None, out var date) && date > DateTime.UtcNow)
             .WithMessage(
-                $"Start date must be a valid date, after {DateTime.Now.ToString(CultureInfo.InvariantCulture)}");
+                $"Start date must be a valid date, after {DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} by UTC");
     }
 }

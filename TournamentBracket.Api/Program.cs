@@ -1,6 +1,9 @@
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using TournamentBracket.Api.Extensions;
+using TournamentBracket.Application.Brackets.Interfaces;
+using TournamentBracket.Application.Brackets.Services;
 using TournamentBracket.Application.Competitions.Interfaces;
 using TournamentBracket.Application.Competitions.Services;
 using TournamentBracket.Application.Competitors.Interfaces;
@@ -10,7 +13,12 @@ using TournamentBracket.Application.Divisions.Services;
 using TournamentBracket.Application.Users.DTO;
 using TournamentBracket.Application.Users.Interfaces;
 using TournamentBracket.Application.Users.Services;
+using TournamentBracket.Domain.Brackets;
+using TournamentBracket.Domain.Brackets.SingleEliminationBracket;
 using TournamentBracket.Domain.Divisions;
+using TournamentBracket.Domain.Matches;
+using TournamentBracket.Infrastructure.Brackets;
+using TournamentBracket.Infrastructure.Brackets.Interfaces;
 using TournamentBracket.Infrastructure.Common;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,8 +33,10 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionStringWithEnvironmentVariables("DefaultConnection"), 
-        b => b.MigrationsAssembly("TournamentBracket.Api"));
+    options.UseNpgsql(builder.Configuration.GetConnectionStringWithEnvironmentVariables("DefaultConnection"),
+            b => b.MigrationsAssembly("TournamentBracket.Api"))
+        .ConfigureWarnings(b =>
+            b.Ignore(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning));
 });
 
 builder.Services.Configure<JwtTokenConfiguration>(builder.Configuration.GetSection("Jwt"));
@@ -44,6 +54,13 @@ builder.Services.AddScoped<ITrainerService, TrainerService>();
 builder.Services.AddScoped<ICompetitionsService, CompetitionsService>();
 builder.Services.AddScoped<IDivisionsService, DivisionsService>();
 builder.Services.AddScoped<DivisionsFactory>();
+builder.Services.AddScoped<ITournamentBracketsService, TournamentBracketsService>();
+builder.Services.AddScoped<SingleEliminationBracketFactory>();
+builder.Services.AddScoped<MatchFactory>();
+builder.Services.AddScoped<BracketNodeFactory>();
+builder.Services.AddScoped<BracketTypeResolver>();
+builder.Services.AddScoped<BracketFactoryResolver>();
+builder.Services.AddScoped<IBracketsRepository, BracketsRepository>();
 
 
 var app = builder.Build();

@@ -1,4 +1,4 @@
-﻿using TournamentBracket.Domain.Share.Abstractions;
+﻿using TournamentBracket.Domain.Common.Abstractions;
 
 namespace TournamentBracket.Domain.Competitors;
 

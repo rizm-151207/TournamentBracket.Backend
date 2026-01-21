@@ -12,7 +12,7 @@ using TournamentBracket.Infrastructure.Common;
 namespace TournamentBracket.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260105122045_Init")]
+    [Migration("20260120160611_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -24,21 +24,6 @@ namespace TournamentBracket.Api.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("CompetitionCompetitor", b =>
-                {
-                    b.Property<Guid>("CompetitionsId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("CompetitorsId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("CompetitionsId", "CompetitorsId");
-
-                    b.HasIndex("CompetitorsId");
-
-                    b.ToTable("CompetitionCompetitor");
-                });
 
             modelBuilder.Entity("CompetitorDivision", b =>
                 {
@@ -223,10 +208,80 @@ namespace TournamentBracket.Api.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("TournamentBracket.Domain.Brackets.BracketNode", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BracketId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("BracketNodeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("IndexInRound")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("MatchId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ParentNodeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("RoundFromFinal")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BracketNodeId");
+
+                    b.HasIndex("MatchId")
+                        .IsUnique();
+
+                    b.ToTable("BracketNodes");
+                });
+
+            modelBuilder.Entity("TournamentBracket.Domain.Brackets.SingleEliminationBracket.SingleEliminationBracket", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("RootId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ThirdPlaceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RootId")
+                        .IsUnique();
+
+                    b.HasIndex("ThirdPlaceId")
+                        .IsUnique();
+
+                    b.ToTable("SingleEliminationBrackets");
+                });
+
             modelBuilder.Entity("TournamentBracket.Domain.Competitions.Competition", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasMaxLength(128)
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
@@ -238,7 +293,8 @@ namespace TournamentBracket.Api.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<DateTime>("StartDateTime")
                         .HasColumnType("timestamp with time zone");
@@ -258,6 +314,7 @@ namespace TournamentBracket.Api.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasMaxLength(128)
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
@@ -268,27 +325,33 @@ namespace TournamentBracket.Api.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<bool>("Gender")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Kyu")
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("MiddleName")
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Rank")
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("Subject")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -305,27 +368,33 @@ namespace TournamentBracket.Api.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasMaxLength(128)
                         .HasColumnType("uuid");
 
                     b.Property<string>("Club")
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("MiddleName")
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Subject")
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -340,6 +409,9 @@ namespace TournamentBracket.Api.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<int>("BracketType")
+                        .HasColumnType("integer");
 
                     b.Property<Guid>("CompetitionId")
                         .HasColumnType("uuid");
@@ -364,7 +436,11 @@ namespace TournamentBracket.Api.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid>("TournamentBracketId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -374,6 +450,76 @@ namespace TournamentBracket.Api.Migrations
                     b.HasIndex("CompetitionId");
 
                     b.ToTable("Divisions");
+                });
+
+            modelBuilder.Entity("TournamentBracket.Domain.Matches.Match", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("EndDateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("FirstCompetitorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Index")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("PlannedDateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("SecondCompetitorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("StartDateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FirstCompetitorId");
+
+                    b.HasIndex("SecondCompetitorId");
+
+                    b.ToTable("Matches", (string)null);
+                });
+
+            modelBuilder.Entity("TournamentBracket.Domain.Matches.MatchProcess", b =>
+                {
+                    b.Property<Guid>("MatchId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("FirstCompetitorPenalty")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FirstCompetitorWazari")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SecondCompetitorPenalty")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SecondCompetitorWazari")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("WinReason")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("Winner")
+                        .HasColumnType("integer");
+
+                    b.HasKey("MatchId");
+
+                    b.ToTable("Matches", (string)null);
                 });
 
             modelBuilder.Entity("TournamentBracket.Domain.Users.User", b =>
@@ -393,8 +539,9 @@ namespace TournamentBracket.Api.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
@@ -423,7 +570,8 @@ namespace TournamentBracket.Api.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("RefreshToken")
-                        .HasColumnType("text");
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<DateTime?>("RefreshTokenExpiryTime")
                         .HasColumnType("timestamp with time zone");
@@ -443,6 +591,9 @@ namespace TournamentBracket.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -451,21 +602,6 @@ namespace TournamentBracket.Api.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("CompetitionCompetitor", b =>
-                {
-                    b.HasOne("TournamentBracket.Domain.Competitions.Competition", null)
-                        .WithMany()
-                        .HasForeignKey("CompetitionsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TournamentBracket.Domain.Competitors.Competitor", null)
-                        .WithMany()
-                        .HasForeignKey("CompetitorsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("CompetitorDivision", b =>
@@ -549,6 +685,39 @@ namespace TournamentBracket.Api.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("TournamentBracket.Domain.Brackets.BracketNode", b =>
+                {
+                    b.HasOne("TournamentBracket.Domain.Brackets.BracketNode", null)
+                        .WithMany("Children")
+                        .HasForeignKey("BracketNodeId");
+
+                    b.HasOne("TournamentBracket.Domain.Matches.Match", "Match")
+                        .WithOne()
+                        .HasForeignKey("TournamentBracket.Domain.Brackets.BracketNode", "MatchId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Match");
+                });
+
+            modelBuilder.Entity("TournamentBracket.Domain.Brackets.SingleEliminationBracket.SingleEliminationBracket", b =>
+                {
+                    b.HasOne("TournamentBracket.Domain.Brackets.BracketNode", "Root")
+                        .WithOne()
+                        .HasForeignKey("TournamentBracket.Domain.Brackets.SingleEliminationBracket.SingleEliminationBracket", "RootId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TournamentBracket.Domain.Brackets.BracketNode", "ThirdPlace")
+                        .WithOne()
+                        .HasForeignKey("TournamentBracket.Domain.Brackets.SingleEliminationBracket.SingleEliminationBracket", "ThirdPlaceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Root");
+
+                    b.Navigation("ThirdPlace");
+                });
+
             modelBuilder.Entity("TournamentBracket.Domain.Divisions.Division", b =>
                 {
                     b.HasOne("TournamentBracket.Domain.Competitions.Competition", "Competition")
@@ -560,9 +729,44 @@ namespace TournamentBracket.Api.Migrations
                     b.Navigation("Competition");
                 });
 
+            modelBuilder.Entity("TournamentBracket.Domain.Matches.Match", b =>
+                {
+                    b.HasOne("TournamentBracket.Domain.Competitors.Competitor", "FirstCompetitor")
+                        .WithMany()
+                        .HasForeignKey("FirstCompetitorId");
+
+                    b.HasOne("TournamentBracket.Domain.Competitors.Competitor", "SecondCompetitor")
+                        .WithMany()
+                        .HasForeignKey("SecondCompetitorId");
+
+                    b.Navigation("FirstCompetitor");
+
+                    b.Navigation("SecondCompetitor");
+                });
+
+            modelBuilder.Entity("TournamentBracket.Domain.Matches.MatchProcess", b =>
+                {
+                    b.HasOne("TournamentBracket.Domain.Matches.Match", null)
+                        .WithOne("MatchProcess")
+                        .HasForeignKey("TournamentBracket.Domain.Matches.MatchProcess", "MatchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("TournamentBracket.Domain.Brackets.BracketNode", b =>
+                {
+                    b.Navigation("Children");
+                });
+
             modelBuilder.Entity("TournamentBracket.Domain.Competitions.Competition", b =>
                 {
                     b.Navigation("Divisions");
+                });
+
+            modelBuilder.Entity("TournamentBracket.Domain.Matches.Match", b =>
+                {
+                    b.Navigation("MatchProcess")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

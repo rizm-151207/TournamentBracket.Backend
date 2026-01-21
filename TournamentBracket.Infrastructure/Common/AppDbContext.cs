@@ -2,9 +2,12 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using TournamentBracket.Domain.Brackets;
+using TournamentBracket.Domain.Brackets.SingleEliminationBracket;
 using TournamentBracket.Domain.Competitions;
 using TournamentBracket.Domain.Competitors;
 using TournamentBracket.Domain.Divisions;
+using TournamentBracket.Domain.Matches;
 using TournamentBracket.Domain.Users;
 
 namespace TournamentBracket.Infrastructure.Common;
@@ -15,6 +18,9 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     public DbSet<Trainer> Trainers { get; set; }
     public DbSet<Competition> Competitions { get; set; }
     public DbSet<Division> Divisions { get; set; }
+    public DbSet<SingleEliminationBracket> SingleEliminationBrackets { get; set; }
+    public DbSet<BracketNode> BracketNodes { get; set; }
+    public DbSet<Match> Matches { get; set; }
 
     public AppDbContext(DbContextOptions options) : base(options)
     {
@@ -23,7 +29,7 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        builder.ApplyConfigurationsFromAssembly(Assembly.GetCallingAssembly());
+        builder.ApplyConfigurationsFromAssembly(Assembly.Load("TournamentBracket.Infrastructure"));
         AddDefaultRoles(builder);
     }
 

@@ -1,6 +1,7 @@
-﻿using TournamentBracket.Domain.Competitions;
+﻿using TournamentBracket.Domain.Brackets;
+using TournamentBracket.Domain.Common.Abstractions;
+using TournamentBracket.Domain.Competitions;
 using TournamentBracket.Domain.Competitors;
-using TournamentBracket.Domain.Share.Abstractions;
 
 namespace TournamentBracket.Domain.Divisions;
 
@@ -19,6 +20,8 @@ public class Division : IEntity<Guid>
     public float? MinWeight { get; set; }
     public float? MaxWeight { get; set; }
     public bool Gender { get; set; }
+    public Guid TournamentBracketId {get; set; }
+    public BracketType BracketType { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public List<Competitor> Competitors { get; private set; } = new();
