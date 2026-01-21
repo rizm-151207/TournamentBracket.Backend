@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TournamentBracket.Application.Brackets.Interfaces;
 using TournamentBracket.Application.Common.Helpers;
 using TournamentBracket.Application.Competitions.Commands;
 using TournamentBracket.Application.Competitions.DTO;
@@ -17,14 +18,17 @@ public class CompetitionsService : ICompetitionsService
     private readonly AppDbContext dbContext;
     private readonly ICompetitorService competitorService;
     private readonly IDivisionsService divisionsService;
+    private readonly ITournamentBracketsService tournamentBracketsService;
 
     public CompetitionsService(AppDbContext dbContext, 
         ICompetitorService competitorService,
-        IDivisionsService divisionsService)
+        IDivisionsService divisionsService,
+        ITournamentBracketsService tournamentBracketsService)
     {
         this.dbContext = dbContext;
         this.competitorService = competitorService;
         this.divisionsService = divisionsService;
+        this.tournamentBracketsService = tournamentBracketsService;
     }
 
     public async Task<Result> CreateCompetition(CreateCompetitionCommand command, CancellationToken ct = default)
@@ -50,7 +54,6 @@ public class CompetitionsService : ICompetitionsService
         var competitionsQueryable = ApplyFilter(dbContext.Competitions.AsQueryable(), query.CreateFilter());
         var competitions = await competitionsQueryable
             .SelectPage(query)
-            .Include(e => e.Competitors)
             .ToListAsync(ct);
         return Result<IReadOnlyCollection<Competition>>.Success(competitions);
     }
@@ -74,7 +77,6 @@ public class CompetitionsService : ICompetitionsService
     public async Task<Result<Competition>> GetCompetition(Guid id, CancellationToken ct = default)
     {
         var competition = await dbContext.Competitions
-            .Include(e => e.Competitors)
             .FirstOrDefaultAsync(e => e.Id == id, cancellationToken: ct);
         return competition == null
             ? Result<Competition>.FailedWith(new Error("Not found", 404))
@@ -93,7 +95,6 @@ public class CompetitionsService : ICompetitionsService
         competition.StartDateTime = command.StartDateTime;
         competition.Status = command.Status;
         competition.UpdatedAt = DateTime.UtcNow;
-        competition.Competitors?.Clear();
 
         await dbContext.SaveChangesAsync(ct);
         return Result.Success();
@@ -111,7 +112,7 @@ public class CompetitionsService : ICompetitionsService
             : Result.Failed("Some error while deleting");
     }
 
-    public async Task<Result> AddCompetitor(Guid competitionId, AddCompetitorCommand command, CancellationToken ct = default)
+    public async Task<Result> AddCompetitorAuto(Guid competitionId, AddCompetitorCommand command, CancellationToken ct = default)
     {
         var competitionResult = await GetCompetition(competitionId, ct);
         if (!competitionResult.IsSuccess)
@@ -122,9 +123,6 @@ public class CompetitionsService : ICompetitionsService
         if (!competitorResult.IsSuccess)
             return competitorResult;
         var competitor = competitorResult.Item!;
-
-        if (competition.Competitors?.Contains(competitor) ?? false)
-            return Result.Failed($"Competitor {competitor.Id} already added in competition {competition.Id}");
 
         var suitableDivisionResult = await divisionsService.GetSuitableDivision(competitionId, competitor, ct);
         if (!suitableDivisionResult.IsSuccess)
@@ -145,8 +143,30 @@ public class CompetitionsService : ICompetitionsService
         var successAddDivision = competition.TryAddDivision(suitableDivision);
         if (!successAddDivision)
             return Result.Failed($"Some error while adding division to competition {competitionId}");
-        
-        dbContext.Divisions.Add(suitableDivision);
+
+        if (suitableDivision.TournamentBracketId == Guid.Empty)
+        {
+            var createBracketResult = await tournamentBracketsService.CreateBracket(suitableDivision.Competitors, ct);
+            if(!createBracketResult.IsSuccess)
+                return createBracketResult;
+            
+            var newBracket = createBracketResult.Item!;
+            suitableDivision.TournamentBracketId = newBracket.Id;
+            suitableDivision.BracketType = newBracket.Type;
+        }
+        else
+        {
+            var addCompetitorResult = await tournamentBracketsService.AddCompetitorToBracket(suitableDivision.TournamentBracketId,
+                suitableDivision.BracketType, competitor, ct);
+            if(!addCompetitorResult.IsSuccess)
+                return addCompetitorResult;
+
+            var newBracket = addCompetitorResult.Item!;
+            suitableDivision.TournamentBracketId = newBracket.Id;
+            suitableDivision.BracketType = newBracket.Type;
+        }
+
+        //dbContext.Divisions.Add(suitableDivision);
         await dbContext.SaveChangesAsync(ct);
         
         return Result.Success();

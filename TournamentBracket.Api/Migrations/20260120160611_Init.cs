@@ -35,11 +35,11 @@ namespace TournamentBracket.Api.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    RefreshToken = table.Column<string>(type: "text", nullable: true),
+                    RefreshToken = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     RefreshTokenExpiryTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     NormalizedEmail = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     EmailConfirmed = table.Column<bool>(type: "boolean", nullable: false),
                     PasswordHash = table.Column<string>(type: "text", nullable: true),
@@ -61,10 +61,10 @@ namespace TournamentBracket.Api.Migrations
                 name: "Competitions",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", maxLength: 128, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     StartDateTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false)
@@ -78,16 +78,16 @@ namespace TournamentBracket.Api.Migrations
                 name: "Competitors",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    FirstName = table.Column<string>(type: "text", nullable: false),
-                    LastName = table.Column<string>(type: "text", nullable: false),
-                    MiddleName = table.Column<string>(type: "text", nullable: true),
+                    Id = table.Column<Guid>(type: "uuid", maxLength: 128, nullable: false),
+                    FirstName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    LastName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    MiddleName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     Gender = table.Column<bool>(type: "boolean", nullable: false),
                     DateOfBirth = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Weight = table.Column<float>(type: "real", nullable: false),
-                    Rank = table.Column<string>(type: "text", nullable: true),
-                    Kyu = table.Column<string>(type: "text", nullable: true),
-                    Subject = table.Column<string>(type: "text", nullable: false),
+                    Rank = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    Kyu = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    Subject = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -100,12 +100,12 @@ namespace TournamentBracket.Api.Migrations
                 name: "Trainers",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    FirstName = table.Column<string>(type: "text", nullable: false),
-                    LastName = table.Column<string>(type: "text", nullable: false),
-                    MiddleName = table.Column<string>(type: "text", nullable: true),
-                    Club = table.Column<string>(type: "text", nullable: true),
-                    Subject = table.Column<string>(type: "text", nullable: true),
+                    Id = table.Column<Guid>(type: "uuid", maxLength: 128, nullable: false),
+                    FirstName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    LastName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    MiddleName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    Club = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    Subject = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -226,12 +226,14 @@ namespace TournamentBracket.Api.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     CompetitionId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     MinAge = table.Column<int>(type: "integer", nullable: true),
                     MaxAge = table.Column<int>(type: "integer", nullable: true),
                     MinWeight = table.Column<float>(type: "real", nullable: true),
                     MaxWeight = table.Column<float>(type: "real", nullable: true),
                     Gender = table.Column<bool>(type: "boolean", nullable: false),
+                    TournamentBracketId = table.Column<Guid>(type: "uuid", nullable: false),
+                    BracketType = table.Column<int>(type: "integer", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -247,27 +249,39 @@ namespace TournamentBracket.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CompetitionCompetitor",
+                name: "Matches",
                 columns: table => new
                 {
-                    CompetitionsId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CompetitorsId = table.Column<Guid>(type: "uuid", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Index = table.Column<string>(type: "text", nullable: true),
+                    FirstCompetitorId = table.Column<Guid>(type: "uuid", nullable: true),
+                    SecondCompetitorId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    FirstCompetitorWazari = table.Column<int>(type: "integer", nullable: false),
+                    FirstCompetitorPenalty = table.Column<int>(type: "integer", nullable: false),
+                    SecondCompetitorWazari = table.Column<int>(type: "integer", nullable: false),
+                    SecondCompetitorPenalty = table.Column<int>(type: "integer", nullable: false),
+                    Winner = table.Column<int>(type: "integer", nullable: true),
+                    WinReason = table.Column<int>(type: "integer", nullable: true),
+                    PlannedDateTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    StartDateTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    EndDateTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CompetitionCompetitor", x => new { x.CompetitionsId, x.CompetitorsId });
+                    table.PrimaryKey("PK_Matches", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CompetitionCompetitor_Competitions_CompetitionsId",
-                        column: x => x.CompetitionsId,
-                        principalTable: "Competitions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CompetitionCompetitor_Competitors_CompetitorsId",
-                        column: x => x.CompetitorsId,
+                        name: "FK_Matches_Competitors_FirstCompetitorId",
+                        column: x => x.FirstCompetitorId,
                         principalTable: "Competitors",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Matches_Competitors_SecondCompetitorId",
+                        column: x => x.SecondCompetitorId,
+                        principalTable: "Competitors",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -318,6 +332,63 @@ namespace TournamentBracket.Api.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "BracketNodes",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    RoundFromFinal = table.Column<int>(type: "integer", nullable: false),
+                    IndexInRound = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    MatchId = table.Column<Guid>(type: "uuid", nullable: true),
+                    ParentNodeId = table.Column<Guid>(type: "uuid", nullable: true),
+                    BracketId = table.Column<Guid>(type: "uuid", nullable: false),
+                    BracketNodeId = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BracketNodes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BracketNodes_BracketNodes_BracketNodeId",
+                        column: x => x.BracketNodeId,
+                        principalTable: "BracketNodes",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_BracketNodes_Matches_MatchId",
+                        column: x => x.MatchId,
+                        principalTable: "Matches",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SingleEliminationBrackets",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    RootId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ThirdPlaceId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SingleEliminationBrackets", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SingleEliminationBrackets_BracketNodes_RootId",
+                        column: x => x.RootId,
+                        principalTable: "BracketNodes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SingleEliminationBrackets_BracketNodes_ThirdPlaceId",
+                        column: x => x.ThirdPlaceId,
+                        principalTable: "BracketNodes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
@@ -360,15 +431,27 @@ namespace TournamentBracket.Api.Migrations
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_Email",
+                table: "AspNetUsers",
+                column: "Email",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_CompetitionCompetitor_CompetitorsId",
-                table: "CompetitionCompetitor",
-                column: "CompetitorsId");
+                name: "IX_BracketNodes_BracketNodeId",
+                table: "BracketNodes",
+                column: "BracketNodeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BracketNodes_MatchId",
+                table: "BracketNodes",
+                column: "MatchId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_CompetitorDivision_DivisionsId",
@@ -384,6 +467,28 @@ namespace TournamentBracket.Api.Migrations
                 name: "IX_Divisions_CompetitionId",
                 table: "Divisions",
                 column: "CompetitionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Matches_FirstCompetitorId",
+                table: "Matches",
+                column: "FirstCompetitorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Matches_SecondCompetitorId",
+                table: "Matches",
+                column: "SecondCompetitorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SingleEliminationBrackets_RootId",
+                table: "SingleEliminationBrackets",
+                column: "RootId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SingleEliminationBrackets_ThirdPlaceId",
+                table: "SingleEliminationBrackets",
+                column: "ThirdPlaceId",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -405,13 +510,13 @@ namespace TournamentBracket.Api.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "CompetitionCompetitor");
-
-            migrationBuilder.DropTable(
                 name: "CompetitorDivision");
 
             migrationBuilder.DropTable(
                 name: "CompetitorTrainer");
+
+            migrationBuilder.DropTable(
+                name: "SingleEliminationBrackets");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -423,13 +528,19 @@ namespace TournamentBracket.Api.Migrations
                 name: "Divisions");
 
             migrationBuilder.DropTable(
-                name: "Competitors");
-
-            migrationBuilder.DropTable(
                 name: "Trainers");
 
             migrationBuilder.DropTable(
+                name: "BracketNodes");
+
+            migrationBuilder.DropTable(
                 name: "Competitions");
+
+            migrationBuilder.DropTable(
+                name: "Matches");
+
+            migrationBuilder.DropTable(
+                name: "Competitors");
         }
     }
 }

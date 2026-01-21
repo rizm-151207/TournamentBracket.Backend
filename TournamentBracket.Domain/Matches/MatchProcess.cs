@@ -1,22 +1,27 @@
-﻿using TournamentBracket.Domain.Share.Abstractions;
+﻿namespace TournamentBracket.Domain.Matches;
 
-namespace TournamentBracket.Domain.Matches;
-
-public class MatchProcess : IEntity<Guid>
+public class MatchProcess
 {
-    public Guid Id { get; }
+    public Guid MatchId { get; set; }
     public int FirstCompetitorWazari { get; set; }
     public int FirstCompetitorPenalty { get; set; }
     public int SecondCompetitorWazari { get; set; }
     public int SecondCompetitorPenalty { get; set; }
     public MatchWinner? Winner { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public WinReason? WinReason { get; set; }
 }
 
 public enum MatchWinner
 {
     FirstWinner,
     SecondWinner,
+    Draw
+}
+
+public enum WinReason
+{
+    Bye,
+    ByScores,
+    ByPenalty,
     Draw
 }

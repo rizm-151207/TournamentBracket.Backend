@@ -67,13 +67,13 @@ public class CompetitionsController : ExtendedControllerBase
         return ToActionResult(updateResult);
     }
 
-    [HttpPatch("{id}")]
+    [HttpPatch("{id}/addcompetitor")]
     [Authorize(Roles = "Organizer")]
     public async Task<IActionResult> AddCompetitor(
         [FromRoute] Guid id,
         [FromBody] AddCompetitorCommand command)
     {
-        var result = await competitionsService.AddCompetitor(id, command);
+        var result = await competitionsService.AddCompetitorAuto(id, command);
         return ToActionResult(result);
     }
 

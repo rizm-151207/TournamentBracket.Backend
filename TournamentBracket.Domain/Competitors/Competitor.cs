@@ -1,12 +1,11 @@
-﻿using TournamentBracket.Domain.Competitions;
+﻿using TournamentBracket.Domain.Common.Abstractions;
 using TournamentBracket.Domain.Divisions;
-using TournamentBracket.Domain.Share.Abstractions;
 
 namespace TournamentBracket.Domain.Competitors;
 
 public class Competitor : IEntity<Guid>
 {
-    public Guid Id { get; init; }
+    public Guid Id { get; set; }
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public string? MiddleName { get; set; }
@@ -22,6 +21,5 @@ public class Competitor : IEntity<Guid>
     public int Age => DateTime.Now.Year - DateOfBirth.Year;
     
     //links
-    public List<Competition> Competitions { get; set; } = new();
     public List<Division> Divisions { get; set; } = new();
 }
