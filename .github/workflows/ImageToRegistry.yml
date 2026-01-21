@@ -38,3 +38,20 @@ jobs:
         build-args: |
           TOURNAMENT_DB_USER=${{ secrets.TOURNAMENT_DB_USER }}
           TOURNAMENT_DB_PASSWORD=${{ secrets.TOURNAMENT_DB_PASSWORD }}
+          
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: 2.59.80.141
+          username: Kirill
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            sudo docker stop tournament || true
+            sudo docker rm tournament || true
+            docker pull ghcr.io/rizm-151207/tournamentbracket.backend:master
+            docker run --name tournament -d -p 80:8080 ghcr.io/rizm-151207/tournamentbracket.backend:master --migrate
+            echo "Deployment successful!"
