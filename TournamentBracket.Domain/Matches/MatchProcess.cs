@@ -21,7 +21,8 @@ public enum MatchWinner
 public enum WinReason
 {
     Bye,
-    ByScores,
-    ByPenalty,
+    Ippon,
+    Judges,
+    
     Draw
 }
