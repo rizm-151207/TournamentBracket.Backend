@@ -7,4 +7,5 @@ namespace TournamentBracket.Infrastructure.Brackets.Interfaces;
 public interface IBracketsRepository
 {
     public Task<Result<Bracket>> GetBracket(Guid id, BracketType bracketType, CancellationToken ct = default);
+    public Task<Result<IReadOnlyCollection<Bracket>>> GetBrackets(IReadOnlyCollection<Guid> ids,  CancellationToken ct = default);
 }

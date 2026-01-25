@@ -61,7 +61,7 @@ public class SingleEliminationBracketFactory : IBracketFactory
     {
         var singleEliminationBracket = bracket as SingleEliminationBracket ?? throw new ArgumentException();
         var sortedLeafsWithMatches = singleEliminationBracket.GetAllNodesWithCompetitorsMatches()
-            .Where(n => n.Children is null || n.Children.Count == 0 
+            .Where(n => n.Children is null || n.Children.Count == 0
                                            || n is { IndexInRound: 1, RoundFromFinal: 0 })
             .OrderBy(n => n.IndexInRound)
             .ToList();
@@ -73,7 +73,7 @@ public class SingleEliminationBracketFactory : IBracketFactory
         var sortedCompetitors = GetGroupedOrderByTrainersCompetitors(competitors!)
             .SelectMany(kvp => kvp.Value)
             .ToList();
-        
+
         var seed = BracketsHelpers.GetSeed(sortedCompetitors.Count);
         var placedCompetitors = PlaceCompetitorsBySeed(seed, sortedCompetitors);
 
@@ -86,8 +86,8 @@ public class SingleEliminationBracketFactory : IBracketFactory
             var leafWithMatch = sortedLeafsWithMatches[i];
             leafWithMatch.Match.Clear();
 
-            var firstNewLeaf = bracketLeafs[i];
-            var secondNewLeaf = bracketLeafs[i + 1];
+            var firstNewLeaf = bracketLeafs[2 * i];
+            var secondNewLeaf = bracketLeafs[2 * i + 1];
             firstNewLeaf.SetParent(leafWithMatch);
             secondNewLeaf.SetParent(leafWithMatch);
             leafWithMatch.Children = [firstNewLeaf, secondNewLeaf];

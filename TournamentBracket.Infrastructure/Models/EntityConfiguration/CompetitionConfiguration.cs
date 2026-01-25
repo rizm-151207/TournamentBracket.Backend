@@ -18,7 +18,7 @@ public class CompetitionConfiguration : IEntityTypeConfiguration<Competition>
         builder.Property(e => e.Name)
             .IsRequired()
             .HasMaxLength(256);
-        builder.Property(e => e.Description)
+        builder.Property(e => e.Location)
             .IsRequired();
         builder.Property(e => e.StartDateTime)
             .IsRequired();

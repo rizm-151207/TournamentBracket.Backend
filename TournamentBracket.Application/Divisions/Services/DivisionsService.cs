@@ -18,7 +18,7 @@ public class DivisionsService : IDivisionsService
         this.divisionsFactory = divisionsFactory;
     }
 
-    public async Task<Result<IReadOnlyCollection<Division>>> GetDivisionByCompetitionId(Guid competitionId,
+    public async Task<Result<IReadOnlyCollection<Division>>> GetDivisionsByCompetitionId(Guid competitionId,
         CancellationToken ct = default)
     {
         var divisions = await dbContext.Divisions
@@ -31,7 +31,7 @@ public class DivisionsService : IDivisionsService
     public async Task<Result<Division?>> GetSuitableDivision(Guid competitionId, Competitor competitor,
         CancellationToken ct = default)
     {
-        var competitionsResult = await GetDivisionByCompetitionId(competitionId, ct);
+        var competitionsResult = await GetDivisionsByCompetitionId(competitionId, ct);
         if (!competitionsResult.IsSuccess)
             return Result<Division?>.FailedWith(competitionsResult.Error!);
 

@@ -12,7 +12,7 @@ using TournamentBracket.Infrastructure.Common;
 namespace TournamentBracket.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260120160611_Init")]
+    [Migration("20260122163613_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -287,7 +287,7 @@ namespace TournamentBracket.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Description")
+                    b.Property<string>("Location")
                         .IsRequired()
                         .HasColumnType("text");
 

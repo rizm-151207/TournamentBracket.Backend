@@ -50,6 +50,21 @@ public class SingleEliminationBracket : Bracket
             .Distinct()
             .ToList();
     }
+    
+    public override Dictionary<int, IReadOnlyCollection<Match>> GetGroupedMatchesByRounds()
+    {
+        return GetAllNodes()
+            .GroupBy(n => n.RoundFromFinal)
+            .ToDictionary(g => g.Key,
+                g => GetSortedMatchesInRound(g.Key, g.ToList()));
+
+        IReadOnlyCollection<Match> GetSortedMatchesInRound(int round, List<BracketNode> nodes)
+        {
+            if(round == 0) // Если это финал/полуфинал сортируем в обратном порядке
+                return nodes.OrderByDescending(n => n.IndexInRound).Select(n => n.Match).ToList();
+            return nodes.OrderBy(n => n.IndexInRound).Select(n => n.Match).ToList();
+        }
+    }
 
     public IEnumerable<BracketNode> GetAllNodesWithCompetitorsMatches()
     {
@@ -79,7 +94,7 @@ public class SingleEliminationBracket : Bracket
         var seed = BracketsHelpers.GetSeed(competitorsCount + 1);
         foreach (var n in seed)
         {
-            var nodeIndex = n / 2;
+            var nodeIndex = (n - 1) / 2;
             var match = orderedNodes[nodeIndex].Match;
             if (match.Status is MatchStatus.Finished && match.MatchProcess.WinReason is WinReason.Bye)
             {

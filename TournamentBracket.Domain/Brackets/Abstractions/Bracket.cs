@@ -1,5 +1,6 @@
 ﻿using TournamentBracket.Domain.Common.Abstractions;
 using TournamentBracket.Domain.Competitors;
+using TournamentBracket.Domain.Matches;
 
 namespace TournamentBracket.Domain.Brackets.Abstractions;
 
@@ -13,4 +14,5 @@ public abstract class Bracket : IEntity<Guid>
     public abstract bool TryAddCompetitorAuto(Competitor competitor);
     public abstract bool HasFreeMatch();
     public abstract List<Competitor> GetAllCompetitors();
+    public abstract Dictionary<int, IReadOnlyCollection<Match>> GetGroupedMatchesByRounds();
 }
