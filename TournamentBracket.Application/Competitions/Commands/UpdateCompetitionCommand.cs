@@ -7,10 +7,10 @@ public class UpdateCompetitionCommand : CreateCompetitionCommand
     public UpdateCompetitionCommand(
         Guid id,
         string name,
-        string description,
+        string location,
         DateTime startDateTime,
         CompetitionStatus status)
-        : base(name, description, startDateTime)
+        : base(name, location, startDateTime)
     {
         Id = id;
         Status = status;

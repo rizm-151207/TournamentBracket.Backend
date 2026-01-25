@@ -42,6 +42,12 @@ public class TournamentBracketsService : ITournamentBracketsService
         }
     }
 
+    public async Task<Result<IReadOnlyCollection<Bracket>>> GetBracketsBracketsIds(IReadOnlyCollection<Guid> ids, CancellationToken ct = default)
+    {
+        var bracketResult = await bracketsRepository.GetBrackets(ids, ct);
+        return bracketResult;
+    }
+    
     public async Task<Result<Bracket>> CreateBracket(
         List<Competitor> competitors,
         CancellationToken ct = default)

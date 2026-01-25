@@ -4,16 +4,16 @@ public class CreateCompetitionCommand
 {
     public CreateCompetitionCommand(
         string name,
-        string description,
+        string location,
         DateTime startDateTime
     )
     {
         Name = name;
-        Description = description;
+        Location = location;
         StartDateTime = startDateTime;
     }
 
     public string Name { get; set; }
-    public string Description { get; set; }
+    public string Location { get; set; }
     public DateTime StartDateTime { get; set; }
 }

@@ -195,7 +195,7 @@ components:
       properties:
         name:
           type: string
-        description:
+        location:
           type: string
         startDateTime:
           type: string

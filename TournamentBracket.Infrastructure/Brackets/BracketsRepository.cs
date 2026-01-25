@@ -35,6 +35,26 @@ public class BracketsRepository : IBracketsRepository
         throw new NotImplementedException($"Bracket with type {bracket.Type} not implemented.");
     }
 
+    public async Task<Result<IReadOnlyCollection<Bracket>>> GetBrackets(IReadOnlyCollection<Guid> ids, CancellationToken ct = default)
+    {
+        var singleEliminationBrackets = await dbContext.SingleEliminationBrackets
+            .Where(b => ids.Contains(b.Id))
+            .GroupJoin(dbContext.BracketNodes,
+                b => b.Id,
+                bn => bn.BracketId,
+                (b, bn) => new
+                {
+                    BracketBase = b,
+                    BracketNodes = bn.ToList()
+                })
+            .ToDictionaryAsync(g =>  g.BracketBase, g => g.BracketNodes, ct);
+
+        var enrichedBrackets = singleEliminationBrackets.Select(kvp =>
+            singleEliminationBracketFactory.EnrichBracketWithNodes(kvp.Key, kvp.Value));
+
+        return Result<IReadOnlyCollection<Bracket>>.Success(enrichedBrackets.ToList());
+    }
+
     private async Task<SingleEliminationBracket> LoadSingleEliminationBracket(SingleEliminationBracket? bracketBase)
     {
         if (bracketBase is null)

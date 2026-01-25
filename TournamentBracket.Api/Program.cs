@@ -10,11 +10,14 @@ using TournamentBracket.Application.Competitors.Interfaces;
 using TournamentBracket.Application.Competitors.Services;
 using TournamentBracket.Application.Divisions.Interfaces;
 using TournamentBracket.Application.Divisions.Services;
+using TournamentBracket.Application.Matches.Interface;
+using TournamentBracket.Application.Matches.Services;
 using TournamentBracket.Application.Users.DTO;
 using TournamentBracket.Application.Users.Interfaces;
 using TournamentBracket.Application.Users.Services;
 using TournamentBracket.Domain.Brackets;
 using TournamentBracket.Domain.Brackets.SingleEliminationBracket;
+using TournamentBracket.Domain.Competitions;
 using TournamentBracket.Domain.Divisions;
 using TournamentBracket.Domain.Matches;
 using TournamentBracket.Infrastructure.Brackets;
@@ -61,6 +64,8 @@ builder.Services.AddScoped<BracketNodeFactory>();
 builder.Services.AddScoped<BracketTypeResolver>();
 builder.Services.AddScoped<BracketFactoryResolver>();
 builder.Services.AddScoped<IBracketsRepository, BracketsRepository>();
+builder.Services.AddScoped<IMatchesService, MatchesService>();
+builder.Services.AddScoped<MatchPlanner>();
 
 
 var app = builder.Build();

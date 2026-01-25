@@ -18,7 +18,7 @@ public class DivisionsController : ExtendedControllerBase
     [HttpGet]
     public async Task<IActionResult> GetDivisions([FromQuery] DivisionsQuery query)
     {
-        var result = await divisionsService.GetDivisionByCompetitionId(query.CompetitionId);
+        var result = await divisionsService.GetDivisionsByCompetitionId(query.CompetitionId);
         return ToActionResult(result);
     }
 }

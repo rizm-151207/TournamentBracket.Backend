@@ -12,7 +12,7 @@ public class CreateCompetitionCommandValidator : AbstractValidator<CreateCompeti
         RuleFor(command => command.Name)
             .NotEmpty()
             .MaximumLength(256);
-        RuleFor(command => command.Description)
+        RuleFor(command => command.Location)
             .NotEmpty();
         RuleFor(command => command.StartDateTime)
             .NotEmpty()
