@@ -12,7 +12,8 @@ public interface ICompetitionsService
     public Task<Result<IReadOnlyCollection<Competition>>> GetCompetitions(CompetitionsPageQuery query, CancellationToken ct = default);
     public Task<Result<IReadOnlyCollection<Competition>>> GetCompetitionsShorts(CompetitionsPageQuery query, CancellationToken ct = default);
     public Task<Result<int>> GetCount(CompetitionsFilter filter, CancellationToken ct = default); 
-    public Task<Result<Competition>> GetCompetition(Guid id, CancellationToken ct = default);
+    public Task<Result<Competition>> GetCompetitionWithoutCompetitors(Guid id, CancellationToken ct = default);
+    public Task<Result<Competition>> GetCompetitionFull(Guid id, CancellationToken ct = default);
     public Task<Result> UpdateCompetition(UpdateCompetitionCommand command, CancellationToken ct = default);
     public Task<Result> DeleteCompetition(Guid id, CancellationToken ct = default);
     public Task<Result> AddCompetitorAuto(Guid competitionId, AddCompetitorCommand command, CancellationToken ct = default);

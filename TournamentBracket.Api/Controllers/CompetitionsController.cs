@@ -80,7 +80,7 @@ public class CompetitionsController : ExtendedControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetCompetitionById([FromRoute] Guid id)
     {
-        var result = await competitionsService.GetCompetition(id);
+        var result = await competitionsService.GetCompetitionWithoutCompetitors(id);
         return ToActionResult(result);
     }
 
