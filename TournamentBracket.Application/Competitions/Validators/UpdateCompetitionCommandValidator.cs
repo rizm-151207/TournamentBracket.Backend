@@ -24,6 +24,6 @@ public class UpdateCompetitionCommandValidator : AbstractValidator<UpdateCompeti
     private async Task<bool> CompetitionExist(ICompetitionsService competitionsService, Guid id,
         CancellationToken ct)
     {
-        return (await competitionsService.GetCompetition(id, ct)).IsSuccess;
+        return (await competitionsService.GetCompetitionWithoutCompetitors(id, ct)).IsSuccess;
     }
 }

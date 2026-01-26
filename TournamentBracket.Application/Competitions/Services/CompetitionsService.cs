@@ -78,7 +78,18 @@ public class CompetitionsService : ICompetitionsService
         return Result<int>.Success(competitionsCount);
     }
 
-    public async Task<Result<Competition>> GetCompetition(Guid id, CancellationToken ct = default)
+    public async Task<Result<Competition>> GetCompetitionWithoutCompetitors(Guid id, CancellationToken ct = default)
+    {
+        var competition = await dbContext.Competitions
+            .Include(c => c.Divisions)
+            .IgnoreAutoIncludes()
+            .FirstOrDefaultAsync(e => e.Id == id, cancellationToken: ct);
+        return competition == null
+            ? Result<Competition>.FailedWith(new Error("Not found", 404))
+            : Result<Competition>.Success(competition);
+    }
+    
+    public async Task<Result<Competition>> GetCompetitionFull(Guid id, CancellationToken ct = default)
     {
         var competition = await dbContext.Competitions
             .FirstOrDefaultAsync(e => e.Id == id, cancellationToken: ct);
@@ -89,7 +100,7 @@ public class CompetitionsService : ICompetitionsService
 
     public async Task<Result> UpdateCompetition(UpdateCompetitionCommand command, CancellationToken ct = default)
     {
-        var competitionResult = await GetCompetition(command.Id, ct);
+        var competitionResult = await GetCompetitionWithoutCompetitors(command.Id, ct);
         if (!competitionResult.IsSuccess)
             return competitionResult;
 
@@ -106,7 +117,7 @@ public class CompetitionsService : ICompetitionsService
 
     public async Task<Result> DeleteCompetition(Guid id, CancellationToken ct = default)
     {
-        var competitionResult = await GetCompetition(id, ct);
+        var competitionResult = await GetCompetitionWithoutCompetitors(id, ct);
         if (!competitionResult.IsSuccess)
             return competitionResult;
         dbContext.Competitions.Remove(competitionResult.Item!);
@@ -121,7 +132,7 @@ public class CompetitionsService : ICompetitionsService
         await using var transaction = await dbContext.Database.BeginTransactionAsync(ct);
         try
         {
-            var competitionResult = await GetCompetition(competitionId, ct);
+            var competitionResult = await GetCompetitionWithoutCompetitors(competitionId, ct);
             if (!competitionResult.IsSuccess)
                 return competitionResult;
             var competition = competitionResult.Item!;
@@ -195,7 +206,7 @@ public class CompetitionsService : ICompetitionsService
 
     public async Task<Result> RemoveCompetitor(Guid competitionId, RemoveCompetitorCommand command, CancellationToken ct = default)
     {
-        var competitionResult = await GetCompetition(competitionId, ct);
+        var competitionResult = await GetCompetitionWithoutCompetitors(competitionId, ct);
         if (!competitionResult.IsSuccess)
             return competitionResult;
         var competition = competitionResult.Item!;

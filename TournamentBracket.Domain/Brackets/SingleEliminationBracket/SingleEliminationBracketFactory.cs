@@ -96,15 +96,15 @@ public class SingleEliminationBracketFactory : IBracketFactory
 
     private Dictionary<string, List<Competitor>> GetGroupedOrderByTrainersCompetitors(IList<Competitor> competitors)
     {
-        //Группируем по тренерам и сортируем по размеру полученных групп
+        //Группируем по субъектам и сортируем по размеру полученных групп
         return competitors
-            .GroupBy(c => GetTrainersListId(c.Trainers))
+            .GroupBy(c => c.Subject)
             .ToDictionary(g => g.Key, g => g.ToList())
             .OrderByDescending(kvp => kvp.Value.Count)
             .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
-        string GetTrainersListId(IReadOnlyList<Trainer> trainers) =>
-            string.Join(",", trainers.OrderBy(t => t.Id).Select(t => t.Id));
+        //string GetTrainersListId(IReadOnlyList<Trainer> trainers) =>
+        //    string.Join(",", trainers.OrderBy(t => t.Id).Select(t => t.Id));
     }
 
     private List<Competitor?> PlaceCompetitorsBySeed(int[] seed, List<Competitor> competitors)
