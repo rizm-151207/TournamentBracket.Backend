@@ -5,6 +5,7 @@ using TournamentBracket.Application.Competitions.Commands;
 using TournamentBracket.Application.Competitions.DTO;
 using TournamentBracket.Application.Competitions.Interfaces;
 using TournamentBracket.Application.Competitions.Queries;
+using TournamentBracket.Application.Competitions.Responses;
 using TournamentBracket.Application.Competitors.Interfaces;
 using TournamentBracket.Application.Divisions.Interfaces;
 using TournamentBracket.Application.Matches.Interface;
@@ -22,7 +23,7 @@ public class CompetitionsService : ICompetitionsService
     private readonly ITournamentBracketsService tournamentBracketsService;
     private readonly IMatchesService matchesService;
 
-    public CompetitionsService(AppDbContext dbContext, 
+    public CompetitionsService(AppDbContext dbContext,
         ICompetitorService competitorService,
         IDivisionsService divisionsService,
         ITournamentBracketsService tournamentBracketsService,
@@ -35,7 +36,8 @@ public class CompetitionsService : ICompetitionsService
         this.matchesService = matchesService;
     }
 
-    public async Task<Result> CreateCompetition(CreateCompetitionCommand command, CancellationToken ct = default)
+    public async Task<Result<CreateCompetitionResponse>> CreateCompetition(CreateCompetitionCommand command,
+        CancellationToken ct = default)
     {
         var competition = new Competition
         {
@@ -49,7 +51,7 @@ public class CompetitionsService : ICompetitionsService
 
         dbContext.Competitions.Add(competition);
         await dbContext.SaveChangesAsync(ct);
-        return Result.Success();
+        return Result<CreateCompetitionResponse>.Success(new CreateCompetitionResponse(competition.Id));
     }
 
     public async Task<Result<IReadOnlyCollection<Competition>>> GetCompetitions(CompetitionsPageQuery query,
@@ -88,7 +90,7 @@ public class CompetitionsService : ICompetitionsService
             ? Result<Competition>.FailedWith(new Error("Not found", 404))
             : Result<Competition>.Success(competition);
     }
-    
+
     public async Task<Result<Competition>> GetCompetitionFull(Guid id, CancellationToken ct = default)
     {
         var competition = await dbContext.Competitions
@@ -127,7 +129,8 @@ public class CompetitionsService : ICompetitionsService
             : Result.Failed("Some error while deleting");
     }
 
-    public async Task<Result> AddCompetitorAuto(Guid competitionId, AddCompetitorCommand command, CancellationToken ct = default)
+    public async Task<Result> AddCompetitorAuto(Guid competitionId, AddCompetitorCommand command,
+        CancellationToken ct = default)
     {
         await using var transaction = await dbContext.Database.BeginTransactionAsync(ct);
         try
@@ -197,20 +200,21 @@ public class CompetitionsService : ICompetitionsService
             await dbContext.SaveChangesAsync(ct);
             return Result.Success();
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             await transaction.RollbackAsync(ct);
             return e.ToResult();
         }
     }
 
-    public async Task<Result> RemoveCompetitor(Guid competitionId, RemoveCompetitorCommand command, CancellationToken ct = default)
+    public async Task<Result> RemoveCompetitor(Guid competitionId, RemoveCompetitorCommand command,
+        CancellationToken ct = default)
     {
         var competitionResult = await GetCompetitionWithoutCompetitors(competitionId, ct);
         if (!competitionResult.IsSuccess)
             return competitionResult;
         var competition = competitionResult.Item!;
-        
+
         var competitorResult = await competitorService.GetCompetitor(command.CompetitorId, ct);
         if (!competitorResult.IsSuccess)
             return competitorResult;
@@ -220,12 +224,13 @@ public class CompetitionsService : ICompetitionsService
         if (!divisionsResult.IsSuccess)
             return divisionsResult;
         var divisions = divisionsResult.Item!;
-        
+
         var division = divisions.FirstOrDefault(d => d.Competitors.Contains(competitor));
-        if(division is null)
-            return Result.Failed($"Competition {competition.Id} does not contains division with competitor {competitor.Id}");
-        
-        var successRemoveFromDivision= division.TryRemoveCompetitor(competitor);
+        if (division is null)
+            return Result.Failed(
+                $"Competition {competition.Id} does not contains division with competitor {competitor.Id}");
+
+        var successRemoveFromDivision = division.TryRemoveCompetitor(competitor);
         if (!successRemoveFromDivision)
             return Result.Failed($"Some error while removing from division {competitor.Id}");
 
@@ -233,7 +238,7 @@ public class CompetitionsService : ICompetitionsService
         {
             dbContext.Divisions.Remove(division);
         }
-        
+
         await dbContext.SaveChangesAsync(ct);
         return Result.Success();
     }

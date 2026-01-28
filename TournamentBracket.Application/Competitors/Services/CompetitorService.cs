@@ -4,6 +4,7 @@ using TournamentBracket.Application.Competitors.Commands;
 using TournamentBracket.Application.Competitors.DTO;
 using TournamentBracket.Application.Competitors.Interfaces;
 using TournamentBracket.Application.Competitors.Queries;
+using TournamentBracket.Application.Competitors.Responses;
 using TournamentBracket.Domain.Competitors;
 using TournamentBracket.Infrastructure.Common;
 using TournamentBracket.Infrastructure.Common.Results;
@@ -19,7 +20,7 @@ public class CompetitorService : ICompetitorService
         dbContext = context;
     }
 
-    public async Task<Result> CreateCompetitor(CreateCompetitorCommand command, CancellationToken ct = default)
+    public async Task<Result<CreateCompetitorResponse>> CreateCompetitor(CreateCompetitorCommand command, CancellationToken ct = default)
     {
         var competitor = new Competitor
         {
@@ -49,7 +50,7 @@ public class CompetitorService : ICompetitorService
         dbContext.Competitors.Add(competitor);
         await dbContext.SaveChangesAsync(ct);
 
-        return Result.Success();
+        return Result<CreateCompetitorResponse>.Success(new CreateCompetitorResponse(competitor.Id));
     }
 
     public async Task<Result<IReadOnlyCollection<Competitor>>> GetCompetitors(CompetitorsPageQuery query,
