@@ -27,9 +27,9 @@ public class AuthController : ControllerBase
         [FromServices] RegisterUserCommandValidator commandValidator)
     {
         var validationResult = await commandValidator.ValidateAsync(registerUserCommand);
-        if(!validationResult.IsValid)
+        if (!validationResult.IsValid)
             return BadRequest(validationResult.Errors);
-        
+
         var signUpResult = await authService.Register(registerUserCommand);
 
         if (!signUpResult.IsSuccess)
@@ -39,13 +39,13 @@ public class AuthController : ControllerBase
 
     [HttpPost("login")]
     public async Task<IActionResult> Login(
-        [FromBody] LoginUserCommand loginUserCommand, 
+        [FromBody] LoginUserCommand loginUserCommand,
         [FromServices] LoginUserCommandValidator commandValidator)
     {
         var validationResult = await commandValidator.ValidateAsync(loginUserCommand);
-        if(!validationResult.IsValid)
+        if (!validationResult.IsValid)
             return BadRequest(validationResult.Errors);
-        
+
         var loginResult = await authService.Login(loginUserCommand);
         if (!loginResult.IsSuccess)
             return BadRequest(loginResult.Error);
@@ -61,6 +61,7 @@ public class AuthController : ControllerBase
             cookieOptions);
 
         return Ok(new TokensResponse(
+            loginResult.Item!.AccessToken,
             loginResult.Item.RefreshToken));
     }
 
@@ -94,9 +95,9 @@ public class AuthController : ControllerBase
         [FromServices] RefreshTokenCommandValidator commandValidator)
     {
         var validationResult = await commandValidator.ValidateAsync(refreshTokenCommand);
-        if(!validationResult.IsValid)
+        if (!validationResult.IsValid)
             return BadRequest(validationResult.Errors);
-        
+
         var userEmail = HttpContext.User.GetClaimByType(ClaimTypes.Email);
         if (userEmail == null)
             return Unauthorized();
@@ -116,6 +117,6 @@ public class AuthController : ControllerBase
         HttpContext.Response.Cookies.Append(AuthConstants.AccessTokenName, newTokensResult.Item!.AccessToken,
             cookieOptions);
 
-        return Ok(new TokensResponse(newTokensResult.Item.RefreshToken));
+        return Ok(new TokensResponse(newTokensResult.Item!.AccessToken, newTokensResult.Item.RefreshToken));
     }
 }
