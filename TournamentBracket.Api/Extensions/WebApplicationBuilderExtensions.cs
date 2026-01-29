@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Linq;
 using TournamentBracket.Application.Users;
 using TournamentBracket.Domain.Users;
 using TournamentBracket.Infrastructure.Common;
@@ -103,6 +104,9 @@ public static class WebApplicationBuilderExtensions
                     OnMessageReceived = context =>
                     {
                         context.Token = context.Request.Cookies[AuthConstants.AccessTokenName];
+                        if (string.IsNullOrEmpty(context.Token))
+                            context.Token = ReadAccessToken(context.Request.Body);
+
                         return Task.CompletedTask;
                     }
                 };
@@ -111,6 +115,15 @@ public static class WebApplicationBuilderExtensions
         builder.Services.AddAuthorization();
 
         return builder;
+    }
+
+    private static string? ReadAccessToken(Stream stream)
+    {
+        using var reader = new StreamReader(stream, Encoding.UTF8);
+        var body = reader.ReadToEndAsync().GetAwaiter().GetResult();
+        if(string.IsNullOrEmpty(body))
+            return null;
+        return JObject.Parse(body)[AuthConstants.AccessTokenName]?.ToString();
     }
 
     public static WebApplicationBuilder AddFluentValidation(this WebApplicationBuilder builder)
