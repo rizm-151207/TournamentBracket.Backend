@@ -1,4 +1,5 @@
 ﻿namespace TournamentBracket.Application.Users.Responses;
 
 public record TokensResponse(
-    string? RefreshToken = null);
+    string? AccessToken,
+    string? RefreshToken);
