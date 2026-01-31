@@ -103,13 +103,7 @@ public static class WebApplicationBuilderExtensions
                 {
                     OnMessageReceived = context =>
                     {
-                        context.Token = context.Request.Cookies[AuthConstants.AccessTokenName];
-                        if (string.IsNullOrEmpty(context.Token))
-                        {
-                            context.Request.EnableBuffering();
-                            context.Token = ReadAccessToken(context.Request.Body);
-                            context.Request.Body.Position = 0;
-                        }
+                        //context.Token = context.Request.Cookies[AuthConstants.AccessTokenName];
 
                         return Task.CompletedTask;
                     }
@@ -119,15 +113,6 @@ public static class WebApplicationBuilderExtensions
         builder.Services.AddAuthorization();
 
         return builder;
-    }
-
-    private static string? ReadAccessToken(Stream stream)
-    {
-        using var reader = new StreamReader(stream, Encoding.UTF8, leaveOpen: true);
-        var body = reader.ReadToEndAsync().GetAwaiter().GetResult();
-        if(string.IsNullOrEmpty(body))
-            return null;
-        return JObject.Parse(body)[AuthConstants.AccessTokenName]?.ToString();
     }
 
     public static WebApplicationBuilder AddFluentValidation(this WebApplicationBuilder builder)
