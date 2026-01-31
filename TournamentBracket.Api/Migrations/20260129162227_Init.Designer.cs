@@ -12,7 +12,7 @@ using TournamentBracket.Infrastructure.Common;
 namespace TournamentBracket.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260122163613_Init")]
+    [Migration("20260129162227_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -499,13 +499,19 @@ namespace TournamentBracket.Api.Migrations
                     b.Property<Guid>("MatchId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("FirstCompetitorPenalty")
+                    b.Property<int>("FirstCompetitorChui")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FirstCompetitorKeikoku")
                         .HasColumnType("integer");
 
                     b.Property<int>("FirstCompetitorWazari")
                         .HasColumnType("integer");
 
-                    b.Property<int>("SecondCompetitorPenalty")
+                    b.Property<int>("SecondCompetitorChui")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SecondCompetitorKeikoku")
                         .HasColumnType("integer");
 
                     b.Property<int>("SecondCompetitorWazari")
