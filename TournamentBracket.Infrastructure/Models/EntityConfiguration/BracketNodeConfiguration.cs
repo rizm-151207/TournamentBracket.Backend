@@ -22,7 +22,5 @@ public class BracketNodeConfiguration : IEntityTypeConfiguration<BracketNode>
         
         builder.Navigation(e => e.Match)
             .AutoInclude();
-        
-        builder.Ignore(e => e.Parent);
     }
 }

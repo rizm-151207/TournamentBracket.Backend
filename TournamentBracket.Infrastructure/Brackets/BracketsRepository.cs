@@ -29,13 +29,15 @@ public class BracketsRepository : IBracketsRepository
 
         if (bracket!.Type == BracketType.SingleElimination)
         {
-            var constructedBracket = await LoadSingleEliminationBracket(bracket as SingleEliminationBracket);
+            var constructedBracket = await LoadSingleEliminationBracket(bracket as SingleEliminationBracket, ct);
             return Result<Bracket>.Success(constructedBracket);
         }
+
         throw new NotImplementedException($"Bracket with type {bracket.Type} not implemented.");
     }
 
-    public async Task<Result<IReadOnlyCollection<Bracket>>> GetBrackets(IReadOnlyCollection<Guid> ids, CancellationToken ct = default)
+    public async Task<Result<IReadOnlyCollection<Bracket>>> GetBrackets(IReadOnlyCollection<Guid> ids,
+        CancellationToken ct = default)
     {
         var singleEliminationBrackets = await dbContext.SingleEliminationBrackets
             .Where(b => ids.Contains(b.Id))
@@ -47,7 +49,7 @@ public class BracketsRepository : IBracketsRepository
                     BracketBase = b,
                     BracketNodes = bn.ToList()
                 })
-            .ToDictionaryAsync(g =>  g.BracketBase, g => g.BracketNodes, ct);
+            .ToDictionaryAsync(g => g.BracketBase, g => g.BracketNodes, ct);
 
         var enrichedBrackets = singleEliminationBrackets.Select(kvp =>
             singleEliminationBracketFactory.EnrichBracketWithNodes(kvp.Key, kvp.Value));
@@ -55,14 +57,28 @@ public class BracketsRepository : IBracketsRepository
         return Result<IReadOnlyCollection<Bracket>>.Success(enrichedBrackets.ToList());
     }
 
-    private async Task<SingleEliminationBracket> LoadSingleEliminationBracket(SingleEliminationBracket? bracketBase)
+    public async Task<Result<Bracket>> GetBracketById(Guid id, CancellationToken ct = default)
+    {
+        var seBase =
+            await dbContext.SingleEliminationBrackets.SingleOrDefaultAsync(b => b.Id == id, ct);
+        if (seBase is not null)
+        {
+            var seBracket = await LoadSingleEliminationBracket(seBase, ct);
+            return Result<Bracket>.Success(seBracket);
+        }
+
+        return Result<Bracket>.FailedWith(new Error($"Bracket with id {id} not found", 404));
+    }
+
+    private async Task<SingleEliminationBracket> LoadSingleEliminationBracket(SingleEliminationBracket? bracketBase,
+        CancellationToken ct = default)
     {
         if (bracketBase is null)
             throw new ArgumentNullException(nameof(bracketBase));
 
         var nodes = await dbContext.BracketNodes
             .Where(b => b.BracketId == bracketBase.Id)
-            .ToListAsync();
+            .ToListAsync(ct);
 
         bracketBase = singleEliminationBracketFactory.EnrichBracketWithNodes(bracketBase, nodes);
         return bracketBase;

@@ -66,6 +66,25 @@ public class SingleEliminationBracket : Bracket
         }
     }
 
+    public override void RefreshBracketAfterMatchUpdate(Match match)
+    {
+        var nodeWithUpdatedMatch = GetAllNodesWithCompetitorsMatches()
+            .FirstOrDefault(n => n.Match == match);
+        if(nodeWithUpdatedMatch is null)
+            return;
+        if (nodeWithUpdatedMatch.Parent is null)
+            return;
+        
+        if(match.TryGetWinner(out var winner))
+            nodeWithUpdatedMatch.Parent.Match.AddCompetitor(winner!);
+
+        if (nodeWithUpdatedMatch.RoundFromFinal == 1 && !match.IsByeMatch) //semifinal
+        {
+            if(match.TryGetLoser(out var loser))
+                ThirdPlace.Match.AddCompetitor(loser!);
+        }
+    }
+
     public IEnumerable<BracketNode> GetAllNodesWithCompetitorsMatches()
     {
         var nodesQueue = new Queue<BracketNode>([Root, ThirdPlace]);

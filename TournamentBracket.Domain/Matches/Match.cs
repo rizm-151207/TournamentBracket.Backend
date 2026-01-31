@@ -14,11 +14,133 @@ public class Match : IEntity<Guid>
     public DateTime? PlannedDateTime { get; set; }
     public DateTime? StartDateTime { get; set; }
     public DateTime? EndDateTime { get; set; }
-    
+
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 
     public bool IsByeMatch => Status is MatchStatus.Finished && MatchProcess.WinReason == WinReason.Bye;
+
+    public void AddCompetitor(Competitor competitor)
+    {
+        if (FirstCompetitor is null)
+        {
+            FirstCompetitor = competitor;
+            Status = SecondCompetitor is null
+                ? MatchStatus.WaitingOtherCompetitor
+                : MatchStatus.Planned;
+        }
+
+        if (SecondCompetitor is null)
+        {
+            SecondCompetitor = competitor;
+            Status = FirstCompetitor is null
+                ? MatchStatus.WaitingOtherCompetitor
+                : MatchStatus.Planned;
+        }
+
+        throw new InvalidOperationException($"Can't add competitor to match. Match {Id} already full");
+    }
+
+    public bool TryGetWinner(out Competitor? winner)
+    {
+        if (Status is MatchStatus.Finished)
+        {
+            if (MatchProcess.Winner == MatchWinner.FirstCompetitor)
+            {
+                winner = FirstCompetitor;
+                return true;
+            }
+
+            if (MatchProcess.Winner == MatchWinner.SecondCompetitor)
+            {
+                winner = SecondCompetitor;
+                return true;
+            }
+        }
+
+        winner = null;
+        return false;
+    }
+    
+    public bool TryGetLoser(out Competitor? loser)
+    {
+        if (Status is MatchStatus.Finished)
+        {
+            if (MatchProcess.Winner == MatchWinner.FirstCompetitor && SecondCompetitor is not null)
+            {
+                loser = SecondCompetitor;
+                return true;
+            }
+
+            if (MatchProcess.Winner == MatchWinner.SecondCompetitor && SecondCompetitor is not null)
+            {
+                loser = FirstCompetitor;
+                return true;
+            }
+        }
+
+        loser = null;
+        return false;
+    }
+
+
+    public void UpdateMatch(MatchUpdateEvent updateEvent)
+    {
+        switch (updateEvent.Type)
+        {
+            case MatchUpdateType.Keikoku:
+                MatchProcess.AddKeikoku(updateEvent.IsFirstCompetitor);
+                break;
+            case MatchUpdateType.Chui:
+                MatchProcess.AddChui(updateEvent.IsFirstCompetitor);
+                break;
+            case MatchUpdateType.Genten:
+                HandleGenten(updateEvent.IsFirstCompetitor);
+                break;
+            case MatchUpdateType.Wazari:
+                MatchProcess.AddWazari(updateEvent.IsFirstCompetitor);
+                break;
+            case MatchUpdateType.Ippon:
+                HandleIppon(updateEvent.IsFirstCompetitor);
+                break;
+            default: throw new ArgumentOutOfRangeException(nameof(updateEvent.Type));
+        }
+
+        TryFinishMatch();
+    }
+
+    private void HandleIppon(bool isFirstCompetitor)
+    {
+        MatchProcess.SetWinner(isFirstCompetitor, WinReason.Ippon);
+        CommitMatchFinish();
+    }
+
+    private void HandleGenten(bool isFirstCompetitor)
+    {
+        MatchProcess.SetWinner(!isFirstCompetitor, WinReason.Sikkaku);
+        CommitMatchFinish();
+    }
+
+    private void TryFinishMatch()
+    {
+        if (MatchProcess.FirstCompetitorWazari == 2 ^ MatchProcess.SecondCompetitorWazari == 2)
+        {
+            MatchProcess.SetWinner(MatchProcess.FirstCompetitorWazari == 2, WinReason.Wazari);
+            CommitMatchFinish();
+        }
+
+        if (MatchProcess.FirstCompetitorChui == 2 ^ MatchProcess.FirstCompetitorChui == 2)
+        {
+            MatchProcess.SetWinner(MatchProcess.SecondCompetitorChui == 2, WinReason.Sikkaku);
+            CommitMatchFinish();
+        }
+    }
+
+    private void CommitMatchFinish()
+    {
+        Status = MatchStatus.Finished;
+        EndDateTime = DateTime.UtcNow;
+    }
 
     public void Clear()
     {

@@ -3,6 +3,7 @@ using TournamentBracket.Application.Common.Helpers;
 using TournamentBracket.Domain.Brackets;
 using TournamentBracket.Domain.Brackets.Abstractions;
 using TournamentBracket.Domain.Competitors;
+using TournamentBracket.Domain.Matches;
 using TournamentBracket.Infrastructure.Brackets.Interfaces;
 using TournamentBracket.Infrastructure.Common;
 using TournamentBracket.Infrastructure.Common.Results;
@@ -42,12 +43,13 @@ public class TournamentBracketsService : ITournamentBracketsService
         }
     }
 
-    public async Task<Result<IReadOnlyCollection<Bracket>>> GetBracketsBracketsIds(IReadOnlyCollection<Guid> ids, CancellationToken ct = default)
+    public async Task<Result<IReadOnlyCollection<Bracket>>> GetBracketsByIds(IReadOnlyCollection<Guid> ids,
+        CancellationToken ct = default)
     {
         var bracketResult = await bracketsRepository.GetBrackets(ids, ct);
         return bracketResult;
     }
-    
+
     public async Task<Result<Bracket>> CreateBracket(
         List<Competitor> competitors,
         CancellationToken ct = default)
@@ -103,6 +105,23 @@ public class TournamentBracketsService : ITournamentBracketsService
             return successAdd
                 ? Result<Bracket>.Success(bracket)
                 : Result<Bracket>.FailedWith("Something goes wrong while adding competitor to bracket");
+        }
+    }
+
+    public async Task<Result> UpdateBracketFromMatch(Guid bracketId, Match match, CancellationToken ct = default)
+    {
+        try
+        {
+            var bracketResult = await bracketsRepository.GetBracketById(bracketId, ct);
+            if (!bracketResult.IsSuccess)
+                return bracketResult;
+
+            bracketResult.Item!.RefreshBracketAfterMatchUpdate(match);
+            return Result.Success();
+        }
+        catch (Exception e)
+        {
+            return e.ToResult();
         }
     }
 }
