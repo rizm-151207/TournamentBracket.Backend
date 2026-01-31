@@ -34,7 +34,7 @@ namespace TournamentBracket.Api.Migrations
 
                     b.HasIndex("DivisionsId");
 
-                    b.ToTable("CompetitorDivision");
+                    b.ToTable("CompetitorDivision", (string)null);
                 });
 
             modelBuilder.Entity("CompetitorTrainer", b =>
@@ -49,7 +49,7 @@ namespace TournamentBracket.Api.Migrations
 
                     b.HasIndex("TrainersId");
 
-                    b.ToTable("CompetitorTrainer");
+                    b.ToTable("CompetitorTrainer", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
@@ -242,7 +242,7 @@ namespace TournamentBracket.Api.Migrations
                     b.HasIndex("MatchId")
                         .IsUnique();
 
-                    b.ToTable("BracketNodes");
+                    b.ToTable("BracketNodes", (string)null);
                 });
 
             modelBuilder.Entity("TournamentBracket.Domain.Brackets.SingleEliminationBracket.SingleEliminationBracket", b =>
@@ -271,7 +271,7 @@ namespace TournamentBracket.Api.Migrations
                     b.HasIndex("ThirdPlaceId")
                         .IsUnique();
 
-                    b.ToTable("SingleEliminationBrackets");
+                    b.ToTable("SingleEliminationBrackets", (string)null);
                 });
 
             modelBuilder.Entity("TournamentBracket.Domain.Competitions.Competition", b =>
@@ -304,7 +304,7 @@ namespace TournamentBracket.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Competitions");
+                    b.ToTable("Competitions", (string)null);
                 });
 
             modelBuilder.Entity("TournamentBracket.Domain.Competitors.Competitor", b =>
@@ -358,7 +358,7 @@ namespace TournamentBracket.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Competitors");
+                    b.ToTable("Competitors", (string)null);
                 });
 
             modelBuilder.Entity("TournamentBracket.Domain.Competitors.Trainer", b =>
@@ -398,7 +398,7 @@ namespace TournamentBracket.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Trainers");
+                    b.ToTable("Trainers", (string)null);
                 });
 
             modelBuilder.Entity("TournamentBracket.Domain.Divisions.Division", b =>
@@ -446,7 +446,7 @@ namespace TournamentBracket.Api.Migrations
 
                     b.HasIndex("CompetitionId");
 
-                    b.ToTable("Divisions");
+                    b.ToTable("Divisions", (string)null);
                 });
 
             modelBuilder.Entity("TournamentBracket.Domain.Matches.Match", b =>
@@ -496,13 +496,19 @@ namespace TournamentBracket.Api.Migrations
                     b.Property<Guid>("MatchId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("FirstCompetitorPenalty")
+                    b.Property<int>("FirstCompetitorChui")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FirstCompetitorKeikoku")
                         .HasColumnType("integer");
 
                     b.Property<int>("FirstCompetitorWazari")
                         .HasColumnType("integer");
 
-                    b.Property<int>("SecondCompetitorPenalty")
+                    b.Property<int>("SecondCompetitorChui")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SecondCompetitorKeikoku")
                         .HasColumnType("integer");
 
                     b.Property<int>("SecondCompetitorWazari")
