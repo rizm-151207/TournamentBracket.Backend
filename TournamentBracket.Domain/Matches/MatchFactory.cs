@@ -44,7 +44,7 @@ public class MatchFactory
         {
             FirstCompetitor = winner ?? throw new NullReferenceException(message: "Bye match can't has null winner"),
             Status = MatchStatus.Finished,
-            MatchProcess = new MatchProcess { Winner = MatchWinner.FirstWinner, WinReason = WinReason.Bye },
+            MatchProcess = new MatchProcess { Winner = MatchWinner.FirstCompetitor, WinReason = WinReason.Bye },
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
         };

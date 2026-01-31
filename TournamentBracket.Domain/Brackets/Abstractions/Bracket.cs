@@ -15,4 +15,5 @@ public abstract class Bracket : IEntity<Guid>
     public abstract bool HasFreeMatch();
     public abstract List<Competitor> GetAllCompetitors();
     public abstract Dictionary<int, IReadOnlyCollection<Match>> GetGroupedMatchesByRounds();
+    public abstract void RefreshBracketAfterMatchUpdate(Match match);
 }

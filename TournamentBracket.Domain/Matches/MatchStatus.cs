@@ -2,7 +2,7 @@
 
 public enum MatchStatus
 {
-    WaitingCompetitors,
+    WaitingOtherCompetitor,
     Unplanned,
     Planned,
     Started,
