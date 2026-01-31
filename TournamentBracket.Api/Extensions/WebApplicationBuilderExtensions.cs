@@ -105,7 +105,11 @@ public static class WebApplicationBuilderExtensions
                     {
                         context.Token = context.Request.Cookies[AuthConstants.AccessTokenName];
                         if (string.IsNullOrEmpty(context.Token))
+                        {
+                            context.Request.EnableBuffering();
                             context.Token = ReadAccessToken(context.Request.Body);
+                            context.Request.Body.Position = 0;
+                        }
 
                         return Task.CompletedTask;
                     }
@@ -119,7 +123,7 @@ public static class WebApplicationBuilderExtensions
 
     private static string? ReadAccessToken(Stream stream)
     {
-        using var reader = new StreamReader(stream, Encoding.UTF8);
+        using var reader = new StreamReader(stream, Encoding.UTF8, leaveOpen: true);
         var body = reader.ReadToEndAsync().GetAwaiter().GetResult();
         if(string.IsNullOrEmpty(body))
             return null;
