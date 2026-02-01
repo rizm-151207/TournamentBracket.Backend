@@ -50,7 +50,7 @@ public class CompetitionsController : ExtendedControllerBase
             return BadRequest(validationResult.Errors);
 
         var creationResult = await competitionsService.CreateCompetition(command);
-        return ToActionResult(creationResult, 204);
+        return ToActionResult(creationResult, 201);
     }
 
     [HttpPatch]

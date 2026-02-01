@@ -52,7 +52,7 @@ public class TrainersController : ExtendedControllerBase
             return BadRequest(validationResult.Errors);
 
         var trainersResult = await trainerService.CreateTrainer(command);
-        return ToActionResult(trainersResult, 204);
+        return ToActionResult(trainersResult, 201);
     }
 
     [HttpPatch]
