@@ -38,8 +38,8 @@ public abstract class ExtendedControllerBase : ControllerBase
         return okCode switch
         {
             200 => Ok(item),
-            201 => Created(),
-            _ => Ok()
+            201 => Created(new Uri(HttpContext.Request.Path, UriKind.Relative), item),
+            _ => Ok(item)
         };
     }
 }
