@@ -4,6 +4,7 @@ using TournamentBracket.Application.Common.Responses;
 using TournamentBracket.Application.Competitors.Commands;
 using TournamentBracket.Application.Competitors.Interfaces;
 using TournamentBracket.Application.Competitors.Queries;
+using TournamentBracket.Application.Competitors.Responses;
 using TournamentBracket.Application.Competitors.Validators;
 using TournamentBracket.Domain.Competitors;
 
@@ -51,7 +52,7 @@ public class CompetitorsController : ExtendedControllerBase
             return BadRequest(validationResult.Errors);
         
         var creationResult = await competitorService.CreateCompetitor(command);
-        return ToActionResult(creationResult, 201);
+        return ToActionResult<CreateCompetitorResponse>(creationResult, 201);
     }
 
     [HttpPatch]
