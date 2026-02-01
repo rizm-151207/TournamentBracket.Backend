@@ -122,7 +122,7 @@ public class Division : IEntity<Guid>
             if (MinWeight is not null)
                 return $" (от {MinWeight} Кг.)";
             if (MaxWeight is not null)
-                return $" (до  {MaxWeight})";
+                return $" (до  {MaxWeight + 1})";
             return "";
         }
 
