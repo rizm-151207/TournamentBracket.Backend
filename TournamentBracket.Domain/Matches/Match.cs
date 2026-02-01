@@ -28,6 +28,7 @@ public class Match : IEntity<Guid>
             Status = SecondCompetitor is null
                 ? MatchStatus.WaitingOtherCompetitor
                 : MatchStatus.Planned;
+            return;
         }
 
         if (SecondCompetitor is null)
@@ -36,6 +37,7 @@ public class Match : IEntity<Guid>
             Status = FirstCompetitor is null
                 ? MatchStatus.WaitingOtherCompetitor
                 : MatchStatus.Planned;
+            return;
         }
 
         throw new InvalidOperationException($"Can't add competitor to match. Match {Id} already full");
@@ -129,7 +131,7 @@ public class Match : IEntity<Guid>
             CommitMatchFinish();
         }
 
-        if (MatchProcess.FirstCompetitorChui == 2 ^ MatchProcess.FirstCompetitorChui == 2)
+        if (MatchProcess.FirstCompetitorChui == 2 ^ MatchProcess.SecondCompetitorChui == 2)
         {
             MatchProcess.SetWinner(MatchProcess.SecondCompetitorChui == 2, WinReason.Sikkaku);
             CommitMatchFinish();
