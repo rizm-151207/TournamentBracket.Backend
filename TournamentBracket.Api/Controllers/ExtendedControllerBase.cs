@@ -28,7 +28,7 @@ public abstract class ExtendedControllerBase : ControllerBase
         return okCode switch
         {
             200 => Ok(),
-            204 => Created(),
+            201 => Created(),
             _ => Ok()
         };
     }
@@ -38,7 +38,7 @@ public abstract class ExtendedControllerBase : ControllerBase
         return okCode switch
         {
             200 => Ok(item),
-            204 => Created(),
+            201 => Created(),
             _ => Ok()
         };
     }
