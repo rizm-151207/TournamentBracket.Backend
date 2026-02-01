@@ -54,5 +54,5 @@ jobs:
             sudo docker stop tournament || true
             sudo docker rm tournament || true
             docker pull ghcr.io/rizm-151207/tournamentbracket.backend:master
-            docker run --name tournament -d -p 80:8080 --restart always ghcr.io/rizm-151207/tournamentbracket.backend:master --migrate
+            docker run --name tournament -d -p 8080:8080 --restart always ghcr.io/rizm-151207/tournamentbracket.backend:master --migrate
             echo "Deployment successful!"
