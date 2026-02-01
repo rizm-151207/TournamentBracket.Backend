@@ -20,7 +20,7 @@ public static class WebApplicationBuilderExtensions
             opt.AllowAnyHeader();
             opt.AllowCredentials();
             opt.AllowAnyMethod();
-            opt.AllowAnyOrigin();
+            opt.SetIsOriginAllowed(_ => true);
         }));
 
         return builder;
@@ -102,7 +102,7 @@ public static class WebApplicationBuilderExtensions
                 {
                     OnMessageReceived = context =>
                     {
-                        if(context.Request.Cookies.TryGetValue(AuthConstants.AccessTokenName, out var token))
+                        if (context.Request.Cookies.TryGetValue(AuthConstants.AccessTokenName, out var token))
                             context.Token = token;
                         return Task.CompletedTask;
                     }
