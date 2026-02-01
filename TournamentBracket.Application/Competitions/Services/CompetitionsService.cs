@@ -60,16 +60,7 @@ public class CompetitionsService : ICompetitionsService
         var competitionsQueryable = ApplyFilter(dbContext.Competitions.AsQueryable(), query.CreateFilter());
         var competitions = await competitionsQueryable
             .SelectPage(query)
-            .ToListAsync(ct);
-        return Result<IReadOnlyCollection<Competition>>.Success(competitions);
-    }
-
-    public async Task<Result<IReadOnlyCollection<Competition>>> GetCompetitionsShorts(CompetitionsPageQuery query,
-        CancellationToken ct = default)
-    {
-        var competitionsQueryable = ApplyFilter(dbContext.Competitions.AsQueryable(), query.CreateFilter());
-        var competitions = await competitionsQueryable
-            .SelectPage(query)
+            .Include(c => c.Divisions)
             .ToListAsync(ct);
         return Result<IReadOnlyCollection<Competition>>.Success(competitions);
     }
