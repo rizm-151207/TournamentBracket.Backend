@@ -29,7 +29,7 @@ public class CompetitionsController : ExtendedControllerBase
         if (!validationResult.IsValid)
             return BadRequest(validationResult.Errors);
 
-        var findResult = await competitionsService.GetCompetitionsShorts(query);
+        var findResult = await competitionsService.GetCompetitions(query);
         if (!findResult.IsSuccess)
             return BadRequest(findResult);
 
