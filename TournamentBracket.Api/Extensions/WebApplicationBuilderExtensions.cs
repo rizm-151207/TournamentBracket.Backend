@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json.Linq;
 using TournamentBracket.Application.Users;
 using TournamentBracket.Domain.Users;
 using TournamentBracket.Infrastructure.Common;
@@ -103,8 +102,8 @@ public static class WebApplicationBuilderExtensions
                 {
                     OnMessageReceived = context =>
                     {
-                        //context.Token = context.Request.Cookies[AuthConstants.AccessTokenName];
-
+                        if(context.Request.Cookies.TryGetValue(AuthConstants.AccessTokenName, out var token))
+                            context.Token = token;
                         return Task.CompletedTask;
                     }
                 };

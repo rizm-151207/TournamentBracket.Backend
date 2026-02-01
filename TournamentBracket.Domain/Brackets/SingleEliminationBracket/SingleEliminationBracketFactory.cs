@@ -189,20 +189,20 @@ public class SingleEliminationBracketFactory : IBracketFactory
 
     private BracketNode ConstructTournamentTreeFromNodes(List<BracketNode> nodes, Guid rootId)
     {
-        var nodesIds = nodes.ToDictionary(n => n.Id, n => n);
-        foreach (var node in nodes)
-        {
-            if (node.ParentNodeId is null)
-                continue;
+        // var nodesIds = nodes.ToDictionary(n => n.Id, n => n);
+        // foreach (var node in nodes)
+        // {
+        //     if (node.ParentNodeId is null)
+        //         continue;
+        //
+        //     var parent = nodesIds[node.ParentNodeId.Value];
+        //     if (parent.Children is null)
+        //         parent.Children = new List<BracketNode>(2) { node };
+        //     else
+        //         parent.Children.Add(node);
+            //node.SetParent(parent);
+        //}
 
-            var parent = nodesIds[node.ParentNodeId.Value];
-            if (parent.Children is null)
-                parent.Children = new List<BracketNode>(2) { node };
-            else
-                parent.Children.Add(node);
-            node.SetParent(parent);
-        }
-
-        return nodesIds[rootId];
+        return nodes.Single(n => n.Id == rootId);
     }
 }

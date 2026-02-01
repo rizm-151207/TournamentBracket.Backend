@@ -78,6 +78,12 @@ public class SingleEliminationBracket : Bracket
         if(match.TryGetWinner(out var winner))
             nodeWithUpdatedMatch.Parent.Match.AddCompetitor(winner!);
 
+        var siblingNodeMatch = nodeWithUpdatedMatch.Parent.Children!
+            .Single(n => n != nodeWithUpdatedMatch)
+            .Match;
+        if(siblingNodeMatch.IsByeMatch && siblingNodeMatch.TryGetWinner(out var byeWinner))
+            nodeWithUpdatedMatch.Parent.Match.AddCompetitor(byeWinner!);
+
         if (nodeWithUpdatedMatch.RoundFromFinal == 1 && !match.IsByeMatch) //semifinal
         {
             if(match.TryGetLoser(out var loser))
