@@ -1,9 +1,13 @@
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using TournamentBracket.Api.Extensions;
 using TournamentBracket.Application.Brackets.Interfaces;
 using TournamentBracket.Application.Brackets.Services;
+using TournamentBracket.Application.Common.Authorization;
+using TournamentBracket.Application.Common.Authorization.Interfaces;
+using TournamentBracket.Application.Competitions.Authorization;
 using TournamentBracket.Application.Competitions.Interfaces;
 using TournamentBracket.Application.Competitions.Services;
 using TournamentBracket.Application.Competitors.Interfaces;
@@ -52,6 +56,8 @@ builder.AddSwaggerWithJwtAuth()
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IResourceAuthorizationService, ResourceAuthorizationService>();
+builder.Services.AddSingleton<IAuthorizationHandler, CompetitionAuthorizationHandler>();
 builder.Services.AddScoped<ICompetitorService, CompetitorService>();
 builder.Services.AddScoped<ITrainerService, TrainerService>();
 builder.Services.AddScoped<ICompetitionsService, CompetitionsService>();

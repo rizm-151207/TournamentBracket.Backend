@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TournamentBracket.Application.Brackets.Interfaces;
+using TournamentBracket.Application.Common.Authorization.Interfaces;
 using TournamentBracket.Application.Common.Helpers;
 using TournamentBracket.Application.Competitions.Commands;
 using TournamentBracket.Application.Competitions.DTO;
@@ -18,25 +19,31 @@ namespace TournamentBracket.Application.Competitions.Services;
 public class CompetitionsService : ICompetitionsService
 {
     private readonly AppDbContext dbContext;
+    private readonly IResourceAuthorizationService authorizationService;
     private readonly ICompetitorService competitorService;
     private readonly IDivisionsService divisionsService;
     private readonly ITournamentBracketsService tournamentBracketsService;
     private readonly IMatchesService matchesService;
 
+
     public CompetitionsService(AppDbContext dbContext,
+        IResourceAuthorizationService authorizationService,
         ICompetitorService competitorService,
         IDivisionsService divisionsService,
         ITournamentBracketsService tournamentBracketsService,
         IMatchesService matchesService)
     {
         this.dbContext = dbContext;
+        this.authorizationService = authorizationService;
         this.competitorService = competitorService;
         this.divisionsService = divisionsService;
         this.tournamentBracketsService = tournamentBracketsService;
         this.matchesService = matchesService;
     }
 
-    public async Task<Result<CreateCompetitionResponse>> CreateCompetition(CreateCompetitionCommand command,
+    public async Task<Result<CreateCompetitionResponse>> CreateCompetition(
+        CreateCompetitionCommand command,
+        string userEmail,
         CancellationToken ct = default)
     {
         var competition = new Competition
@@ -46,7 +53,8 @@ public class CompetitionsService : ICompetitionsService
             StartDateTime = command.StartDateTime,
             Status = CompetitionStatus.Planned,
             CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
+            UpdatedAt = DateTime.UtcNow,
+            OwnerEmail = userEmail
         };
 
         dbContext.Competitions.Add(competition);
@@ -96,8 +104,12 @@ public class CompetitionsService : ICompetitionsService
         var competitionResult = await GetCompetitionWithoutCompetitors(command.Id, ct);
         if (!competitionResult.IsSuccess)
             return competitionResult;
-
         var competition = competitionResult.Item!;
+
+        var authorizeResult = await authorizationService.Authorize(competition);
+        if (!authorizeResult.IsSuccess)
+            return authorizeResult;
+
         competition.Name = command.Name;
         competition.Location = command.Location;
         competition.StartDateTime = command.StartDateTime;
@@ -113,7 +125,13 @@ public class CompetitionsService : ICompetitionsService
         var competitionResult = await GetCompetitionWithoutCompetitors(id, ct);
         if (!competitionResult.IsSuccess)
             return competitionResult;
-        dbContext.Competitions.Remove(competitionResult.Item!);
+        var competition = competitionResult.Item!;
+
+        var authorizeResult = await authorizationService.Authorize(competition);
+        if (!authorizeResult.IsSuccess)
+            return authorizeResult;
+        
+        dbContext.Competitions.Remove(competition);
         var competitionsDeleted = await dbContext.SaveChangesAsync(ct);
         return competitionsDeleted > 0
             ? Result.Success()
@@ -130,6 +148,10 @@ public class CompetitionsService : ICompetitionsService
             if (!competitionResult.IsSuccess)
                 return competitionResult;
             var competition = competitionResult.Item!;
+            
+            var authorizeResult = await authorizationService.Authorize(competition);
+            if (!authorizeResult.IsSuccess)
+                return authorizeResult;
 
             var competitorResult = await competitorService.GetCompetitor(command.CompetitorId, ct);
             if (!competitorResult.IsSuccess)
@@ -205,6 +227,10 @@ public class CompetitionsService : ICompetitionsService
         if (!competitionResult.IsSuccess)
             return competitionResult;
         var competition = competitionResult.Item!;
+        
+        var authorizeResult = await authorizationService.Authorize(competition);
+        if (!authorizeResult.IsSuccess)
+            return authorizeResult;
 
         var competitorResult = await competitorService.GetCompetitor(command.CompetitorId, ct);
         if (!competitorResult.IsSuccess)

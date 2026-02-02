@@ -24,5 +24,8 @@ public class CompetitionConfiguration : IEntityTypeConfiguration<Competition>
             .IsRequired();
         builder.Property(e => e.Status)
             .IsRequired();
+        builder.Property(e => e.OwnerEmail)
+            .IsRequired()
+            .HasMaxLength(100);
     }
 }

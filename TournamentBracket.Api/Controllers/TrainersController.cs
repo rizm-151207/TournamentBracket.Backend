@@ -42,7 +42,7 @@ public class TrainersController : ExtendedControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = "Organizer, Administrator")]
     public async Task<IActionResult> CreateTrainer(
         [FromBody] CreateTrainerCommand command,
         [FromServices] CreateTrainerCommandValidator commandValidator)
@@ -56,7 +56,7 @@ public class TrainersController : ExtendedControllerBase
     }
 
     [HttpPatch]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = "Organizer, Administrator")]
     public async Task<IActionResult> UpdateTrainer(
         [FromBody] UpdateTrainerCommand command,
         [FromServices] UpdateTrainerCommandValidator commandValidator)
@@ -77,7 +77,7 @@ public class TrainersController : ExtendedControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = "Organizer, Administrator")]
     public async Task<IActionResult> DeleteTrainer([FromRoute] Guid id)
     {
         var result = await trainerService.DeleteTrainer(id);

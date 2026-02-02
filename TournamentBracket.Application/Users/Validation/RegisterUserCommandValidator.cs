@@ -16,7 +16,7 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
             .MinimumLength(8)
             .MaximumLength(256);
         RuleFor(c => c.Role)
-            .NotEmpty()
+            .NotNull()
             .IsInEnum();
     }
     
