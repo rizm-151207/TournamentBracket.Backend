@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TournamentBracket.Application.Matches.Commands;
 using TournamentBracket.Application.Matches.Interface;
 
@@ -15,6 +16,7 @@ public class MatchController : ExtendedControllerBase
         this.matchService = matchService;
     }
 
+    [Authorize(Roles = "Organizer, Administrator")]
     [HttpPost("addevent")]
     public async Task<IActionResult> UpdateMatch([FromBody] UpdateMatchCommand command)
     {

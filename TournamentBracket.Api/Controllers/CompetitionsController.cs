@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TournamentBracket.Api.Extensions;
 using TournamentBracket.Application.Common.Responses;
 using TournamentBracket.Application.Competitions.Commands;
 using TournamentBracket.Application.Competitions.Interfaces;
@@ -40,7 +42,7 @@ public class CompetitionsController : ExtendedControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = "Organizer, Administrator")]
     public async Task<IActionResult> CreateCompetition(
         [FromBody] CreateCompetitionCommand command,
         [FromServices] CreateCompetitionCommandValidator validator)
@@ -49,12 +51,13 @@ public class CompetitionsController : ExtendedControllerBase
         if (!validationResult.IsValid)
             return BadRequest(validationResult.Errors);
 
-        var creationResult = await competitionsService.CreateCompetition(command);
+        var userEmail = HttpContext.User.GetClaimByTypeEnsure(ClaimTypes.Email);
+        var creationResult = await competitionsService.CreateCompetition(command, userEmail);
         return ToActionResult(creationResult, 201);
     }
 
     [HttpPatch]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = "Organizer, Administrator")]
     public async Task<IActionResult> UpdateCompetition(
         [FromBody] UpdateCompetitionCommand command,
         [FromServices] UpdateCompetitionCommandValidator validator)
@@ -68,7 +71,7 @@ public class CompetitionsController : ExtendedControllerBase
     }
 
     [HttpPatch("{id}/addcompetitor")]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = "Organizer, Administrator")]
     public async Task<IActionResult> AddCompetitor(
         [FromRoute] Guid id,
         [FromBody] AddCompetitorCommand command)
@@ -85,7 +88,7 @@ public class CompetitionsController : ExtendedControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = "Organizer, Administrator")]
     public async Task<IActionResult> DeleteCompetition([FromRoute] Guid id)
     {
         var result = await competitionsService.DeleteCompetition(id);
@@ -93,7 +96,7 @@ public class CompetitionsController : ExtendedControllerBase
     }
 
     [HttpDelete("{id}/removecompetitor")]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = "Organizer, Administrator")]
     public async Task<IActionResult> RemoveCompetitor(
         [FromRoute] Guid id,
         [FromBody] RemoveCompetitorCommand command)

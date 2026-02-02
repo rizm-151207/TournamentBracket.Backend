@@ -41,7 +41,7 @@ public class CompetitorsController : ExtendedControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = "Organizer, Administrator")]
     public async Task<IActionResult> CreateCompetitor(
         [FromBody] CreateCompetitorCommand command,
         [FromServices] CreateCompetitorCommandValidator commandValidator)
@@ -55,7 +55,7 @@ public class CompetitorsController : ExtendedControllerBase
     }
 
     [HttpPatch]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = "Organizer, Administrator")]
     public async Task<IActionResult> UpdateCompetitor(
         [FromBody] UpdateCompetitorCommand command,
         [FromServices] UpdateCompetitorCommandValidator commandValidator)
@@ -76,7 +76,7 @@ public class CompetitorsController : ExtendedControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Organizer")]
+    [Authorize(Roles = "Organizer, Administrator")]
     public async Task<IActionResult> DeleteCompetitor([FromRoute] Guid id)
     {
         var result = await competitorService.DeleteCompetitor(id);

@@ -9,7 +9,7 @@ namespace TournamentBracket.Application.Competitions.Interfaces;
 
 public interface ICompetitionsService
 {
-    public Task<Result<CreateCompetitionResponse>> CreateCompetition(CreateCompetitionCommand command, CancellationToken ct = default); 
+    public Task<Result<CreateCompetitionResponse>> CreateCompetition(CreateCompetitionCommand command, string userEmail, CancellationToken ct = default); 
     public Task<Result<IReadOnlyCollection<Competition>>> GetCompetitions(CompetitionsPageQuery query, CancellationToken ct = default);
     public Task<Result<int>> GetCount(CompetitionsFilter filter, CancellationToken ct = default); 
     public Task<Result<Competition>> GetCompetitionWithoutCompetitors(Guid id, CancellationToken ct = default);

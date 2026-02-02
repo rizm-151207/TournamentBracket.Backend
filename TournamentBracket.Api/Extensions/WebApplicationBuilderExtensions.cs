@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using TournamentBracket.Application.Common.Authorization;
 using TournamentBracket.Application.Users;
 using TournamentBracket.Domain.Users;
 using TournamentBracket.Infrastructure.Common;
@@ -109,7 +110,11 @@ public static class WebApplicationBuilderExtensions
                 };
             });
 
-        builder.Services.AddAuthorization();
+        builder.Services.AddAuthorization(options =>
+        {
+            options.AddPolicy("competition-policy",
+                x => x.AddRequirements(BaseResourceRequirement.Item));
+        });
 
         return builder;
     }

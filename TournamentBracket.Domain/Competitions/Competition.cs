@@ -12,7 +12,8 @@ public class Competition : IEntity<Guid>
     public string Location { get; set; }
     public DateTime StartDateTime { get; set; }
     public CompetitionStatus Status { get; set; }
-    
+    public string OwnerEmail { get; set; }
+
     //links
     public List<Division>? Divisions { get; set; }
 
