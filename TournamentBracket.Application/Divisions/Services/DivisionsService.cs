@@ -39,13 +39,23 @@ public class DivisionsService : IDivisionsService
         return Result<Division?>.Success(suitableDivision);
     }
 
-    public async Task<Result<Division>> ConstructSuitableDivision(Guid competitionId, Competitor competitor,
+    public Task<Result<Division>> ConstructSuitableDivision(Guid competitionId, Competitor competitor,
         CancellationToken ct = default)
     {
         var defaultDivisions = divisionsFactory.CreateDefaultDivisions(competitionId);
         var suitableDivision = defaultDivisions.SingleOrDefault(d => d.IsCompetitorFits(competitor))
             ?? throw new NullReferenceException($"Can't find division for competitor {competitor.FirstName} {competitor.LastName} {competitor.MiddleName}");
 
-        return Result<Division>.Success(suitableDivision);
+        return Task.FromResult(Result<Division>.Success(suitableDivision));
+    }
+
+    public async Task<Result<IReadOnlyCollection<Division>>> GetDivisionsWithCompetitor(Guid competitorId,
+        CancellationToken ct = default)
+    {
+        var divisions = await dbContext.Divisions
+            .Where(d => d.Competitors.Any(c => c.Id == competitorId))
+            .ToListAsync(ct);
+        
+        return Result<IReadOnlyCollection<Division>>.Success(divisions);
     }
 }
