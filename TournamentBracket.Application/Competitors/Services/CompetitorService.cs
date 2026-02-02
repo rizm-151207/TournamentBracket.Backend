@@ -5,6 +5,8 @@ using TournamentBracket.Application.Competitors.DTO;
 using TournamentBracket.Application.Competitors.Interfaces;
 using TournamentBracket.Application.Competitors.Queries;
 using TournamentBracket.Application.Competitors.Responses;
+using TournamentBracket.Application.Divisions.Interfaces;
+using TournamentBracket.Application.Matches.Interface;
 using TournamentBracket.Domain.Competitors;
 using TournamentBracket.Infrastructure.Common;
 using TournamentBracket.Infrastructure.Common.Results;
@@ -14,13 +16,18 @@ namespace TournamentBracket.Application.Competitors.Services;
 public class CompetitorService : ICompetitorService
 {
     private readonly AppDbContext dbContext;
+    private readonly IMatchesService matchesService;
+    private readonly IDivisionsService divisionsService;
 
-    public CompetitorService(AppDbContext context)
+    public CompetitorService(AppDbContext context, IMatchesService matchesService, IDivisionsService divisionsService)
     {
         dbContext = context;
+        this.matchesService = matchesService;
+        this.divisionsService = divisionsService;
     }
 
-    public async Task<Result<CreateCompetitorResponse>> CreateCompetitor(CreateCompetitorCommand command, CancellationToken ct = default)
+    public async Task<Result<CreateCompetitorResponse>> CreateCompetitor(CreateCompetitorCommand command,
+        CancellationToken ct = default)
     {
         var competitor = new Competitor
         {
@@ -56,8 +63,9 @@ public class CompetitorService : ICompetitorService
     public async Task<Result<IReadOnlyCollection<Competitor>>> GetCompetitors(CompetitorsPageQuery query,
         CancellationToken ct = default)
     {
-        var queryable = dbContext.Competitors.AsQueryable().SelectPage(query);
-        queryable = AddFilterToQueryable(queryable, query.CreateFilter());
+        var queryable = dbContext.Competitors.AsQueryable();
+        queryable = AddFilterToQueryable(queryable, query.CreateFilter())
+            .SelectPage(query);
 
         var competitors = await queryable.ToListAsync(ct);
         return Result<IReadOnlyCollection<Competitor>>.Success(competitors);
@@ -71,8 +79,8 @@ public class CompetitorService : ICompetitorService
         var competitors = await dbContext.Competitors
             .Where(c => distinctCompetitorsIds.Contains(c.Id))
             .ToListAsync(ct);
-        
-        return competitors.Count == distinctCompetitorsIds.Count 
+
+        return competitors.Count == distinctCompetitorsIds.Count
             ? Result<IReadOnlyCollection<Competitor>>.Success(competitors)
             : Result<IReadOnlyCollection<Competitor>>.FailedWith(new Error(GetNotFoundCompetitorsIdsMessage(), 404));
 
@@ -137,11 +145,26 @@ public class CompetitorService : ICompetitorService
         var competitorResult = await GetCompetitor(id, ct);
         if (!competitorResult.IsSuccess)
             return competitorResult;
-        dbContext.Competitors.Remove(competitorResult.Item!);
-        var competitorsDeleted = await dbContext.SaveChangesAsync(ct);
-        return competitorsDeleted > 0
-            ? Result.Success()
-            : Result.Failed("Some error while deleting");
+
+        var competitor = competitorResult.Item!;
+        competitor.IsDeleted = true;
+        competitor.DeletedAt = DateTime.UtcNow;
+
+        var unfinishedMatches = await matchesService.GetUnfinishedMatchesForCompetitor(id, ct);
+        if(!unfinishedMatches.IsSuccess)
+            return unfinishedMatches;
+        if (unfinishedMatches.Item!.Any())
+            return Result.Failed(new Error($"Can't delete competitor. He participate in {unfinishedMatches.Item!.Count} matches"));
+        
+        var divisionsWithCompetitorResult = await divisionsService.GetDivisionsWithCompetitor(id, ct);
+        if(!divisionsWithCompetitorResult.IsSuccess)
+            return divisionsWithCompetitorResult;
+        var divisions = divisionsWithCompetitorResult.Item!;
+        foreach (var division in divisions)
+            division.Competitors.Remove(competitor);
+
+        await dbContext.SaveChangesAsync(ct);
+        return Result.Success();
     }
 
     private IQueryable<Competitor> AddFilterToQueryable(IQueryable<Competitor> queryable, CompetitorsFilter filter)
@@ -155,7 +178,9 @@ public class CompetitorService : ICompetitorService
             if (queryFioParts.Any())
             {
                 var anyPartRegex = $"%{string.Join("%|%", queryFioParts)}%";
-                queryable = queryable.Where(c => EF.Functions.Like(c.FirstName.ToLower(), anyPartRegex)
+                queryable = queryable
+                    .Where(c => !c.IsDeleted)
+                    .Where(c => EF.Functions.Like(c.FirstName.ToLower(), anyPartRegex)
                                                  || EF.Functions.Like(c.LastName.ToLower(), anyPartRegex)
                                                  || (c.MiddleName != null &&
                                                      EF.Functions.Like(c.MiddleName.ToLower(), anyPartRegex)));

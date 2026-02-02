@@ -3,7 +3,7 @@ using TournamentBracket.Domain.Divisions;
 
 namespace TournamentBracket.Domain.Competitors;
 
-public class Competitor : IEntity<Guid>
+public class Competitor : IEntity<Guid>, ISoftDelete
 {
     public Guid Id { get; set; }
     public string FirstName { get; set; }
@@ -17,9 +17,11 @@ public class Competitor : IEntity<Guid>
     public string Subject { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
-    public List<Trainer> Trainers { get; set; }
+    public List<Trainer>? Trainers { get; set; }
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
     public int Age => DateTime.Now.Year - DateOfBirth.Year;
-    
+
     //links
     public List<Division> Divisions { get; set; } = new();
 }
