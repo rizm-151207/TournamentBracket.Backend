@@ -9,6 +9,7 @@ using TournamentBracket.Application.Competitions.Queries;
 using TournamentBracket.Application.Competitions.Responses;
 using TournamentBracket.Application.Competitors.Interfaces;
 using TournamentBracket.Application.Divisions.Interfaces;
+using TournamentBracket.Application.Matches.Commands;
 using TournamentBracket.Application.Matches.Interface;
 using TournamentBracket.Domain.Competitions;
 using TournamentBracket.Infrastructure.Common;
@@ -258,6 +259,23 @@ public class CompetitionsService : ICompetitionsService
 
         await dbContext.SaveChangesAsync(ct);
         return Result.Success();
+    }
+
+    public async Task<Result> AddMatchEvent(Guid competitionId, UpdateMatchCommand command, CancellationToken ct = default)
+    {
+        var competitionResult = await GetCompetitionWithoutCompetitors(competitionId, ct);
+        if(!competitionResult.IsSuccess)
+            return competitionResult;
+        var competition = competitionResult.Item!;
+        
+        if(competition.Divisions?.All(d => d.TournamentBracketId != command.BracketId) ?? true)
+            return Result.Failed($"Can't find bracket {command.BracketId} in competition {competition.Id}");
+        
+        var authorizeResult = await authorizationService.Authorize(competition);
+        if (!authorizeResult.IsSuccess)
+            return authorizeResult;
+
+        return await matchesService.AddMatchEvent(command, ct);
     }
 
     private IQueryable<Competition> ApplyFilter(IQueryable<Competition> queryable, CompetitionsFilter filter)
