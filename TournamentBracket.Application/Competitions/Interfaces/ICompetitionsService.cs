@@ -2,6 +2,7 @@ using TournamentBracket.Application.Competitions.Commands;
 using TournamentBracket.Application.Competitions.DTO;
 using TournamentBracket.Application.Competitions.Queries;
 using TournamentBracket.Application.Competitions.Responses;
+using TournamentBracket.Application.Matches.Commands;
 using TournamentBracket.Domain.Competitions;
 using TournamentBracket.Infrastructure.Common.Results;
 
@@ -18,4 +19,5 @@ public interface ICompetitionsService
     public Task<Result> DeleteCompetition(Guid id, CancellationToken ct = default);
     public Task<Result> AddCompetitorAuto(Guid competitionId, AddCompetitorCommand command, CancellationToken ct = default);
     public Task<Result> RemoveCompetitor(Guid competitionId, RemoveCompetitorCommand command, CancellationToken ct = default);
+    public Task<Result> AddMatchEvent(Guid competitionId, UpdateMatchCommand command, CancellationToken ct = default);
 }

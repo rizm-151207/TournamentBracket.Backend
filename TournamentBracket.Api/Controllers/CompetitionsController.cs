@@ -7,6 +7,7 @@ using TournamentBracket.Application.Competitions.Commands;
 using TournamentBracket.Application.Competitions.Interfaces;
 using TournamentBracket.Application.Competitions.Queries;
 using TournamentBracket.Application.Competitions.Validators;
+using TournamentBracket.Application.Matches.Commands;
 using TournamentBracket.Domain.Competitions;
 
 namespace TournamentBracket.Api.Controllers;
@@ -103,5 +104,13 @@ public class CompetitionsController : ExtendedControllerBase
     {
         var result = await competitionsService.RemoveCompetitor(id, command);
         return ToActionResult(result);
+    }
+    
+    [Authorize(Roles = "Organizer, Administrator")]
+    [HttpPost("{id}/matches/addevent")]
+    public async Task<IActionResult> UpdateMatch([FromRoute] Guid id, [FromBody] UpdateMatchCommand command)
+    {
+        var updateResult = await competitionsService.AddMatchEvent(id, command);
+        return ToActionResult(updateResult);
     }
 }
