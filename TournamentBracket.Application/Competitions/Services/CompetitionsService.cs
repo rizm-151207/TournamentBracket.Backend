@@ -153,6 +153,9 @@ public class CompetitionsService : ICompetitionsService
             var authorizeResult = await authorizationService.Authorize(competition);
             if (!authorizeResult.IsSuccess)
                 return authorizeResult;
+            
+            if(competition.Status is CompetitionStatus.Started)
+                return Result.Failed(new Error("Competition already started", 400));
 
             var competitorResult = await competitorService.GetCompetitor(command.CompetitorId, ct);
             if (!competitorResult.IsSuccess)
@@ -235,6 +238,9 @@ public class CompetitionsService : ICompetitionsService
             var authorizeResult = await authorizationService.Authorize(competition);
             if (!authorizeResult.IsSuccess)
                 return authorizeResult;
+            
+            if(competition.Status is CompetitionStatus.Started)
+                return Result.Failed(new Error("Competition already started", 400));
 
             var competitorResult = await competitorService.GetCompetitor(command.CompetitorId, ct);
             if (!competitorResult.IsSuccess)
@@ -292,6 +298,8 @@ public class CompetitionsService : ICompetitionsService
         var authorizeResult = await authorizationService.Authorize(competition);
         if (!authorizeResult.IsSuccess)
             return authorizeResult;
+
+        competition.Status = CompetitionStatus.Started;
 
         return await matchesService.AddMatchEvent(command, ct);
     }
