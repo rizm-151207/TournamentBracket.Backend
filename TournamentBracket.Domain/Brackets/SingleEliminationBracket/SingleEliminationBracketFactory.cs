@@ -94,6 +94,49 @@ public class SingleEliminationBracketFactory : IBracketFactory
         }
     }
 
+    public void ReduceBracket(Bracket bracket)
+    {
+        var seBracket = bracket as SingleEliminationBracket ?? throw new ArgumentException();
+        var leafs = GetLeafs(seBracket).ToList();
+        var competitors = leafs
+            .Select(l => l.Match)
+            .SelectMany(m => new List<Competitor?> { m.FirstCompetitor, m.SecondCompetitor })
+            .Where(c => c is not null)
+            .Select(c => c!)
+            .ToList();
+
+        var parents = leafs
+            .Select(l => l.Parent
+                         ?? throw new InvalidOperationException("Can't reduce SE bracket. There is only root node"))
+            .ToHashSet();
+        foreach (var p in parents)
+            p.Children!.Clear();
+        
+        var seed = BracketsHelpers.GetSeed(competitors.Count);
+        var placedCompetitor = PlaceCompetitorsBySeed(seed, competitors);
+        PutCompetitorsToMatches(placedCompetitor, parents.ToList());
+    }
+
+    public void RebalanceBracket(Bracket bracket)
+    {
+        var seBracket = bracket as SingleEliminationBracket ?? throw new ArgumentException();
+        var leafs = GetLeafs(seBracket).ToList();
+
+        var leafMatches = leafs.Select(l => l.Match).ToList();
+        var competitors = leafMatches
+            .SelectMany(m => new List<Competitor?> { m.FirstCompetitor, m.SecondCompetitor })
+            .Where(c => c is not null)
+            .Select(c => c!)
+            .ToList();
+
+        foreach (var match in leafMatches)
+            match.Clear();
+
+        var seed = BracketsHelpers.GetSeed(competitors.Count);
+        var placedCompetitor = PlaceCompetitorsBySeed(seed, competitors);
+        PutCompetitorsToMatches(placedCompetitor, leafs);
+    }
+
     private Dictionary<string, List<Competitor>> GetGroupedOrderByTrainersCompetitors(IList<Competitor> competitors)
     {
         //Группируем по субъектам и сортируем по размеру полученных групп
@@ -141,6 +184,26 @@ public class SingleEliminationBracketFactory : IBracketFactory
         }
 
         return bracketLeafs;
+    }
+
+    private void PutCompetitorsToMatches(List<Competitor?> placedCompetitors, List<BracketNode> nodesWithMatches)
+    {
+        var orderedMatches = nodesWithMatches
+            .OrderBy(n => n.IndexInRound)
+            .Select(n => n.Match)
+            .ToList();
+
+        for (var i = 0; i < orderedMatches.Count; i++)
+        {
+            var match = orderedMatches[i];
+            var firstCompetitor = placedCompetitors[2 * i];
+            var secondCompetitor = placedCompetitors[2 * i + 1];
+            
+            if(firstCompetitor is not null)
+                match.AddCompetitor(firstCompetitor);
+            if(secondCompetitor is not null)
+                match.AddCompetitor(secondCompetitor);
+        }
     }
 
     private List<BracketNode> CreateTreeLeafsWithByeMatch(List<Competitor> placedCompetitors, int roundFromFinal)
@@ -200,9 +263,16 @@ public class SingleEliminationBracketFactory : IBracketFactory
         //         parent.Children = new List<BracketNode>(2) { node };
         //     else
         //         parent.Children.Add(node);
-            //node.SetParent(parent);
+        //node.SetParent(parent);
         //}
 
         return nodes.Single(n => n.Id == rootId);
+    }
+
+    private IEnumerable<BracketNode> GetLeafs(SingleEliminationBracket bracket)
+    {
+        return bracket.GetAllNodes()
+            .Where(n => !(n.RoundFromFinal == 0 && n.IndexInRound == 1)
+                        && (n.Children is null || n.Children.Count == 0));
     }
 }

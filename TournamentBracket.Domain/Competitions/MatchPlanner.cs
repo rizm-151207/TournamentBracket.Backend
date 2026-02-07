@@ -19,11 +19,12 @@ public class MatchPlanner
         var currentMatchDateTime = competition.StartDateTime;
         foreach (var match in orderedMatches)
         {
-            if(match.IsByeMatch)
+            if (match.IsByeMatch)
+            {
+                match.UnplanBye();
                 continue;
-
-            match.Index = $"Поединок {counter}";
-            match.PlannedDateTime = currentMatchDateTime;
+            }
+            match.Plan(counter, currentMatchDateTime);
             
             currentMatchDateTime += matchDuration;
             counter++;

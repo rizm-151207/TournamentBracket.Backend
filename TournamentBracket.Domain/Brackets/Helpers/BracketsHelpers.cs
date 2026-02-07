@@ -2,20 +2,20 @@
 
 public class BracketsHelpers
 {
-    public static int[] GetSeed(int n)
+    public static int[] GetSeed(int competitorsCount)
     {
-        if (!IsPowerOfTwo(n))
-            n = NearestPowerOfTwo(n);
+        if (!IsPowerOfTwo(competitorsCount))
+            competitorsCount = NearestPowerOfTwo(competitorsCount);
 
-        if (n == 1)
+        if (competitorsCount == 1)
             return [1];
-        var halfSeed = GetSeed(n / 2);
+        var halfSeed = GetSeed(competitorsCount / 2);
 
-        var result = new List<int>(n);
+        var result = new List<int>(competitorsCount);
         foreach (var x in halfSeed)
         {
             result.Add(x);
-            result.Add(n - x + 1);
+            result.Add(competitorsCount - x + 1);
         }
 
         return result.ToArray();
