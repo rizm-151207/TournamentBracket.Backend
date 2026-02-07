@@ -62,6 +62,18 @@ public class MatchProcess
         Winner = isFirstCompetitor ? MatchWinner.FirstCompetitor : MatchWinner.SecondCompetitor;
         WinReason = winReason;
     }
+
+    public void Clear()
+    {
+        FirstCompetitorWazari = 0;
+        FirstCompetitorKeikoku = 0;
+        FirstCompetitorChui = 0;
+        SecondCompetitorWazari = 0;
+        SecondCompetitorKeikoku = 0;
+        SecondCompetitorChui = 0;
+        Winner = null;
+        WinReason = null;
+    }
 }
 
 public enum MatchWinner

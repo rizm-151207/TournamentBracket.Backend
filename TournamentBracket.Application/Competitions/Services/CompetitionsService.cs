@@ -131,7 +131,7 @@ public class CompetitionsService : ICompetitionsService
         var authorizeResult = await authorizationService.Authorize(competition);
         if (!authorizeResult.IsSuccess)
             return authorizeResult;
-        
+
         dbContext.Competitions.Remove(competition);
         var competitionsDeleted = await dbContext.SaveChangesAsync(ct);
         return competitionsDeleted > 0
@@ -149,7 +149,7 @@ public class CompetitionsService : ICompetitionsService
             if (!competitionResult.IsSuccess)
                 return competitionResult;
             var competition = competitionResult.Item!;
-            
+
             var authorizeResult = await authorizationService.Authorize(competition);
             if (!authorizeResult.IsSuccess)
                 return authorizeResult;
@@ -193,7 +193,7 @@ public class CompetitionsService : ICompetitionsService
             }
             else
             {
-                var addCompetitorResult = await tournamentBracketsService.AddCompetitorToBracket(
+                var addCompetitorResult = await tournamentBracketsService.AddCompetitorToBracketAuto(
                     suitableDivision.TournamentBracketId,
                     suitableDivision.BracketType, competitor, ct);
                 if (!addCompetitorResult.IsSuccess)
@@ -224,53 +224,71 @@ public class CompetitionsService : ICompetitionsService
     public async Task<Result> RemoveCompetitor(Guid competitionId, RemoveCompetitorCommand command,
         CancellationToken ct = default)
     {
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(ct);
+        try
+        {
+            var competitionResult = await GetCompetitionWithoutCompetitors(competitionId, ct);
+            if (!competitionResult.IsSuccess)
+                return competitionResult;
+            var competition = competitionResult.Item!;
+
+            var authorizeResult = await authorizationService.Authorize(competition);
+            if (!authorizeResult.IsSuccess)
+                return authorizeResult;
+
+            var competitorResult = await competitorService.GetCompetitor(command.CompetitorId, ct);
+            if (!competitorResult.IsSuccess)
+                return competitorResult;
+            var competitor = competitorResult.Item!;
+
+            var divisionsResult = await divisionsService.GetDivisionsByCompetitionId(competitionId, ct);
+            if (!divisionsResult.IsSuccess)
+                return divisionsResult;
+            var divisions = divisionsResult.Item!;
+
+            var division = divisions.FirstOrDefault(d => d.Competitors.Contains(competitor));
+            if (division is null)
+                return Result.Failed(
+                    $"Competition {competition.Id} does not contains division with competitor {competitor.Id}");
+            
+            var successRemoveFromDivision = division.TryRemoveCompetitor(competitor);
+            if (!successRemoveFromDivision)
+                return Result.Failed($"Some error while removing from division {competitor.Id}");
+            
+            var removeResult = await tournamentBracketsService.RemoveCompetitorFromBracketAuto(division.TournamentBracketId,
+                division.BracketType, competitor, ct);
+            if(!removeResult.IsSuccess)
+                return removeResult;
+            
+            if (division.Competitors.Count == 0)
+                dbContext.Divisions.Remove(division);
+            
+            await transaction.CommitAsync(ct);
+            
+            var planResult = await matchesService.PlanMatches(competition, ct);
+            if (!planResult.IsSuccess)
+                return planResult;
+            
+            await dbContext.SaveChangesAsync(ct);
+            return Result.Success();
+        }
+        catch (Exception e)
+        {
+            return e.ToResult();
+        }
+    }
+
+    public async Task<Result> AddMatchEvent(Guid competitionId, UpdateMatchCommand command,
+        CancellationToken ct = default)
+    {
         var competitionResult = await GetCompetitionWithoutCompetitors(competitionId, ct);
         if (!competitionResult.IsSuccess)
             return competitionResult;
         var competition = competitionResult.Item!;
-        
-        var authorizeResult = await authorizationService.Authorize(competition);
-        if (!authorizeResult.IsSuccess)
-            return authorizeResult;
 
-        var competitorResult = await competitorService.GetCompetitor(command.CompetitorId, ct);
-        if (!competitorResult.IsSuccess)
-            return competitorResult;
-        var competitor = competitorResult.Item!;
-
-        var divisionsResult = await divisionsService.GetDivisionsByCompetitionId(competitionId, ct);
-        if (!divisionsResult.IsSuccess)
-            return divisionsResult;
-        var divisions = divisionsResult.Item!;
-
-        var division = divisions.FirstOrDefault(d => d.Competitors.Contains(competitor));
-        if (division is null)
-            return Result.Failed(
-                $"Competition {competition.Id} does not contains division with competitor {competitor.Id}");
-
-        var successRemoveFromDivision = division.TryRemoveCompetitor(competitor);
-        if (!successRemoveFromDivision)
-            return Result.Failed($"Some error while removing from division {competitor.Id}");
-
-        if (division.Competitors.Count == 0)
-        {
-            dbContext.Divisions.Remove(division);
-        }
-
-        await dbContext.SaveChangesAsync(ct);
-        return Result.Success();
-    }
-
-    public async Task<Result> AddMatchEvent(Guid competitionId, UpdateMatchCommand command, CancellationToken ct = default)
-    {
-        var competitionResult = await GetCompetitionWithoutCompetitors(competitionId, ct);
-        if(!competitionResult.IsSuccess)
-            return competitionResult;
-        var competition = competitionResult.Item!;
-        
-        if(competition.Divisions?.All(d => d.TournamentBracketId != command.BracketId) ?? true)
+        if (competition.Divisions?.All(d => d.TournamentBracketId != command.BracketId) ?? true)
             return Result.Failed($"Can't find bracket {command.BracketId} in competition {competition.Id}");
-        
+
         var authorizeResult = await authorizationService.Authorize(competition);
         if (!authorizeResult.IsSuccess)
             return authorizeResult;

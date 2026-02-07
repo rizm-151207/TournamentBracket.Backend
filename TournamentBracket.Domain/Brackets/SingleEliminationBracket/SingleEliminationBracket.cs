@@ -29,9 +29,38 @@ public class SingleEliminationBracket : Bracket
 
         if (competitors.Contains(competitor))
             return false;
-
         
         return TryAddToFreeMatch(nodesWithCompetitorsMatches, competitor, competitors.Count);
+    }
+
+    public override bool TryRemoveCompetitorAuto(Competitor competitor, out bool hasEmptyMatch)
+    {
+        hasEmptyMatch = false;
+        var nodesWithCompetitorToRemove = GetAllNodesWithCompetitorsMatches()
+            .Where(b => b.Match.FirstCompetitor == competitor || b.Match.SecondCompetitor == competitor)
+            .ToList();
+        if (nodesWithCompetitorToRemove.Any(n => !n.Match.IsByeMatch))
+            nodesWithCompetitorToRemove = nodesWithCompetitorToRemove
+                .Where(n => !n.Match.IsByeMatch
+                            && n.Match.Status != MatchStatus.Finished
+                            && n.Match.Status != MatchStatus.Started)
+                .ToList();
+
+        var nodeWithCompetitorMatch = nodesWithCompetitorToRemove.SingleOrDefault();
+        if (nodeWithCompetitorMatch is null)
+            return false;
+
+        var match = nodeWithCompetitorMatch.Match;
+        match.RemoveCompetitor(competitor);
+        match.UpdatedAt = DateTime.UtcNow;
+
+        hasEmptyMatch = match.FirstCompetitor is null && match.SecondCompetitor is null;
+        return true;
+    }
+
+    public override IReadOnlyCollection<Match> GetAllMatches()
+    {
+        return GetAllNodes().Select(n => n.Match).ToList();
     }
 
     public override bool HasFreeMatch()
@@ -39,7 +68,7 @@ public class SingleEliminationBracket : Bracket
         var nodesWithMatches = GetAllNodesWithCompetitorsMatches().ToList();
         return nodesWithMatches.Any(n => n.Match.IsByeMatch);
     }
-
+    
     public override List<Competitor> GetAllCompetitors()
     {
         var nodesWithMatches = GetAllNodesWithCompetitorsMatches().ToList();
@@ -50,7 +79,7 @@ public class SingleEliminationBracket : Bracket
             .Distinct()
             .ToList();
     }
-    
+
     public override Dictionary<int, IReadOnlyCollection<Match>> GetGroupedMatchesByRounds()
     {
         return GetAllNodes()
@@ -60,7 +89,7 @@ public class SingleEliminationBracket : Bracket
 
         IReadOnlyCollection<Match> GetSortedMatchesInRound(int round, List<BracketNode> nodes)
         {
-            if(round == 0) // Если это финал/полуфинал сортируем в обратном порядке
+            if (round == 0) // Если это финал/матч за 3 место сортируем в обратном порядке
                 return nodes.OrderByDescending(n => n.IndexInRound).Select(n => n.Match).ToList();
             return nodes.OrderBy(n => n.IndexInRound).Select(n => n.Match).ToList();
         }
@@ -70,23 +99,23 @@ public class SingleEliminationBracket : Bracket
     {
         var nodeWithUpdatedMatch = GetAllNodesWithCompetitorsMatches()
             .FirstOrDefault(n => n.Match == match);
-        if(nodeWithUpdatedMatch is null)
+        if (nodeWithUpdatedMatch is null)
             return;
         if (nodeWithUpdatedMatch.Parent is null)
             return;
-        
-        if(match.TryGetWinner(out var winner))
+
+        if (match.TryGetWinner(out var winner))
             nodeWithUpdatedMatch.Parent.Match.AddCompetitor(winner!);
 
         var siblingNodeMatch = nodeWithUpdatedMatch.Parent.Children!
             .Single(n => n != nodeWithUpdatedMatch)
             .Match;
-        if(siblingNodeMatch.IsByeMatch && siblingNodeMatch.TryGetWinner(out var byeWinner))
+        if (siblingNodeMatch.IsByeMatch && siblingNodeMatch.TryGetWinner(out var byeWinner))
             nodeWithUpdatedMatch.Parent.Match.AddCompetitor(byeWinner!);
 
         if (nodeWithUpdatedMatch.RoundFromFinal == 1 && !match.IsByeMatch) //semifinal
         {
-            if(match.TryGetLoser(out var loser))
+            if (match.TryGetLoser(out var loser))
                 ThirdPlace.Match.AddCompetitor(loser!);
         }
     }
@@ -121,11 +150,10 @@ public class SingleEliminationBracket : Bracket
         {
             var nodeIndex = (n - 1) / 2;
             var match = orderedNodes[nodeIndex].Match;
-            if (match.Status is MatchStatus.Finished && match.MatchProcess.WinReason is WinReason.Bye)
+            if (match.IsByeMatch)
             {
-                match.SecondCompetitor = competitor;
-                match.Status = MatchStatus.Planned;
-                match.MatchProcess.WinReason = WinReason.Bye;
+                match.AddCompetitor(competitor);
+                match.MatchProcess.WinReason = null;
                 match.MatchProcess.Winner = null;
                 return true;
             }

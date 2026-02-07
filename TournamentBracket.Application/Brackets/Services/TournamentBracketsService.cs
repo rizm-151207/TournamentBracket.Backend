@@ -2,6 +2,7 @@
 using TournamentBracket.Application.Common.Helpers;
 using TournamentBracket.Domain.Brackets;
 using TournamentBracket.Domain.Brackets.Abstractions;
+using TournamentBracket.Domain.Brackets.Helpers;
 using TournamentBracket.Domain.Competitors;
 using TournamentBracket.Domain.Matches;
 using TournamentBracket.Infrastructure.Brackets.Interfaces;
@@ -70,7 +71,7 @@ public class TournamentBracketsService : ITournamentBracketsService
         }
     }
 
-    public async Task<Result<Bracket>> AddCompetitorToBracket(Guid bracketId, BracketType bracketType,
+    public async Task<Result<Bracket>> AddCompetitorToBracketAuto(Guid bracketId, BracketType bracketType,
         Competitor competitor, CancellationToken ct = default)
     {
         try
@@ -83,7 +84,10 @@ public class TournamentBracketsService : ITournamentBracketsService
             var competitors = bracket.GetAllCompetitors();
             var newBracketType = bracketTypeResolver.Resolve(competitors.Count);
             if (bracket.Type != newBracketType)
+            {
+                //TODO Delete old bracket
                 return await CreateBracket(competitors, ct);
+            }
 
             if (bracket.HasFreeMatch())
                 return TryAddCompetitor(bracket);
@@ -105,6 +109,67 @@ public class TournamentBracketsService : ITournamentBracketsService
             return successAdd
                 ? Result<Bracket>.Success(bracket)
                 : Result<Bracket>.FailedWith("Something goes wrong while adding competitor to bracket");
+        }
+    }
+
+    public async Task<Result> RemoveCompetitorFromBracketAuto(Guid bracketId, BracketType bracketType,
+        Competitor competitor,
+        CancellationToken ct = default)
+    {
+        try
+        {
+            var bracketResult = await GetBracket(bracketId, bracketType, ct);
+            if (!bracketResult.IsSuccess)
+                return bracketResult;
+            var bracket = bracketResult.Item!;
+
+            var competitors = bracket.GetAllCompetitors();
+            var currentMatches = bracket.GetAllMatches();
+            if (competitors.Count == 1 && competitors[0] == competitor)
+            {
+                dbContext.Matches.RemoveRange(currentMatches);
+                return await bracketsRepository.RemoveBracket(bracket, ct);
+            }
+
+
+            var newBracketType = bracketTypeResolver.Resolve(competitors.Count);
+            if (bracket.Type != newBracketType)
+            {
+                var removeOldBracketResult = await bracketsRepository.RemoveBracket(bracket, ct);
+                if (!removeOldBracketResult.IsSuccess)
+                    return removeOldBracketResult;
+                
+                dbContext.Matches.RemoveRange(currentMatches);
+
+                return await CreateBracket(competitors, ct);
+            }
+
+            var successRemove = bracket.TryRemoveCompetitorAuto(competitor, out var hasEmptyMatch);
+            if (!successRemove)
+                return Result.Failed("Something goes wrong while removing competitor");
+
+            var currentCompetitorsCount = competitors.Count;
+            var bracketFactory = bracketFactoryResolver.ResolveByBracketType(newBracketType);
+            if (BracketsHelpers.NearestPowerOfTwo(currentCompetitorsCount)
+                != BracketsHelpers.NearestPowerOfTwo(currentCompetitorsCount - 1)
+                && currentCompetitorsCount != 2)
+            {
+                bracketFactory.ReduceBracket(bracket);
+                
+                var newMatches =  bracket.GetAllMatches();
+                var trimResult = await bracketsRepository.TrimBracket(bracket, ct);
+                if (!trimResult.IsSuccess)
+                    return trimResult;
+                dbContext.Matches.RemoveRange(currentMatches.Except(newMatches));
+            }
+            else if (hasEmptyMatch)
+                bracketFactory.RebalanceBracket(bracket);
+            
+            return Result.Success();
+        }
+        catch (Exception e)
+        {
+            return e.ToResult<Bracket>();
         }
     }
 

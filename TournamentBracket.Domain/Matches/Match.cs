@@ -27,7 +27,7 @@ public class Match : IEntity<Guid>
             FirstCompetitor = competitor;
             Status = SecondCompetitor is null
                 ? MatchStatus.WaitingOtherCompetitor
-                : MatchStatus.Planned;
+                : MatchStatus.Unplanned;
             return;
         }
 
@@ -36,11 +36,31 @@ public class Match : IEntity<Guid>
             SecondCompetitor = competitor;
             Status = FirstCompetitor is null
                 ? MatchStatus.WaitingOtherCompetitor
-                : MatchStatus.Planned;
+                : MatchStatus.Unplanned;
             return;
         }
 
         throw new InvalidOperationException($"Can't add competitor to match. Match {Id} already full");
+    }
+
+    public void RemoveCompetitor(Competitor competitor)
+    {
+        if (FirstCompetitor != competitor && SecondCompetitor != competitor)
+            throw new InvalidOperationException("Can't find competitor in competition to remove");
+        
+        if (FirstCompetitor == competitor)
+            FirstCompetitor = null;
+        if (SecondCompetitor == competitor)
+            SecondCompetitor = null;
+        
+        MatchProcess.Clear();
+        if (FirstCompetitor != null || SecondCompetitor != null)
+        {
+            MatchProcess.SetWinner(FirstCompetitor is not null, WinReason.Bye);
+            Status = MatchStatus.Finished;
+            CommitMatchFinish();
+        }
+        
     }
 
     public bool TryGetWinner(out Competitor? winner)
@@ -83,6 +103,21 @@ public class Match : IEntity<Guid>
 
         loser = null;
         return false;
+    }
+
+    public void Plan(int index, DateTime plannedTime)
+    {
+        Index = $"Поединок {index}";
+        PlannedDateTime = plannedTime;
+        Status = MatchStatus.Planned;
+    }
+
+    public void UnplanBye()
+    {
+        if (!IsByeMatch)
+            throw new InvalidOperationException($"{nameof(UnplanBye)} method can be used only with bye match");
+        Index = null;
+        PlannedDateTime = null;
     }
 
 

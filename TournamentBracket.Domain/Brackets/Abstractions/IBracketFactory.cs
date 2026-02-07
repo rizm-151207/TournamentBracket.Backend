@@ -6,4 +6,6 @@ public interface IBracketFactory
 {
     public Bracket CreateBracket(IList<Competitor> competitors);
     public void ExtendBracket(Bracket bracket);
+    public void ReduceBracket(Bracket bracket);
+    public void RebalanceBracket(Bracket bracket);
 }
