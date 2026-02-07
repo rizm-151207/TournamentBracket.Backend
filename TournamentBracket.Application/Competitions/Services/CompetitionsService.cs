@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using TournamentBracket.Application.Brackets.Interfaces;
 using TournamentBracket.Application.Common.Authorization.Interfaces;
 using TournamentBracket.Application.Common.Helpers;
@@ -12,6 +14,7 @@ using TournamentBracket.Application.Divisions.Interfaces;
 using TournamentBracket.Application.Matches.Commands;
 using TournamentBracket.Application.Matches.Interface;
 using TournamentBracket.Domain.Competitions;
+using TournamentBracket.Domain.Users;
 using TournamentBracket.Infrastructure.Common;
 using TournamentBracket.Infrastructure.Common.Results;
 
@@ -25,6 +28,7 @@ public class CompetitionsService : ICompetitionsService
     private readonly IDivisionsService divisionsService;
     private readonly ITournamentBracketsService tournamentBracketsService;
     private readonly IMatchesService matchesService;
+    private readonly IHttpContextAccessor httpContextAccessor;
 
 
     public CompetitionsService(AppDbContext dbContext,
@@ -32,7 +36,8 @@ public class CompetitionsService : ICompetitionsService
         ICompetitorService competitorService,
         IDivisionsService divisionsService,
         ITournamentBracketsService tournamentBracketsService,
-        IMatchesService matchesService)
+        IMatchesService matchesService,
+        IHttpContextAccessor httpContextAccessor)
     {
         this.dbContext = dbContext;
         this.authorizationService = authorizationService;
@@ -40,6 +45,7 @@ public class CompetitionsService : ICompetitionsService
         this.divisionsService = divisionsService;
         this.tournamentBracketsService = tournamentBracketsService;
         this.matchesService = matchesService;
+        this.httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<Result<CreateCompetitionResponse>> CreateCompetition(
@@ -66,7 +72,13 @@ public class CompetitionsService : ICompetitionsService
     public async Task<Result<IReadOnlyCollection<Competition>>> GetCompetitions(CompetitionsPageQuery query,
         CancellationToken ct = default)
     {
-        var competitionsQueryable = ApplyFilter(dbContext.Competitions.AsQueryable(), query.CreateFilter());
+        var userRole = httpContextAccessor.HttpContext?.User.Claims
+            .FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+        var userEmail = httpContextAccessor.HttpContext?.User.Claims
+            .FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+
+        var competitionsQueryable =
+            ApplyFilter(dbContext.Competitions.AsQueryable(), query.CreateFilter(), userRole, userEmail);
         var competitions = await competitionsQueryable
             .SelectPage(query)
             .Include(c => c.Divisions)
@@ -76,7 +88,13 @@ public class CompetitionsService : ICompetitionsService
 
     public async Task<Result<int>> GetCount(CompetitionsFilter filter, CancellationToken ct = default)
     {
-        var competitionsCount = await ApplyFilter(dbContext.Competitions.AsQueryable(), filter).CountAsync(ct);
+        var userRole = httpContextAccessor.HttpContext?.User.Claims
+            .FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+        var userEmail = httpContextAccessor.HttpContext?.User.Claims
+            .FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+
+        var competitionsCount = await ApplyFilter(dbContext.Competitions.AsQueryable(), filter, userRole, userEmail)
+            .CountAsync(ct);
         return Result<int>.Success(competitionsCount);
     }
 
@@ -153,8 +171,8 @@ public class CompetitionsService : ICompetitionsService
             var authorizeResult = await authorizationService.Authorize(competition);
             if (!authorizeResult.IsSuccess)
                 return authorizeResult;
-            
-            if(competition.Status is CompetitionStatus.Started)
+
+            if (competition.Status is CompetitionStatus.Started)
                 return Result.Failed(new Error("Competition already started", 400));
 
             var competitorResult = await competitorService.GetCompetitor(command.CompetitorId, ct);
@@ -238,8 +256,8 @@ public class CompetitionsService : ICompetitionsService
             var authorizeResult = await authorizationService.Authorize(competition);
             if (!authorizeResult.IsSuccess)
                 return authorizeResult;
-            
-            if(competition.Status is CompetitionStatus.Started)
+
+            if (competition.Status is CompetitionStatus.Started)
                 return Result.Failed(new Error("Competition already started", 400));
 
             var competitorResult = await competitorService.GetCompetitor(command.CompetitorId, ct);
@@ -256,25 +274,26 @@ public class CompetitionsService : ICompetitionsService
             if (division is null)
                 return Result.Failed(
                     $"Competition {competition.Id} does not contains division with competitor {competitor.Id}");
-            
+
             var successRemoveFromDivision = division.TryRemoveCompetitor(competitor);
             if (!successRemoveFromDivision)
                 return Result.Failed($"Some error while removing from division {competitor.Id}");
-            
-            var removeResult = await tournamentBracketsService.RemoveCompetitorFromBracketAuto(division.TournamentBracketId,
+
+            var removeResult = await tournamentBracketsService.RemoveCompetitorFromBracketAuto(
+                division.TournamentBracketId,
                 division.BracketType, competitor, ct);
-            if(!removeResult.IsSuccess)
+            if (!removeResult.IsSuccess)
                 return removeResult;
-            
+
             if (division.Competitors.Count == 0)
                 dbContext.Divisions.Remove(division);
-            
+
             await transaction.CommitAsync(ct);
-            
+
             var planResult = await matchesService.PlanMatches(competition, ct);
             if (!planResult.IsSuccess)
                 return planResult;
-            
+
             await dbContext.SaveChangesAsync(ct);
             return Result.Success();
         }
@@ -304,10 +323,15 @@ public class CompetitionsService : ICompetitionsService
         return await matchesService.AddMatchEvent(command, ct);
     }
 
-    private IQueryable<Competition> ApplyFilter(IQueryable<Competition> queryable, CompetitionsFilter filter)
+    private IQueryable<Competition> ApplyFilter(IQueryable<Competition> queryable, CompetitionsFilter filter,
+        string? userRole, string? userEmail)
     {
         if (!string.IsNullOrWhiteSpace(filter.Name))
             queryable = queryable.Where(c => c.Name.Contains(filter.Name));
+
+        if (!string.IsNullOrWhiteSpace(userEmail) && userRole != nameof(UserRole.Administrator))
+            queryable = queryable.Where(c => c.OwnerEmail == userEmail);
+
         return queryable;
     }
 }
