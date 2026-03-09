@@ -1,5 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# 
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentBracket.Api", "TournamentBracket.Api\TournamentBracket.Api.csproj", "{993859D7-C72C-43A2-8997-26D996DE01A0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentBracket.Domain", "TournamentBracket.Domain\TournamentBracket.Domain.csproj", "{E75711CB-95DC-4433-AD5A-660B5DFEBC49}"
@@ -7,6 +8,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentBracket.Application", "TournamentBracket.Application\TournamentBracket.Application.csproj", "{00452F64-11FF-4C80-ADFD-98D2FB529CA0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentBracket.Infrastructure", "TournamentBracket.Infrastructure\TournamentBracket.Infrastructure.csproj", "{4B628AC3-D168-499B-AD1D-5E4520851FBA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentBracket.Domain.Tests", "TournamentBracket.Domain.Tests\TournamentBracket.Domain.Tests.csproj", "{BDC5BC2C-3E6D-4B36-B86C-ACEFD506CCDB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,6 +33,10 @@ Global
 		{4B628AC3-D168-499B-AD1D-5E4520851FBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4B628AC3-D168-499B-AD1D-5E4520851FBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4B628AC3-D168-499B-AD1D-5E4520851FBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDC5BC2C-3E6D-4B36-B86C-ACEFD506CCDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDC5BC2C-3E6D-4B36-B86C-ACEFD506CCDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDC5BC2C-3E6D-4B36-B86C-ACEFD506CCDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDC5BC2C-3E6D-4B36-B86C-ACEFD506CCDB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
