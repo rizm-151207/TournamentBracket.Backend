@@ -13,6 +13,7 @@ public class Competition : IEntity<Guid>
     public DateTime StartDateTime { get; set; }
     public CompetitionStatus Status { get; set; }
     public string OwnerEmail { get; set; }
+    public int TatamiCount { get; set; }
 
     //links
     public List<Division>? Divisions { get; set; }

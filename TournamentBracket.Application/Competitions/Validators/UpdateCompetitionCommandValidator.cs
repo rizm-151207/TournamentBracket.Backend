@@ -17,7 +17,6 @@ public class UpdateCompetitionCommandValidator : AbstractValidator<UpdateCompeti
             .WithMessage((_, id) => $"The competition with id {id} not found.")
             .AsNotFound();
         RuleFor(command => command.Status)
-            .NotEmpty()
             .IsInEnum();
     }
 

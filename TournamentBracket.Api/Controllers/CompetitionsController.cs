@@ -88,6 +88,13 @@ public class CompetitionsController : ExtendedControllerBase
         return ToActionResult(result);
     }
 
+    [HttpGet("{id}/matches")]
+    public async Task<IActionResult> GetCompetitionById([FromRoute] Guid id, [FromQuery] MatchesQuery query)
+    {
+        var result = await competitionsService.GetMatches(id, query);
+        return ToActionResult(result);
+    }
+
     [HttpDelete("{id}")]
     [Authorize(Roles = "Organizer, Administrator")]
     public async Task<IActionResult> DeleteCompetition([FromRoute] Guid id)

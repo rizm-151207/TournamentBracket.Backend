@@ -105,9 +105,9 @@ public class Match : IEntity<Guid>
         return false;
     }
 
-    public void Plan(int index, DateTime plannedTime)
+    public void Plan(int tatamiNum, int index, DateTime plannedTime)
     {
-        Index = $"Поединок {index}";
+        Index = $"Поединок {index} (татами {tatamiNum})";
         PlannedDateTime = plannedTime;
         Status = MatchStatus.Planned;
     }

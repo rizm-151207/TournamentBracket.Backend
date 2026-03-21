@@ -89,7 +89,7 @@ public class SingleEliminationBracket : Bracket
 
         IReadOnlyCollection<Match> GetSortedMatchesInRound(int round, List<BracketNode> nodes)
         {
-            if (round == 0) // Если это финал/матч за 3 место сортируем в обратном порядке
+            if (round == 0) // Если это финал/матч за 3 место - сортируем в обратном порядке
                 return nodes.OrderByDescending(n => n.IndexInRound).Select(n => n.Match).ToList();
             return nodes.OrderBy(n => n.IndexInRound).Select(n => n.Match).ToList();
         }

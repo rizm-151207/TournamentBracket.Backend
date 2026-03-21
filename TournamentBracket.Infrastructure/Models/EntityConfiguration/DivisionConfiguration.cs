@@ -17,7 +17,7 @@ public class DivisionConfiguration : IEntityTypeConfiguration<Division>
 
         builder.Navigation(e => e.Competitors)
             .AutoInclude();
-        
+
         builder.Property(e => e.Name)
             .IsRequired()
             .HasMaxLength(256);

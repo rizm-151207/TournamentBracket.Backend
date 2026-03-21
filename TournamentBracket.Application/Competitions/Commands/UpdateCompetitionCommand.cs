@@ -8,9 +8,10 @@ public class UpdateCompetitionCommand : CreateCompetitionCommand
         Guid id,
         string name,
         string location,
+        int tatamiCount,
         DateTime startDateTime,
         CompetitionStatus status)
-        : base(name, location, startDateTime)
+        : base(name, location, tatamiCount, startDateTime)
     {
         Id = id;
         Status = status;

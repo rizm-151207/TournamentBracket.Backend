@@ -175,9 +175,10 @@ public class MatchSpec
         // Arrange
         var plannedTime = DateTime.UtcNow.AddHours(1);
         const int index = 5;
+        const int tatamiNum = 2;
 
         // Act
-        match.Plan(index, plannedTime);
+        match.Plan(tatamiNum, index, plannedTime);
 
         // Assert
         match.Index.Should().Be("Поединок 5");
