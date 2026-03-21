@@ -71,6 +71,8 @@ builder.Services.AddScoped<BracketTypeResolver>();
 builder.Services.AddScoped<BracketFactoryResolver>();
 builder.Services.AddScoped<IBracketsRepository, BracketsRepository>();
 builder.Services.AddScoped<IMatchesService, MatchesService>();
+builder.Services.AddScoped<ICompetitionPlanner, CompetitionPlanner>();
+builder.Services.AddScoped<TatamiDistributor>();
 builder.Services.AddScoped<MatchPlanner>();
 
 

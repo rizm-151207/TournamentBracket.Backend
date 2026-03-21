@@ -27,5 +27,7 @@ public class CompetitionConfiguration : IEntityTypeConfiguration<Competition>
         builder.Property(e => e.OwnerEmail)
             .IsRequired()
             .HasMaxLength(100);
+        builder.Property(e => e.TatamiCount)
+            .IsRequired();
     }
 }

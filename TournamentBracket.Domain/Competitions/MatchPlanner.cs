@@ -7,11 +7,15 @@ namespace TournamentBracket.Domain.Competitions;
 public class MatchPlanner
 {
     private readonly TimeSpan matchDuration = TimeSpan.FromMinutes(3);
-    
-    public bool PlanMatchesForCompetitions(Competition competition, IReadOnlyDictionary<Division, Bracket> divisionsWithBrackets)
+
+    public bool PlanMatchesForDivisionsOnTatami(
+        Competition competition,
+        List<Division> divisions,
+        int tatamiNum,
+        IReadOnlyDictionary<Division, Bracket> divisionsWithBrackets)
     {
-        var orderedMatches = divisionsWithBrackets
-            .SelectMany(kvp => GetSortKeyForRound(kvp.Key, kvp.Value))
+        var orderedMatches = divisions
+            .SelectMany(d => GetSortKeyForRound(d, divisionsWithBrackets[d]))
             .OrderBy(tuple => (-tuple.roundFromFinal, tuple.minAge))
             .SelectMany(tuple => tuple.orderedMatches);
 
@@ -24,8 +28,8 @@ public class MatchPlanner
                 match.UnplanBye();
                 continue;
             }
-            match.Plan(counter, currentMatchDateTime);
-            
+            match.Plan(tatamiNum, counter, currentMatchDateTime);
+
             currentMatchDateTime += matchDuration;
             counter++;
         }

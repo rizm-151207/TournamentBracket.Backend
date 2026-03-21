@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Collections.ObjectModel;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using TournamentBracket.Application.Brackets.Interfaces;
@@ -14,6 +15,7 @@ using TournamentBracket.Application.Divisions.Interfaces;
 using TournamentBracket.Application.Matches.Commands;
 using TournamentBracket.Application.Matches.Interface;
 using TournamentBracket.Domain.Competitions;
+using TournamentBracket.Domain.Matches;
 using TournamentBracket.Domain.Users;
 using TournamentBracket.Infrastructure.Common;
 using TournamentBracket.Infrastructure.Common.Results;
@@ -28,6 +30,7 @@ public class CompetitionsService : ICompetitionsService
     private readonly IDivisionsService divisionsService;
     private readonly ITournamentBracketsService tournamentBracketsService;
     private readonly IMatchesService matchesService;
+    private readonly ICompetitionPlanner competitionPlanner;
     private readonly IHttpContextAccessor httpContextAccessor;
 
 
@@ -37,6 +40,7 @@ public class CompetitionsService : ICompetitionsService
         IDivisionsService divisionsService,
         ITournamentBracketsService tournamentBracketsService,
         IMatchesService matchesService,
+        ICompetitionPlanner competitionPlanner,
         IHttpContextAccessor httpContextAccessor)
     {
         this.dbContext = dbContext;
@@ -45,6 +49,7 @@ public class CompetitionsService : ICompetitionsService
         this.divisionsService = divisionsService;
         this.tournamentBracketsService = tournamentBracketsService;
         this.matchesService = matchesService;
+        this.competitionPlanner = competitionPlanner;
         this.httpContextAccessor = httpContextAccessor;
     }
 
@@ -58,6 +63,7 @@ public class CompetitionsService : ICompetitionsService
             Name = command.Name,
             Location = command.Location,
             StartDateTime = command.StartDateTime,
+            TatamiCount = command.TatamiCount,
             Status = CompetitionStatus.Planned,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
@@ -84,6 +90,25 @@ public class CompetitionsService : ICompetitionsService
             .Include(c => c.Divisions)
             .ToListAsync(ct);
         return Result<IReadOnlyCollection<Competition>>.Success(competitions);
+    }
+
+    public async Task<Result<IReadOnlyCollection<Match>>> GetMatches(Guid competitionId, MatchesQuery query, CancellationToken ct = default)
+    {
+        var divisionsResult = await divisionsService.GetDivisionsByCompetitionId(competitionId, ct);
+        if (!divisionsResult.IsSuccess)
+            return Result<IReadOnlyCollection<Match>>.FailedWith(divisionsResult.Error!);
+
+        var filteredDivisions = divisionsResult.Item!.AsEnumerable();
+        if (query.Tatami.HasValue)
+            filteredDivisions = filteredDivisions.Where(d => d.Tatami == query.Tatami);
+
+        var bracketsResult = await tournamentBracketsService.GetBracketsByIds(filteredDivisions.Select(d => d.TournamentBracketId).ToList(), ct);
+        if (!bracketsResult.IsSuccess)
+            return Result<IReadOnlyCollection<Match>>.FailedWith(bracketsResult.Error!);
+        var brackets = bracketsResult.Item!;
+        var matches = new ReadOnlyCollection<Match>(brackets.SelectMany(b => b.GetAllMatches()).ToList());
+
+        return Result<IReadOnlyCollection<Match>>.Success(matches);
     }
 
     public async Task<Result<int>> GetCount(CompetitionsFilter filter, CancellationToken ct = default)
@@ -129,11 +154,22 @@ public class CompetitionsService : ICompetitionsService
         if (!authorizeResult.IsSuccess)
             return authorizeResult;
 
+        var oldTatamiCount = competition.TatamiCount;
+        var oldStartDateTime = competition.StartDateTime;
+
         competition.Name = command.Name;
         competition.Location = command.Location;
+        competition.TatamiCount = command.TatamiCount;
         competition.StartDateTime = command.StartDateTime;
         competition.Status = command.Status;
         competition.UpdatedAt = DateTime.UtcNow;
+
+        if (oldTatamiCount != competition.TatamiCount || oldStartDateTime != competition.StartDateTime)
+        {
+            var replanResult = await competitionPlanner.PlanMatches(competition, ct);
+            if (!replanResult.IsSuccess)
+                return replanResult;
+        }
 
         await dbContext.SaveChangesAsync(ct);
         return Result.Success();
@@ -228,7 +264,7 @@ public class CompetitionsService : ICompetitionsService
             //dbContext.Divisions.Add(suitableDivision);
             await transaction.CommitAsync(ct);
 
-            var planResult = await matchesService.PlanMatches(competition, ct);
+            var planResult = await competitionPlanner.PlanMatches(competition, ct);
             if (!planResult.IsSuccess)
                 return planResult;
 
@@ -290,7 +326,7 @@ public class CompetitionsService : ICompetitionsService
 
             await transaction.CommitAsync(ct);
 
-            var planResult = await matchesService.PlanMatches(competition, ct);
+            var planResult = await competitionPlanner.PlanMatches(competition, ct);
             if (!planResult.IsSuccess)
                 return planResult;
 

@@ -20,12 +20,13 @@ public class Division : IEntity<Guid>
     public float? MinWeight { get; set; }
     public float? MaxWeight { get; set; }
     public bool Gender { get; set; }
-    public Guid TournamentBracketId {get; set; }
+    public int? Tatami { get; set; }
+    public Guid TournamentBracketId { get; set; }
     public BracketType BracketType { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public List<Competitor> Competitors { get; private set; } = new();
-    
+
     //links
     public Competition Competition { get; private set; }
 
@@ -117,7 +118,7 @@ public class Division : IEntity<Guid>
 
         string GetWeightPart()
         {
-            if(MinWeight is not null && MaxWeight is not null)
+            if (MinWeight is not null && MaxWeight is not null)
                 return $" ({MinWeight} - {MaxWeight} Кг.)";
             if (MinWeight is not null)
                 return $" (от {MinWeight} Кг.)";

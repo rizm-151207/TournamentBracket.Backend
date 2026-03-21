@@ -3,7 +3,6 @@ using TournamentBracket.Application.Brackets.Interfaces;
 using TournamentBracket.Application.Common.Helpers;
 using TournamentBracket.Application.Matches.Commands;
 using TournamentBracket.Application.Matches.Interface;
-using TournamentBracket.Domain.Competitions;
 using TournamentBracket.Domain.Matches;
 using TournamentBracket.Infrastructure.Common;
 using TournamentBracket.Infrastructure.Common.Results;
@@ -13,36 +12,14 @@ namespace TournamentBracket.Application.Matches.Services;
 public class MatchesService : IMatchesService
 {
     private readonly AppDbContext dbContext;
-    private readonly MatchPlanner matchPlanner;
     private readonly ITournamentBracketsService tournamentBracketsService;
 
     public MatchesService(
         AppDbContext dbContext,
-        MatchPlanner matchPlanner,
         ITournamentBracketsService tournamentBracketsService)
     {
         this.dbContext = dbContext;
-        this.matchPlanner = matchPlanner;
         this.tournamentBracketsService = tournamentBracketsService;
-    }
-
-    public async Task<Result> PlanMatches(Competition competition, CancellationToken ct = default)
-    {
-        if (competition.Divisions is null || competition.Divisions.Count == 0)
-            return Result.Success();
-
-        var bracketsResult = await tournamentBracketsService.GetBracketsByIds(
-            competition.Divisions.Select(d => d.TournamentBracketId).ToList(), ct);
-
-        if (!bracketsResult.IsSuccess)
-            return bracketsResult;
-
-        var bracketIds = bracketsResult.Item!.ToDictionary(b => b.Id, b => b);
-        var divisionsWithBRackets = competition.Divisions!.ToDictionary(d => d, d => bracketIds[d.TournamentBracketId]);
-
-        return matchPlanner.PlanMatchesForCompetitions(competition, divisionsWithBRackets)
-            ? Result.Success()
-            : Result.Failed("Something went wring while planning matches");
     }
 
     public async Task<Result> AddMatchEvent(UpdateMatchCommand command, CancellationToken ct = default)

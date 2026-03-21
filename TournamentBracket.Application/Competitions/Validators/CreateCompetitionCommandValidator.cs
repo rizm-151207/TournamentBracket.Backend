@@ -14,6 +14,9 @@ public class CreateCompetitionCommandValidator : AbstractValidator<CreateCompeti
             .MaximumLength(256);
         RuleFor(command => command.Location)
             .NotEmpty();
+        RuleFor(command => command.TatamiCount)
+            .NotEmpty()
+            .GreaterThan(0);
         RuleFor(command => command.StartDateTime)
             .NotEmpty()
             .Must(d => DateTime.TryParse(d.ToString(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture,
