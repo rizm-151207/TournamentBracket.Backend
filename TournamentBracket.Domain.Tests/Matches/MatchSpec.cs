@@ -181,7 +181,7 @@ public class MatchSpec
         match.Plan(tatamiNum, index, plannedTime);
 
         // Assert
-        match.Index.Should().Be("Поединок 5");
+        match.Index.Should().Be("Поединок 5 (татами 2)");
         match.PlannedDateTime.Should().Be(plannedTime);
         match.Status.Should().Be(MatchStatus.Planned);
     }
