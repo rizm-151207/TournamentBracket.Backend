@@ -29,5 +29,5 @@ repos:
         name: dotnet-format
         language: system
         entry: dotnet format --include
-        files: \.cs$   
+        files: \.cs$
         args: ["--verify-no-changes", "--include-analyzers"]
