@@ -76,3 +76,16 @@ jobs:
 
       - name: Run static code analysis (Roslyn analyzers)
         run: dotnet build --no-restore /p:TreatWarningsAsErrors=false\
+  notify:
+      name: Send Telegram Notification
+      runs-on: ubuntu-latest
+      needs: [lint, test, security]  # Ждем завершения всех предыдущих задач
+      if: always()  # Отправляем уведомление в любом случае (успех/ошибка)
+      steps:
+        - name: Send message
+          uses: proDreams/actions-telegram-notifier@main
+          with:
+            token: ${{ secrets.TELEGRAM_TOKEN }}
+            chat_id: ${{ secrets.TELEGRAM_CHAT_ID }}
+            status: ${{ job.status }}
+            notify_fields: "actor,repository,workflow,branch,commit"
