@@ -16,20 +16,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/registerUserCommand'
+              $ref: "#/components/schemas/registerUserCommand"
       responses:
         "201":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/registerSuccessResponse'
+                $ref: "#/components/schemas/registerSuccessResponse"
         "400":
           description: Error
           content:
             application/json:
               schema:
-                $ref: './Common.yaml#/components/schemas/error'
+                $ref: "./Common.yaml#/components/schemas/error"
   /api/auth/login:
     post:
       summary: Login
@@ -42,20 +42,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/loginUserCommand'
+              $ref: "#/components/schemas/loginUserCommand"
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/tokensResponse'
+                $ref: "#/components/schemas/tokensResponse"
         "400":
           description: Error
           content:
             application/json:
               schema:
-                $ref: './Common.yaml#/components/schemas/error'
+                $ref: "./Common.yaml#/components/schemas/error"
   /api/auth/logout:
     post:
       summary: Logout
@@ -75,7 +75,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './Common.yaml#/components/schemas/error'
+                $ref: "./Common.yaml#/components/schemas/error"
   /api/auth/refreshToken:
     post:
       summary: Refresh access token
@@ -90,14 +90,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/refreshTokenCommand'
+              $ref: "#/components/schemas/refreshTokenCommand"
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/tokensResponse'
+                $ref: "#/components/schemas/tokensResponse"
         "401":
           description: Unauthorized or access token expired
         "400":
@@ -105,7 +105,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './Common.yaml#/components/schemas/error'
+                $ref: "./Common.yaml#/components/schemas/error"
 components:
   schemas:
     registerUserCommand:
@@ -144,4 +144,3 @@ components:
       properties:
         refreshToken:
           type: string
-    

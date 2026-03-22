@@ -16,7 +16,7 @@ public class UpdateCompetitionCommand : CreateCompetitionCommand
         Id = id;
         Status = status;
     }
-    
+
     public Guid Id { get; set; }
     public CompetitionStatus Status { get; set; }
 }

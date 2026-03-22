@@ -111,7 +111,7 @@ public class SingleEliminationBracketFactory : IBracketFactory
             .ToHashSet();
         foreach (var p in parents)
             p.Children!.Clear();
-        
+
         var seed = BracketsHelpers.GetSeed(competitors.Count);
         var placedCompetitor = PlaceCompetitorsBySeed(seed, competitors);
         PutCompetitorsToMatches(placedCompetitor, parents.ToList());
@@ -198,10 +198,10 @@ public class SingleEliminationBracketFactory : IBracketFactory
             var match = orderedMatches[i];
             var firstCompetitor = placedCompetitors[2 * i];
             var secondCompetitor = placedCompetitors[2 * i + 1];
-            
-            if(firstCompetitor is not null)
+
+            if (firstCompetitor is not null)
                 match.AddCompetitor(firstCompetitor);
-            if(secondCompetitor is not null)
+            if (secondCompetitor is not null)
                 match.AddCompetitor(secondCompetitor);
         }
     }

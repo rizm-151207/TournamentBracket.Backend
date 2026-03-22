@@ -162,7 +162,7 @@ public class MatchProcessSpec
 
             // Assert
             _matchProcess.WinReason.Should().Be(reason);
-            
+
             // Reset for next iteration
             _matchProcess.Clear();
         }

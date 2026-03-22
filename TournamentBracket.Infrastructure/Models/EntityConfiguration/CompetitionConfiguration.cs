@@ -11,7 +11,7 @@ public class CompetitionConfiguration : IEntityTypeConfiguration<Competition>
         builder.HasKey(e => e.Id);
         builder.HasMany(e => e.Divisions)
             .WithOne(e => e.Competition);
-        
+
         builder.Property(e => e.Id)
             .IsRequired()
             .HasMaxLength(128);

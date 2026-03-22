@@ -14,7 +14,7 @@ components:
           type: integer
           nullable: true
         innerError:
-          $ref: '#/components/schemas/error'
+          $ref: "#/components/schemas/error"
   securitySchemes:
     BearerAuth:
       description: Bearer token using a JWT

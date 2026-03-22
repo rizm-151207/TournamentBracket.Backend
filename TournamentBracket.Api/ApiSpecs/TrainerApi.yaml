@@ -36,7 +36,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/trainersPageResponse'
+                $ref: "#/components/schemas/trainersPageResponse"
         "401":
           description: Unauthorized or access token expired
         "400":
@@ -44,7 +44,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './Common.yaml#/components/schemas/error'
+                $ref: "./Common.yaml#/components/schemas/error"
     post:
       summary: Create new trainer
       description: Create new trainer
@@ -52,15 +52,15 @@ paths:
         - Trainers
       operationId: createTrainer
       security:
-        - BearerAuth: [ ]
+        - BearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/createTrainerCommand'
+              $ref: "#/components/schemas/createTrainerCommand"
       responses:
-        '201':
+        "201":
           description: Trainer created successfully
         "401":
           description: Unauthorized or access token expired
@@ -69,7 +69,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './Common.yaml#/components/schemas/error'
+                $ref: "./Common.yaml#/components/schemas/error"
     patch:
       summary: Update trainer
       description: Update trainer info by id
@@ -77,7 +77,7 @@ paths:
         - Trainers
       operationId: updateTrainer
       security:
-        - BearerAuth: [ ]
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
@@ -89,9 +89,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/updateTrainerCommand'
+              $ref: "#/components/schemas/updateTrainerCommand"
       responses:
-        '200':
+        "200":
           description: Trainer updated successfully
         "401":
           description: Unauthorized or access token expired
@@ -102,7 +102,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './Common.yaml#/components/schemas/error'
+                $ref: "./Common.yaml#/components/schemas/error"
   /api/trainers/{id}:
     get:
       summary: Get trainer info
@@ -117,20 +117,20 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/trainer'
+                $ref: "#/components/schemas/trainer"
         "404":
           description: Trainer not found by Id
-        '400':
+        "400":
           description: Error
           content:
             application/json:
               schema:
-                $ref: './Common.yaml#/components/schemas/error'
+                $ref: "./Common.yaml#/components/schemas/error"
     delete:
       summary: Delete trainer
       description: Delete trainer by id
@@ -138,7 +138,7 @@ paths:
         - Trainers
       operationId: deleteTrainer
       security:
-        - BearerAuth: [ ]
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
@@ -146,7 +146,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Trainer deleted successfully
         "401":
           description: Unauthorized or access token expired
@@ -157,7 +157,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './Common.yaml#/components/schemas/error'
+                $ref: "./Common.yaml#/components/schemas/error"
 components:
   schemas:
     trainersPageResponse:
@@ -166,16 +166,16 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/trainer'
+            $ref: "#/components/schemas/trainer"
         allCount:
           type: integer
     createTrainerCommand:
-      $ref: '#/components/schemas/trainerBase'
+      $ref: "#/components/schemas/trainerBase"
     updateTrainerCommand:
-      $ref: '#/components/schemas/trainer'
+      $ref: "#/components/schemas/trainer"
     trainer:
       allOf:
-        - $ref: '#/components/schemas/trainerBase'
+        - $ref: "#/components/schemas/trainerBase"
       properties:
         id:
           type: string

@@ -11,7 +11,7 @@ public class CompetitorConfiguration : IEntityTypeConfiguration<Competitor>
         builder.HasKey(e => e.Id);
         builder.HasMany(e => e.Trainers)
             .WithMany(e => e.Competitors);
-        
+
         builder.Navigation(e => e.Trainers)
             .AutoInclude();
 

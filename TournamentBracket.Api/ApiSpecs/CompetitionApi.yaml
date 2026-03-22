@@ -36,13 +36,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/competitionsPageResponse'
+                $ref: "#/components/schemas/competitionsPageResponse"
         "400":
           description: Error
           content:
             application/json:
               schema:
-                $ref: './Common.yaml#/components/schemas/error'
+                $ref: "./Common.yaml#/components/schemas/error"
     post:
       summary: Create new competition
       description: Create new competition
@@ -50,13 +50,13 @@ paths:
         - Competition
       operationId: createCompetition
       security:
-        - BearerAuth: [ ]
+        - BearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/createCompetitionCommand'
+              $ref: "#/components/schemas/createCompetitionCommand"
       responses:
         "201":
           description: OK
@@ -67,7 +67,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './Common.yaml#/components/schemas/error'
+                $ref: "./Common.yaml#/components/schemas/error"
     patch:
       summary: Update competition info
       description: Update competition info by id
@@ -75,7 +75,7 @@ paths:
         - Competitions
       operationId: updateCompetition
       security:
-        - BearerAuth: [ ]
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
@@ -87,24 +87,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/updateCompetitionCommand'
+              $ref: "#/components/schemas/updateCompetitionCommand"
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/competition'
+                $ref: "#/components/schemas/competition"
         "401":
           description: Unauthorized or access token expired
         "404":
           description: Competition not found by Id
-        '400':
+        "400":
           description: Error
           content:
             application/json:
               schema:
-                $ref: './Common.yaml#/components/schemas/error'
+                $ref: "./Common.yaml#/components/schemas/error"
   /api/competitions/{id}:
     get:
       summary: Get competition info
@@ -119,20 +119,20 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/competition'
+                $ref: "#/components/schemas/competition"
         "404":
           description: Competition not found by Id
-        '400':
+        "400":
           description: Error
           content:
             application/json:
               schema:
-                $ref: './Common.yaml#/components/schemas/error'
+                $ref: "./Common.yaml#/components/schemas/error"
     delete:
       summary: Delete competition
       description: Delete competition by id
@@ -140,7 +140,7 @@ paths:
         - Competitions
       operationId: deleteCompetition
       security:
-        - BearerAuth: [ ]
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
@@ -148,18 +148,18 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
         "401":
           description: Unauthorized or access token expired
         "404":
           description: Competition not found by Id
-        '400':
+        "400":
           description: Error
           content:
             application/json:
               schema:
-                $ref: './Common.yaml#/components/schemas/error'
+                $ref: "./Common.yaml#/components/schemas/error"
 components:
   schemas:
     competitionsPageResponse:
@@ -168,24 +168,24 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/competitionShort'
+            $ref: "#/components/schemas/competitionShort"
         allCount:
           type: integer
     createCompetitionCommand:
-      $ref: '#/components/schemas/competitionCommon'
+      $ref: "#/components/schemas/competitionCommon"
     updateCompetitionCommand:
-      $ref: '#/components/schemas/competitionShort'
+      $ref: "#/components/schemas/competitionShort"
     competition:
       allOf:
-        - $ref: '#/components/schemas/competitionShort'
+        - $ref: "#/components/schemas/competitionShort"
         - competitors:
           type: array
           items:
             type: object
-            $ref: './CompetitorApi.yaml#/components/schemas/competitor'
+            $ref: "./CompetitorApi.yaml#/components/schemas/competitor"
     competitionShort:
       allOf:
-        - $ref: '#/components/schemas/competitionCommon'
+        - $ref: "#/components/schemas/competitionCommon"
         - id:
             type: string
         - status:

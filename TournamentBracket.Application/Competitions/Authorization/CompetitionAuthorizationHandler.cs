@@ -24,12 +24,12 @@ public class CompetitionAuthorizationHandler : AuthorizationHandler<BaseResource
             context.Fail(new AuthorizationFailureReason(this, "Can't find Email in token"));
             return Task.CompletedTask;
         }
-        
-        if(userEmailClaim.Value == resource.OwnerEmail)
+
+        if (userEmailClaim.Value == resource.OwnerEmail)
             context.Succeed(requirement);
         else
             context.Fail();
-        
+
         return Task.CompletedTask;
     }
 }

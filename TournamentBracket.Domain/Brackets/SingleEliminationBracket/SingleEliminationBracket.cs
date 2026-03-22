@@ -29,7 +29,7 @@ public class SingleEliminationBracket : Bracket
 
         if (competitors.Contains(competitor))
             return false;
-        
+
         return TryAddToFreeMatch(nodesWithCompetitorsMatches, competitor, competitors.Count);
     }
 
@@ -68,7 +68,7 @@ public class SingleEliminationBracket : Bracket
         var nodesWithMatches = GetAllNodesWithCompetitorsMatches().ToList();
         return nodesWithMatches.Any(n => n.Match.IsByeMatch);
     }
-    
+
     public override List<Competitor> GetAllCompetitors()
     {
         var nodesWithMatches = GetAllNodesWithCompetitorsMatches().ToList();
