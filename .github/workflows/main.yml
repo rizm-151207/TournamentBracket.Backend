@@ -35,7 +35,7 @@ jobs:
           pip install pre-commit detect-secrets
 
       - name: Run pre-commit hooks on all files
-        run: pre-commit run --all-files --show-diff-on-failure
+        run: python -m pre_commit run --all-files --show-diff-on-failure
 
   test:
     name: Unit Tests
