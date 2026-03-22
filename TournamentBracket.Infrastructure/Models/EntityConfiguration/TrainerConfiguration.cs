@@ -10,7 +10,7 @@ public class TrainerConfiguration : IEntityTypeConfiguration<Trainer>
     {
         builder.HasKey(e => e.Id);
         builder.HasMany(e => e.Competitors);
-        
+
         builder.Property(e => e.Id)
             .IsRequired()
             .HasMaxLength(128);

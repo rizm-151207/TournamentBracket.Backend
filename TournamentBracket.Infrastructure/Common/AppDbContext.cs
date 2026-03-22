@@ -40,19 +40,24 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
             entity.HasData(
                 new IdentityRole<Guid>
                 {
-                    Id = new Guid("c44c02b2-6f22-4c39-8115-dac5072285dd"), Name = "SuperAdmin",
-                    NormalizedName = "SUPERADMIN", ConcurrencyStamp = "1"
+                    Id = new Guid("c44c02b2-6f22-4c39-8115-dac5072285dd"),
+                    Name = "SuperAdmin",
+                    NormalizedName = "SUPERADMIN",
+                    ConcurrencyStamp = "1"
                 },
                 new IdentityRole<Guid>
                 {
-                    Id = new Guid("32018d01-edf4-4035-8921-c8cba937ef60"), Name = "Administrator",
+                    Id = new Guid("32018d01-edf4-4035-8921-c8cba937ef60"),
+                    Name = "Administrator",
                     NormalizedName = "ADMINISTRATOR",
                     ConcurrencyStamp = "2"
                 },
                 new IdentityRole<Guid>
                 {
-                    Id = new Guid("10a1a059-bbea-42a3-a2e2-c7f4c248eb11"), Name = "Organizer",
-                    NormalizedName = "ORGANIZER", ConcurrencyStamp = "3"
+                    Id = new Guid("10a1a059-bbea-42a3-a2e2-c7f4c248eb11"),
+                    Name = "Organizer",
+                    NormalizedName = "ORGANIZER",
+                    ConcurrencyStamp = "3"
                 }
             );
         });

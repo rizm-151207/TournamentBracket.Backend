@@ -112,7 +112,7 @@ public class CompetitionsController : ExtendedControllerBase
         var result = await competitionsService.RemoveCompetitor(id, command);
         return ToActionResult(result);
     }
-    
+
     [Authorize(Roles = "Organizer, Administrator")]
     [HttpPost("{id}/matches/addevent")]
     public async Task<IActionResult> UpdateMatch([FromRoute] Guid id, [FromBody] UpdateMatchCommand command)

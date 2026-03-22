@@ -35,7 +35,7 @@ public class BracketNode : IEntity<Guid>
 
     public IEnumerable<BracketNode> GetAllChildren()
     {
-        if(Children is null)
+        if (Children is null)
             yield break;
         foreach (var child in Children)
         {

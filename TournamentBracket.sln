@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# 
+#
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentBracket.Api", "TournamentBracket.Api\TournamentBracket.Api.csproj", "{993859D7-C72C-43A2-8997-26D996DE01A0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentBracket.Domain", "TournamentBracket.Domain\TournamentBracket.Domain.csproj", "{E75711CB-95DC-4433-AD5A-660B5DFEBC49}"

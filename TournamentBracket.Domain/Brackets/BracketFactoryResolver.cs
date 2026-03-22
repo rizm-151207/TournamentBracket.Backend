@@ -20,7 +20,7 @@ public class BracketFactoryResolver
     {
         return ResolveByBracketType(bracketTypeResolver.Resolve(competitorsCount));
     }
-    
+
     public IBracketFactory ResolveByBracketType(BracketType bracketType)
     {
         if (bracketType is BracketType.SingleElimination)

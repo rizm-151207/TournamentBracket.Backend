@@ -47,12 +47,12 @@ public class Match : IEntity<Guid>
     {
         if (FirstCompetitor != competitor && SecondCompetitor != competitor)
             throw new InvalidOperationException("Can't find competitor in competition to remove");
-        
+
         if (FirstCompetitor == competitor)
             FirstCompetitor = null;
         if (SecondCompetitor == competitor)
             SecondCompetitor = null;
-        
+
         MatchProcess.Clear();
         if (FirstCompetitor != null || SecondCompetitor != null)
         {
@@ -60,7 +60,7 @@ public class Match : IEntity<Guid>
             Status = MatchStatus.Finished;
             CommitMatchFinish();
         }
-        
+
     }
 
     public bool TryGetWinner(out Competitor? winner)
@@ -83,7 +83,7 @@ public class Match : IEntity<Guid>
         winner = null;
         return false;
     }
-    
+
     public bool TryGetLoser(out Competitor? loser)
     {
         if (Status is MatchStatus.Finished)

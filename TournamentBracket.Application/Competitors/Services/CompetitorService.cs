@@ -151,13 +151,13 @@ public class CompetitorService : ICompetitorService
         competitor.DeletedAt = DateTime.UtcNow;
 
         var unfinishedMatches = await matchesService.GetUnfinishedMatchesForCompetitor(id, ct);
-        if(!unfinishedMatches.IsSuccess)
+        if (!unfinishedMatches.IsSuccess)
             return unfinishedMatches;
         if (unfinishedMatches.Item!.Any())
             return Result.Failed(new Error($"Can't delete competitor. He participate in {unfinishedMatches.Item!.Count} matches"));
-        
+
         var divisionsWithCompetitorResult = await divisionsService.GetDivisionsWithCompetitor(id, ct);
-        if(!divisionsWithCompetitorResult.IsSuccess)
+        if (!divisionsWithCompetitorResult.IsSuccess)
             return divisionsWithCompetitorResult;
         var divisions = divisionsWithCompetitorResult.Item!;
         foreach (var division in divisions)

@@ -138,7 +138,7 @@ public class TournamentBracketsService : ITournamentBracketsService
                 var removeOldBracketResult = await bracketsRepository.RemoveBracket(bracket, ct);
                 if (!removeOldBracketResult.IsSuccess)
                     return removeOldBracketResult;
-                
+
                 dbContext.Matches.RemoveRange(currentMatches);
 
                 return await CreateBracket(competitors, ct);
@@ -155,8 +155,8 @@ public class TournamentBracketsService : ITournamentBracketsService
                 && currentCompetitorsCount != 2)
             {
                 bracketFactory.ReduceBracket(bracket);
-                
-                var newMatches =  bracket.GetAllMatches();
+
+                var newMatches = bracket.GetAllMatches();
                 var trimResult = await bracketsRepository.TrimBracket(bracket, ct);
                 if (!trimResult.IsSuccess)
                     return trimResult;
@@ -164,7 +164,7 @@ public class TournamentBracketsService : ITournamentBracketsService
             }
             else if (hasEmptyMatch)
                 bracketFactory.RebalanceBracket(bracket);
-            
+
             return Result.Success();
         }
         catch (Exception e)

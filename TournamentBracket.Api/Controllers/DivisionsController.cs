@@ -9,7 +9,7 @@ namespace TournamentBracket.Api.Controllers;
 public class DivisionsController : ExtendedControllerBase
 {
     private readonly IDivisionsService divisionsService;
-    
+
     public DivisionsController(IDivisionsService divisionsService)
     {
         this.divisionsService = divisionsService;

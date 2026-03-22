@@ -2,7 +2,7 @@
 
 public class CreateCompetitorResponse
 {
-    public CreateCompetitorResponse(Guid  competitorId)
+    public CreateCompetitorResponse(Guid competitorId)
     {
         CompetitorId = competitorId;
     }

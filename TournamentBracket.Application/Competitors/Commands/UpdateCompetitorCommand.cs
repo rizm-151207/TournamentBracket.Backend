@@ -13,7 +13,7 @@ public class UpdateCompetitorCommand : CreateCompetitorCommand
         string? rank,
         string? kyu,
         string subject,
-        List<Guid> trainersIds) 
+        List<Guid> trainersIds)
         : base(firstName, lastName, middleName, gender, dateOfBirth, weight, rank, kyu, subject, trainersIds)
     {
         Id = id;

@@ -55,7 +55,7 @@ public class DivisionsService : IDivisionsService
         var divisions = await dbContext.Divisions
             .Where(d => d.Competitors.Any(c => c.Id == competitorId))
             .ToListAsync(ct);
-        
+
         return Result<IReadOnlyCollection<Division>>.Success(divisions);
     }
 }

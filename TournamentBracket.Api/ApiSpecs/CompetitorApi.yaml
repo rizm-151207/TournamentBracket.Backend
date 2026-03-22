@@ -36,13 +36,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/competitorsPageResponse'
+                $ref: "#/components/schemas/competitorsPageResponse"
         "400":
           description: Error
           content:
             application/json:
               schema:
-                $ref: './Common.yaml#/components/schemas/error'
+                $ref: "./Common.yaml#/components/schemas/error"
     post:
       summary: Create new competitor
       description: Create new competitor
@@ -50,13 +50,13 @@ paths:
         - Competitor
       operationId: createCompetitor
       security:
-        - BearerAuth: [ ]
+        - BearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/createCompetitorCommand'
+              $ref: "#/components/schemas/createCompetitorCommand"
       responses:
         "201":
           description: OK
@@ -67,7 +67,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './Common.yaml#/components/schemas/error'
+                $ref: "./Common.yaml#/components/schemas/error"
     patch:
       summary: Update competitor info
       description: Update competitor info by id
@@ -75,7 +75,7 @@ paths:
         - Competitors
       operationId: updateCompetitor
       security:
-        - BearerAuth: [ ]
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
@@ -87,24 +87,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/updateCompetitorCommand'
+              $ref: "#/components/schemas/updateCompetitorCommand"
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/competitor'
+                $ref: "#/components/schemas/competitor"
         "401":
           description: Unauthorized or access token expired
         "404":
           description: Competitor not found by Id
-        '400':
+        "400":
           description: Error
           content:
             application/json:
               schema:
-                $ref: './Common.yaml#/components/schemas/error'
+                $ref: "./Common.yaml#/components/schemas/error"
   /api/competitors/{id}:
     get:
       summary: Get competitor info
@@ -119,20 +119,20 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/competitor'
+                $ref: "#/components/schemas/competitor"
         "404":
           description: Competitor not found by Id
-        '400':
+        "400":
           description: Error
           content:
             application/json:
               schema:
-                $ref: './Common.yaml#/components/schemas/error'
+                $ref: "./Common.yaml#/components/schemas/error"
     delete:
       summary: Delete competitor
       description: Delete competitor by id
@@ -140,7 +140,7 @@ paths:
         - Competitors
       operationId: deleteCompetitor
       security:
-        - BearerAuth: [ ]
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
@@ -148,18 +148,18 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
         "401":
           description: Unauthorized or access token expired
         "404":
           description: Competitor not found by Id
-        '400':
+        "400":
           description: Error
           content:
             application/json:
               schema:
-                $ref: './Common.yaml#/components/schemas/error'
+                $ref: "./Common.yaml#/components/schemas/error"
 components:
   schemas:
     competitorsPageResponse:
@@ -168,32 +168,32 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/competitor'
+            $ref: "#/components/schemas/competitor"
         allCount:
           type: integer
     createCompetitorCommand:
       allOf:
-        - $ref: '#/components/schemas/competitorCommon'
+        - $ref: "#/components/schemas/competitorCommon"
         - trainersIds:
             type: array
             items:
               type: string
     updateCompetitorCommand:
       allOf:
-        - $ref: '#/components/schemas/competitorCommon'
+        - $ref: "#/components/schemas/competitorCommon"
         - trainersIds:
             type: array
             items:
               type: string
     competitor:
       allOf:
-        - $ref: '#/components/schemas/competitorCommon'
+        - $ref: "#/components/schemas/competitorCommon"
         - id:
             type: string
         - trainers:
             type: array
             items:
-              $ref: './TrainerApi.yaml#/components/schemas/trainer'
+              $ref: "./TrainerApi.yaml#/components/schemas/trainer"
     competitorCommon:
       type: object
       properties:

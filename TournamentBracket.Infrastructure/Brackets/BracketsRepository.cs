@@ -72,7 +72,7 @@ public class BracketsRepository : IBracketsRepository
 
     public Task<Result> RemoveBracket(Bracket bracket, CancellationToken ct = default)
     {
-        if(bracket.Type is BracketType.SingleElimination)
+        if (bracket.Type is BracketType.SingleElimination)
             dbContext.BracketNodes.RemoveRange((bracket as SingleEliminationBracket)!.GetAllNodes());
         dbContext.Remove(bracket);
 
@@ -93,10 +93,10 @@ public class BracketsRepository : IBracketsRepository
         if (!bracketInDbResult.IsSuccess)
             return bracketInDbResult;
         var bracketInDb = (bracketInDbResult.Item as SingleEliminationBracket)!;
-        
+
         var currentNodes = singleEliminationBracket.GetAllNodes();
         var nodesInDb = bracketInDb.GetAllNodes();
-        
+
         dbContext.BracketNodes.RemoveRange(nodesInDb.Except(currentNodes));
         return Result.Success();
     }
