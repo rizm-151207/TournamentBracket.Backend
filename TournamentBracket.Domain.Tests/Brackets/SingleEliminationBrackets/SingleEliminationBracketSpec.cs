@@ -88,8 +88,8 @@ public class SingleEliminationBracketSpec
     [Test]
     public void HasFreeMatch_WithByeMatches_Should_ReturnTrue()
     {
-        // Arrange - create bracket with odd number of competitors
-        var competitors = CreateCompetitors(3);
+        // Arrange - create bracket with odd number of competitors (5 needs bye matches)
+        var competitors = CreateCompetitors(5);
         var testBracket = bracketFactory.CreateBracket(competitors) as SingleEliminationBracket;
 
         // Act

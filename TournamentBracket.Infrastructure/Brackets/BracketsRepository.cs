@@ -33,6 +33,11 @@ public class BracketsRepository : IBracketsRepository
             return Result<Bracket>.Success(constructedBracket);
         }
 
+		if(bracket!.Type == BracketType.RoundRobin)
+		{
+			return Result<Bracket>.Success(bracket);
+		}
+
         throw new NotImplementedException($"Bracket with type {bracket.Type} not implemented.");
     }
 
@@ -51,8 +56,14 @@ public class BracketsRepository : IBracketsRepository
                 })
             .ToDictionaryAsync(g => g.BracketBase, g => g.BracketNodes, ct);
 
-        var enrichedBrackets = singleEliminationBrackets.Select(kvp =>
+        IEnumerable<Bracket> enrichedBrackets = singleEliminationBrackets.Select(kvp =>
             singleEliminationBracketFactory.EnrichBracketWithNodes(kvp.Key, kvp.Value));
+
+		var rrBrackets = await dbContext.RoundRobinBrackets
+			.Where(b => ids.Contains(b.Id))
+			.ToListAsync();
+		
+		enrichedBrackets = enrichedBrackets.Union(rrBrackets);
 
         return Result<IReadOnlyCollection<Bracket>>.Success(enrichedBrackets.ToList());
     }
@@ -67,11 +78,21 @@ public class BracketsRepository : IBracketsRepository
             return Result<Bracket>.Success(seBracket);
         }
 
+		var rrBracket = await dbContext.RoundRobinBrackets
+			.Include(b => b.Matches)
+			.SingleOrDefaultAsync(b => b.Id == id, ct);
+		if (rrBracket is not null)
+		{
+			return Result<Bracket>.Success(rrBracket);
+		}
+
         return Result<Bracket>.FailedWith(new Error($"Bracket with id {id} not found", 404));
     }
 
     public Task<Result> RemoveBracket(Bracket bracket, CancellationToken ct = default)
     {
+		dbContext.Matches.RemoveRange(bracket.GetAllMatches());
+		
         if (bracket.Type is BracketType.SingleElimination)
             dbContext.BracketNodes.RemoveRange((bracket as SingleEliminationBracket)!.GetAllNodes());
         dbContext.Remove(bracket);
@@ -120,6 +141,7 @@ public class BracketsRepository : IBracketsRepository
         return type switch
         {
             BracketType.SingleElimination => dbContext.SingleEliminationBrackets,
+			BracketType.RoundRobin => dbContext.RoundRobinBrackets,
             _ => throw new ArgumentOutOfRangeException(nameof(type), $"Unknown bracket type {type}.")
         };
     }

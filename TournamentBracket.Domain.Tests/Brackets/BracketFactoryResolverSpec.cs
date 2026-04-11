@@ -1,6 +1,7 @@
 using FluentAssertions;
 using NUnit.Framework;
 using TournamentBracket.Domain.Brackets;
+using TournamentBracket.Domain.Brackets.RoundRobinBracket;
 using TournamentBracket.Domain.Brackets.SingleEliminationBracket;
 using TournamentBracket.Domain.Matches;
 
@@ -12,6 +13,7 @@ public class BracketFactoryResolverSpec
     private BracketFactoryResolver bracketFactoryResolver;
     private BracketTypeResolver bracketTypeResolver;
     private SingleEliminationBracketFactory singleEliminationBracketFactory;
+    private RoundRobinBracketFactory roundRobinBracketFactory;
     private BracketNodeFactory bracketNodeFactory;
     private MatchFactory matchFactory;
 
@@ -22,19 +24,30 @@ public class BracketFactoryResolverSpec
         bracketNodeFactory = new BracketNodeFactory();
         matchFactory = new MatchFactory();
         singleEliminationBracketFactory = new SingleEliminationBracketFactory(bracketNodeFactory, matchFactory);
-        bracketFactoryResolver = new BracketFactoryResolver(bracketTypeResolver, singleEliminationBracketFactory);
+        roundRobinBracketFactory = new RoundRobinBracketFactory(matchFactory);
+        bracketFactoryResolver = new BracketFactoryResolver(bracketTypeResolver, singleEliminationBracketFactory, roundRobinBracketFactory);
     }
 
     [Test]
     [TestCase(1)]
     [TestCase(2)]
     [TestCase(3)]
+    public void ResolveByCompetitorsCount_WithOneToThreeCompetitors_Should_ReturnRoundRobinBracketFactory(int competitorsCount)
+    {
+        // Act
+        var result = bracketFactoryResolver.ResolveByCompetitorsCount(competitorsCount);
+
+        // Assert
+        result.Should().BeOfType<RoundRobinBracketFactory>();
+    }
+
+    [Test]
     [TestCase(4)]
     [TestCase(5)]
     [TestCase(8)]
     [TestCase(10)]
     [TestCase(16)]
-    public void ResolveByCompetitorsCount_Should_ReturnSingleEliminationBracketFactory(int competitorsCount)
+    public void ResolveByCompetitorsCount_WithFourOrMoreCompetitors_Should_ReturnSingleEliminationBracketFactory(int competitorsCount)
     {
         // Act
         var result = bracketFactoryResolver.ResolveByCompetitorsCount(competitorsCount);
@@ -52,6 +65,17 @@ public class BracketFactoryResolverSpec
 
         // Assert
         result.Should().BeOfType<SingleEliminationBracketFactory>();
+    }
+
+    [Test]
+    [TestCase(BracketType.RoundRobin)]
+    public void ResolveByBracketType_Should_ReturnRoundRobinBracketFactory(BracketType bracketType)
+    {
+        // Act
+        var result = bracketFactoryResolver.ResolveByBracketType(bracketType);
+
+        // Assert
+        result.Should().BeOfType<RoundRobinBracketFactory>();
     }
 
     [Test]
@@ -83,15 +107,15 @@ public class BracketFactoryResolverSpec
     }
 
     [Test]
-    public void ResolveByCompetitorsCount_MultipleCallsWithDifferentCounts_Should_ReturnSameFactoryType()
+    public void ResolveByCompetitorsCount_MultipleCallsWithDifferentCounts_Should_ReturnCorrectFactoryTypes()
     {
         // Act
-        var result1 = bracketFactoryResolver.ResolveByCompetitorsCount(4);
+        var result1 = bracketFactoryResolver.ResolveByCompetitorsCount(2);
         var result2 = bracketFactoryResolver.ResolveByCompetitorsCount(8);
         var result3 = bracketFactoryResolver.ResolveByCompetitorsCount(16);
 
         // Assert
-        result1.Should().BeOfType<SingleEliminationBracketFactory>();
+        result1.Should().BeOfType<RoundRobinBracketFactory>();
         result2.Should().BeOfType<SingleEliminationBracketFactory>();
         result3.Should().BeOfType<SingleEliminationBracketFactory>();
     }

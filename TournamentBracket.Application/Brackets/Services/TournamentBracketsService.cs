@@ -2,7 +2,6 @@
 using TournamentBracket.Application.Common.Helpers;
 using TournamentBracket.Domain.Brackets;
 using TournamentBracket.Domain.Brackets.Abstractions;
-using TournamentBracket.Domain.Brackets.Helpers;
 using TournamentBracket.Domain.Competitors;
 using TournamentBracket.Domain.Matches;
 using TournamentBracket.Infrastructure.Brackets.Interfaces;
@@ -82,11 +81,11 @@ public class TournamentBracketsService : ITournamentBracketsService
             var bracket = bracketResult.Item!;
 
             var competitors = bracket.GetAllCompetitors();
-            var newBracketType = bracketTypeResolver.Resolve(competitors.Count);
+            var newBracketType = bracketTypeResolver.Resolve(competitors.Count + 1);
             if (bracket.Type != newBracketType)
             {
-                //TODO Delete old bracket
-                return await CreateBracket(competitors, ct);
+				await bracketsRepository.RemoveBracket(bracket, ct);
+                return await CreateBracket([.. competitors, competitor], ct);
             }
 
             if (bracket.HasFreeMatch())
@@ -112,7 +111,7 @@ public class TournamentBracketsService : ITournamentBracketsService
         }
     }
 
-    public async Task<Result> RemoveCompetitorFromBracketAuto(Guid bracketId, BracketType bracketType,
+    public async Task<Result<Bracket>> RemoveCompetitorFromBracketAuto(Guid bracketId, BracketType bracketType,
         Competitor competitor,
         CancellationToken ct = default)
     {
@@ -128,44 +127,38 @@ public class TournamentBracketsService : ITournamentBracketsService
             if (competitors.Count == 1 && competitors[0] == competitor)
             {
                 dbContext.Matches.RemoveRange(currentMatches);
-                return await bracketsRepository.RemoveBracket(bracket, ct);
+                var removeResult = await bracketsRepository.RemoveBracket(bracket, ct);
             }
 
-
-            var newBracketType = bracketTypeResolver.Resolve(competitors.Count);
+            var newBracketType = bracketTypeResolver.Resolve(competitors.Count - 1);
             if (bracket.Type != newBracketType)
             {
                 var removeOldBracketResult = await bracketsRepository.RemoveBracket(bracket, ct);
                 if (!removeOldBracketResult.IsSuccess)
-                    return removeOldBracketResult;
+                    return Result<Bracket>.FailedWith(removeOldBracketResult.Error!);
 
-                dbContext.Matches.RemoveRange(currentMatches);
-
-                return await CreateBracket(competitors, ct);
+                return await CreateBracket([.. competitors.Except([competitor])], ct);
             }
 
             var successRemove = bracket.TryRemoveCompetitorAuto(competitor, out var hasEmptyMatch);
             if (!successRemove)
-                return Result.Failed("Something goes wrong while removing competitor");
+                return Result<Bracket>.FailedWith("Something goes wrong while removing competitor");
 
-            var currentCompetitorsCount = competitors.Count;
             var bracketFactory = bracketFactoryResolver.ResolveByBracketType(newBracketType);
-            if (BracketsHelpers.NearestPowerOfTwo(currentCompetitorsCount)
-                != BracketsHelpers.NearestPowerOfTwo(currentCompetitorsCount - 1)
-                && currentCompetitorsCount != 2)
+            if (bracketFactory.NeedToReduce(bracket))
             {
                 bracketFactory.ReduceBracket(bracket);
 
                 var newMatches = bracket.GetAllMatches();
                 var trimResult = await bracketsRepository.TrimBracket(bracket, ct);
                 if (!trimResult.IsSuccess)
-                    return trimResult;
+                    return Result<Bracket>.FailedWith(trimResult.Error!);
                 dbContext.Matches.RemoveRange(currentMatches.Except(newMatches));
             }
             else if (hasEmptyMatch)
                 bracketFactory.RebalanceBracket(bracket);
 
-            return Result.Success();
+            return Result<Bracket>.Success(bracket);
         }
         catch (Exception e)
         {

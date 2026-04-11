@@ -24,7 +24,7 @@ public class MatchFactorySpec
         var competitor2 = CreateCompetitor();
 
         // Act
-        var match = matchFactory.CreateLeafMatch(competitor1, competitor2);
+        var match = matchFactory.CreateMatchByCompetitors(competitor1, competitor2);
 
         // Assert
         match.Should().NotBeNull();
@@ -41,7 +41,7 @@ public class MatchFactorySpec
         var competitor1 = CreateCompetitor();
 
         // Act
-        var match = matchFactory.CreateLeafMatch(competitor1, null);
+        var match = matchFactory.CreateMatchByCompetitors(competitor1, null);
 
         // Assert
         match.Should().NotBeNull();
@@ -59,7 +59,7 @@ public class MatchFactorySpec
         var competitor2 = CreateCompetitor();
 
         // Act
-        var match = matchFactory.CreateLeafMatch(null, competitor2);
+        var match = matchFactory.CreateMatchByCompetitors(null, competitor2);
 
         // Assert
         match.Should().NotBeNull();
@@ -72,7 +72,7 @@ public class MatchFactorySpec
     public void CreateLeafMatch_WithNoCompetitors_Should_CreateEmptyUnplannedMatch()
     {
         // Act
-        var match = matchFactory.CreateLeafMatch(null, null);
+        var match = matchFactory.CreateMatchByCompetitors(null, null);
 
         // Assert
         match.Should().NotBeNull();
@@ -120,7 +120,7 @@ public class MatchFactorySpec
         var beforeCreate = DateTime.UtcNow;
 
         // Act
-        var match = matchFactory.CreateLeafMatch(competitor1, competitor2);
+        var match = matchFactory.CreateMatchByCompetitors(competitor1, competitor2);
 
         // Assert
         match.CreatedAt.Should().BeOnOrAfter(beforeCreate);
@@ -134,7 +134,7 @@ public class MatchFactorySpec
         var competitor = CreateCompetitor();
 
         // Act
-        var match = matchFactory.CreateLeafMatch(competitor, null);
+        var match = matchFactory.CreateMatchByCompetitors(competitor, null);
 
         // Assert
         match.FirstCompetitor.Should().Be(competitor);
@@ -148,7 +148,7 @@ public class MatchFactorySpec
         var competitor = CreateCompetitor();
 
         // Act
-        var match = matchFactory.CreateLeafMatch(competitor, competitor);
+        var match = matchFactory.CreateMatchByCompetitors(competitor, competitor);
 
         // Assert
         match.Should().NotBeNull();
