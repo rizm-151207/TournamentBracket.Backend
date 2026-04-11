@@ -356,7 +356,7 @@ public class DivisionSpec
         // Assert
         division.Id.Should().BeEmpty();
         division.TournamentBracketId.Should().BeEmpty();
-        division.BracketType.Should().Be(BracketType.SingleElimination);
+        division.BracketType.Should().Be(BracketType.RoundRobin); // Default enum value
         division.Competitors.Should().NotBeNull();
         division.Competitors.Should().BeEmpty();
         division.CreatedAt.Should().NotBe(default);

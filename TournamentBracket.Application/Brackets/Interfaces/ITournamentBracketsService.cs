@@ -19,7 +19,7 @@ public interface ITournamentBracketsService
     public Task<Result<Bracket>> AddCompetitorToBracketAuto(Guid bracketId, BracketType bracketType,
         Competitor competitor, CancellationToken ct = default);
 
-    public Task<Result> RemoveCompetitorFromBracketAuto(Guid bracketId, BracketType bracketType,
+    public Task<Result<Bracket>> RemoveCompetitorFromBracketAuto(Guid bracketId, BracketType bracketType,
         Competitor competitor, CancellationToken ct = default);
 
     public Task<Result> UpdateBracketFromMatch(Guid bracketId, Match match, CancellationToken ct = default);

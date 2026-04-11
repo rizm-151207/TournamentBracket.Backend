@@ -7,158 +7,158 @@ namespace TournamentBracket.Domain.Brackets.SingleEliminationBracket;
 
 public class SingleEliminationBracket : Bracket
 {
-    public override BracketType Type => BracketType.SingleElimination;
-    public BracketNode Root { get; set; }
-    public BracketNode ThirdPlace { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+	public override BracketType Type => BracketType.SingleElimination;
+	public BracketNode Root { get; set; }
+	public BracketNode ThirdPlace { get; set; }
+	public DateTime CreatedAt { get; set; }
+	public DateTime UpdatedAt { get; set; }
 
-    //links
-    public Guid RootId { get; set; }
-    public Guid ThirdPlaceId { get; set; }
+	//links
+	public Guid RootId { get; set; }
+	public Guid ThirdPlaceId { get; set; }
 
-    public override bool TryAddCompetitorAuto(Competitor competitor)
-    {
-        var nodesWithCompetitorsMatches = GetAllNodesWithCompetitorsMatches().ToList();
-        var competitors = nodesWithCompetitorsMatches
-            .SelectMany(n => new List<Competitor?>([n.Match.FirstCompetitor, n.Match.SecondCompetitor]))
-            .Where(c => c is not null)
-            .Select(c => c!)
-            .Distinct()
-            .ToList();
+	public override bool TryAddCompetitorAuto(Competitor competitor)
+	{
+		var nodesWithCompetitorsMatches = GetAllNodesWithCompetitorsMatches().ToList();
+		var competitors = nodesWithCompetitorsMatches
+			.SelectMany(n => new List<Competitor?>([n.Match.FirstCompetitor, n.Match.SecondCompetitor]))
+			.Where(c => c is not null)
+			.Select(c => c!)
+			.Distinct()
+			.ToList();
 
-        if (competitors.Contains(competitor))
-            return false;
+		if (competitors.Contains(competitor))
+			return false;
 
-        return TryAddToFreeMatch(nodesWithCompetitorsMatches, competitor, competitors.Count);
-    }
+		return TryAddToFreeMatch(nodesWithCompetitorsMatches, competitor, competitors.Count);
+	}
 
-    public override bool TryRemoveCompetitorAuto(Competitor competitor, out bool hasEmptyMatch)
-    {
-        hasEmptyMatch = false;
-        var nodesWithCompetitorToRemove = GetAllNodesWithCompetitorsMatches()
-            .Where(b => b.Match.FirstCompetitor == competitor || b.Match.SecondCompetitor == competitor)
-            .ToList();
-        if (nodesWithCompetitorToRemove.Any(n => !n.Match.IsByeMatch))
-            nodesWithCompetitorToRemove = nodesWithCompetitorToRemove
-                .Where(n => !n.Match.IsByeMatch
-                            && n.Match.Status != MatchStatus.Finished
-                            && n.Match.Status != MatchStatus.Started)
-                .ToList();
+	public override bool TryRemoveCompetitorAuto(Competitor competitor, out bool hasEmptyMatch)
+	{
+		hasEmptyMatch = false;
+		var nodesWithCompetitorToRemove = GetAllNodesWithCompetitorsMatches()
+			.Where(b => b.Match.FirstCompetitor == competitor || b.Match.SecondCompetitor == competitor)
+			.ToList();
+		if (nodesWithCompetitorToRemove.Any(n => !n.Match.IsByeMatch))
+			nodesWithCompetitorToRemove = nodesWithCompetitorToRemove
+				.Where(n => !n.Match.IsByeMatch
+							&& n.Match.Status != MatchStatus.Finished
+							&& n.Match.Status != MatchStatus.Started)
+				.ToList();
 
-        var nodeWithCompetitorMatch = nodesWithCompetitorToRemove.SingleOrDefault();
-        if (nodeWithCompetitorMatch is null)
-            return false;
+		var nodeWithCompetitorMatch = nodesWithCompetitorToRemove.SingleOrDefault();
+		if (nodeWithCompetitorMatch is null)
+			return false;
 
-        var match = nodeWithCompetitorMatch.Match;
-        match.RemoveCompetitor(competitor);
-        match.UpdatedAt = DateTime.UtcNow;
+		var match = nodeWithCompetitorMatch.Match;
+		match.RemoveCompetitor(competitor);
+		match.UpdatedAt = DateTime.UtcNow;
 
-        hasEmptyMatch = match.FirstCompetitor is null && match.SecondCompetitor is null;
-        return true;
-    }
+		hasEmptyMatch = match.FirstCompetitor is null && match.SecondCompetitor is null;
+		return true;
+	}
 
-    public override IReadOnlyCollection<Match> GetAllMatches()
-    {
-        return GetAllNodes().Select(n => n.Match).ToList();
-    }
+	public override IReadOnlyCollection<Match> GetAllMatches()
+	{
+		return GetAllNodes().Select(n => n.Match).ToList();
+	}
 
-    public override bool HasFreeMatch()
-    {
-        var nodesWithMatches = GetAllNodesWithCompetitorsMatches().ToList();
-        return nodesWithMatches.Any(n => n.Match.IsByeMatch);
-    }
+	public override bool HasFreeMatch()
+	{
+		var nodesWithMatches = GetAllNodesWithCompetitorsMatches().ToList();
+		return nodesWithMatches.Any(n => n.Match.IsByeMatch);
+	}	
 
-    public override List<Competitor> GetAllCompetitors()
-    {
-        var nodesWithMatches = GetAllNodesWithCompetitorsMatches().ToList();
-        return nodesWithMatches
-            .SelectMany(n => new List<Competitor?>([n.Match.FirstCompetitor, n.Match.SecondCompetitor]))
-            .Where(c => c is not null)
-            .Select(c => c!)
-            .Distinct()
-            .ToList();
-    }
+	public override List<Competitor> GetAllCompetitors()
+	{
+		var nodesWithMatches = GetAllNodesWithCompetitorsMatches().ToList();
+		return nodesWithMatches
+			.SelectMany(n => new List<Competitor?>([n.Match.FirstCompetitor, n.Match.SecondCompetitor]))
+			.Where(c => c is not null)
+			.Select(c => c!)
+			.Distinct()
+			.ToList();
+	}
 
-    public override Dictionary<int, IReadOnlyCollection<Match>> GetGroupedMatchesByRounds()
-    {
-        return GetAllNodes()
-            .GroupBy(n => n.RoundFromFinal)
-            .ToDictionary(g => g.Key,
-                g => GetSortedMatchesInRound(g.Key, g.ToList()));
+	public override Dictionary<int, IReadOnlyCollection<Match>> GetGroupedMatchesByRounds()
+	{
+		return GetAllNodes()
+			.GroupBy(n => n.RoundFromFinal)
+			.ToDictionary(g => g.Key,
+				g => GetSortedMatchesInRound(g.Key, g.ToList()));
 
-        IReadOnlyCollection<Match> GetSortedMatchesInRound(int round, List<BracketNode> nodes)
-        {
-            if (round == 0) // Если это финал/матч за 3 место - сортируем в обратном порядке
-                return nodes.OrderByDescending(n => n.IndexInRound).Select(n => n.Match).ToList();
-            return nodes.OrderBy(n => n.IndexInRound).Select(n => n.Match).ToList();
-        }
-    }
+		IReadOnlyCollection<Match> GetSortedMatchesInRound(int round, List<BracketNode> nodes)
+		{
+			if (round == 0) // Если это финал/матч за 3 место - сортируем в обратном порядке
+				return nodes.OrderByDescending(n => n.IndexInRound).Select(n => n.Match).ToList();
+			return nodes.OrderBy(n => n.IndexInRound).Select(n => n.Match).ToList();
+		}
+	}
 
-    public override void RefreshBracketAfterMatchUpdate(Match match)
-    {
-        var nodeWithUpdatedMatch = GetAllNodesWithCompetitorsMatches()
-            .FirstOrDefault(n => n.Match == match);
-        if (nodeWithUpdatedMatch is null)
-            return;
-        if (nodeWithUpdatedMatch.Parent is null)
-            return;
+	public override void RefreshBracketAfterMatchUpdate(Match match)
+	{
+		var nodeWithUpdatedMatch = GetAllNodesWithCompetitorsMatches()
+			.FirstOrDefault(n => n.Match == match);
+		if (nodeWithUpdatedMatch is null)
+			return;
+		if (nodeWithUpdatedMatch.Parent is null)
+			return;
 
-        if (match.TryGetWinner(out var winner))
-            nodeWithUpdatedMatch.Parent.Match.AddCompetitor(winner!);
+		if (match.TryGetWinner(out var winner))
+			nodeWithUpdatedMatch.Parent.Match.AddCompetitor(winner!);
 
-        var siblingNodeMatch = nodeWithUpdatedMatch.Parent.Children!
-            .Single(n => n != nodeWithUpdatedMatch)
-            .Match;
-        if (siblingNodeMatch.IsByeMatch && siblingNodeMatch.TryGetWinner(out var byeWinner))
-            nodeWithUpdatedMatch.Parent.Match.AddCompetitor(byeWinner!);
+		var siblingNodeMatch = nodeWithUpdatedMatch.Parent.Children!
+			.Single(n => n != nodeWithUpdatedMatch)
+			.Match;
+		if (siblingNodeMatch.IsByeMatch && siblingNodeMatch.TryGetWinner(out var byeWinner))
+			nodeWithUpdatedMatch.Parent.Match.AddCompetitor(byeWinner!);
 
-        if (nodeWithUpdatedMatch.RoundFromFinal == 1 && !match.IsByeMatch) //semifinal
-        {
-            if (match.TryGetLoser(out var loser))
-                ThirdPlace.Match.AddCompetitor(loser!);
-        }
-    }
+		if (nodeWithUpdatedMatch.RoundFromFinal == 1 && !match.IsByeMatch) //semifinal
+		{
+			if (match.TryGetLoser(out var loser))
+				ThirdPlace.Match.AddCompetitor(loser!);
+		}
+	}
 
-    public IEnumerable<BracketNode> GetAllNodesWithCompetitorsMatches()
-    {
-        var nodesQueue = new Queue<BracketNode>([Root, ThirdPlace]);
-        while (nodesQueue.Count > 0)
-        {
-            var currentNode = nodesQueue.Dequeue();
-            if (currentNode.Match.FirstCompetitor is not null
-                || currentNode.Match.SecondCompetitor is not null)
-                yield return currentNode;
-            if (currentNode.Children is not null)
-                currentNode.Children.ForEach(child => nodesQueue.Enqueue(child));
-        }
-    }
+	public IEnumerable<BracketNode> GetAllNodesWithCompetitorsMatches()
+	{
+		var nodesQueue = new Queue<BracketNode>([Root, ThirdPlace]);
+		while (nodesQueue.Count > 0)
+		{
+			var currentNode = nodesQueue.Dequeue();
+			if (currentNode.Match.FirstCompetitor is not null
+				|| currentNode.Match.SecondCompetitor is not null)
+				yield return currentNode;
+			if (currentNode.Children is not null)
+				currentNode.Children.ForEach(child => nodesQueue.Enqueue(child));
+		}
+	}
 
-    public IEnumerable<BracketNode> GetAllNodes()
-    {
-        yield return Root;
-        yield return ThirdPlace;
-        foreach (var child in Root.GetAllChildren())
-            yield return child;
-    }
+	public IEnumerable<BracketNode> GetAllNodes()
+	{
+		yield return Root;
+		yield return ThirdPlace;
+		foreach (var child in Root.GetAllChildren())
+			yield return child;
+	}
 
-    private bool TryAddToFreeMatch(List<BracketNode> nodesWithMatches, Competitor competitor, int competitorsCount)
-    {
-        var orderedNodes = nodesWithMatches.OrderBy(n => n.IndexInRound).ToList();
-        var seed = BracketsHelpers.GetSeed(competitorsCount + 1);
-        foreach (var n in seed)
-        {
-            var nodeIndex = (n - 1) / 2;
-            var match = orderedNodes[nodeIndex].Match;
-            if (match.IsByeMatch)
-            {
-                match.AddCompetitor(competitor);
-                match.MatchProcess.WinReason = null;
-                match.MatchProcess.Winner = null;
-                return true;
-            }
-        }
+	private bool TryAddToFreeMatch(List<BracketNode> nodesWithMatches, Competitor competitor, int competitorsCount)
+	{
+		var orderedNodes = nodesWithMatches.OrderBy(n => n.IndexInRound).ToList();
+		var seed = BracketsHelpers.GetSeed(competitorsCount + 1);
+		foreach (var n in seed)
+		{
+			var nodeIndex = (n - 1) / 2;
+			var match = orderedNodes[nodeIndex].Match;
+			if (match.IsByeMatch)
+			{
+				match.AddCompetitor(competitor);
+				match.MatchProcess.WinReason = null;
+				match.MatchProcess.Winner = null;
+				return true;
+			}
+		}
 
-        return false;
-    }
+		return false;
+	}
 }

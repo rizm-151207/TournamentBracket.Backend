@@ -4,7 +4,7 @@ namespace TournamentBracket.Domain.Matches;
 
 public class MatchFactory
 {
-    public Match CreateLeafMatch(
+    public Match CreateMatchByCompetitors(
         Competitor? firstCompetitor,
         Competitor? secondCompetitor)
     {

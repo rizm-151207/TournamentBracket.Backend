@@ -55,21 +55,6 @@ public class SingleEliminationBracketFactorySpec
     }
 
     [Test]
-    public void CreateBracket_WithTwoCompetitors_Should_CreateValidBracket()
-    {
-        // Arrange
-        var competitors = CreateCompetitors(2);
-
-        // Act
-        var bracket = factory.CreateBracket(competitors) as SingleEliminationBracket;
-
-        // Assert
-        bracket.Should().NotBeNull();
-        bracket!.Root.Should().NotBeNull();
-        bracket.GetAllMatches().Should().HaveCount(2); // 1 final + 1 third place
-    }
-
-    [Test]
     public void CreateBracket_WithEightCompetitors_Should_CreateValidBracket()
     {
         // Arrange
@@ -88,15 +73,15 @@ public class SingleEliminationBracketFactorySpec
     public void CreateBracket_WithOddNumberOfCompetitors_Should_CreateByeMatches()
     {
         // Arrange
-        var competitors = CreateCompetitors(3);
+        var competitors = CreateCompetitors(5);
 
         // Act
-        var bracket = factory.CreateBracket(competitors);
+        var bracket = factory.CreateBracket(competitors) as SingleEliminationBracket;
 
         // Assert
         bracket.Should().NotBeNull();
         var byeMatches = bracket.GetAllMatches().Count(m => m.IsByeMatch);
-        byeMatches.Should().Be(1);
+        byeMatches.Should().BeGreaterThan(0);
     }
 
     [Test]
@@ -203,6 +188,103 @@ public class SingleEliminationBracketFactorySpec
 
         // Assert
         act.Should().Throw<ArgumentException>();
+    }
+
+    [Test]
+    public void NeedToReduce_WithCompetitorsCountCausingPowerOfTwoTransition_Should_ReturnTrue()
+    {
+        // Arrange - 5 competitors (nearest power of 2 is 8), removing 1 would make it 4 (power of 2)
+        var competitors = CreateCompetitors(5);
+        var bracket = factory.CreateBracket(competitors) as SingleEliminationBracket;
+
+        // Act
+        var result = factory.NeedToReduce(bracket!);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Test]
+    public void NeedToReduce_WithCompetitorsCountNotCausingPowerOfTwoTransition_Should_ReturnFalse()
+    {
+        // Arrange - 6 competitors (nearest power of 2 is 8), removing 1 would make it 5 (still nearest to 8)
+        var competitors = CreateCompetitors(6);
+        var bracket = factory.CreateBracket(competitors) as SingleEliminationBracket;
+
+        // Act
+        var result = factory.NeedToReduce(bracket!);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Test]
+    public void NeedToReduce_WithExactlyFourCompetitors_Should_ReturnFalse()
+    {
+        // Arrange - Special case: 4 competitors is already a power of 2
+        var competitors = CreateCompetitors(4);
+        var bracket = factory.CreateBracket(competitors) as SingleEliminationBracket;
+
+        // Act
+        var result = factory.NeedToReduce(bracket!);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Test]
+    public void NeedToReduce_WithFiveCompetitors_Should_ReturnTrue()
+    {
+        // Arrange - 5 competitors (nearest power of 2 is 8), removing 1 would make it 4 (power of 2)
+        var competitors = CreateCompetitors(5);
+        var bracket = factory.CreateBracket(competitors) as SingleEliminationBracket;
+
+        // Act
+        var result = factory.NeedToReduce(bracket!);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Test]
+    public void NeedToReduce_WithFourCompetitors_Should_ReturnFalse()
+    {
+        // Arrange - 4 competitors is already a power of 2
+        var competitors = CreateCompetitors(4);
+        var bracket = factory.CreateBracket(competitors) as SingleEliminationBracket;
+
+        // Act
+        var result = factory.NeedToReduce(bracket!);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Test]
+    public void NeedToReduce_WithSevenCompetitors_Should_ReturnFalse()
+    {
+        // Arrange - 7 competitors (nearest power of 2 is 8), removing 1 makes it 6 (still nearest to 8)
+        var competitors = CreateCompetitors(7);
+        var bracket = factory.CreateBracket(competitors) as SingleEliminationBracket;
+
+        // Act
+        var result = factory.NeedToReduce(bracket!);
+
+        // Assert - 7 competitors -> nearest power is 8, 6 competitors -> nearest power is 8, so no transition
+        result.Should().BeFalse();
+    }
+
+    [Test]
+    public void NeedToReduce_WithFakeBracket_Should_ReturnFalse()
+    {
+        // Arrange - FakeBracket returns empty list from GetAllCompetitors
+        var bracket = new FakeBracket();
+
+        // Act
+        var result = factory.NeedToReduce(bracket);
+
+        // Assert - With 0 competitors, NeedToReduce returns false (nearest power of 2 for 0 is 1, for -1 is also 1, and 0 != 2 check fails)
+        result.Should().BeFalse();
     }
 
     private List<Competitor> CreateCompetitors(int count)

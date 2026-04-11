@@ -19,6 +19,16 @@ public class BracketTypeResolverSpec
     [TestCase(1)]
     [TestCase(2)]
     [TestCase(3)]
+    public void Resolve_WithOneToThreeCompetitors_Should_ReturnRoundRobin(int competitorsCount)
+    {
+        // Act
+        var result = _resolver.Resolve(competitorsCount);
+
+        // Assert
+        result.Should().Be(BracketType.RoundRobin);
+    }
+
+    [Test]
     [TestCase(4)]
     [TestCase(5)]
     [TestCase(8)]
@@ -27,7 +37,7 @@ public class BracketTypeResolverSpec
     [TestCase(32)]
     [TestCase(64)]
     [TestCase(100)]
-    public void Resolve_AnyCompetitorsCount_Should_ReturnSingleElimination(int competitorsCount)
+    public void Resolve_WithFourOrMoreCompetitors_Should_ReturnSingleElimination(int competitorsCount)
     {
         // Act
         var result = _resolver.Resolve(competitorsCount);
@@ -37,13 +47,14 @@ public class BracketTypeResolverSpec
     }
 
     [Test]
-    public void Resolve_WithZeroCompetitors_Should_ReturnSingleElimination()
+    public void Resolve_WithZeroCompetitors_Should_ThrowArgumentException()
     {
         // Act
-        var result = _resolver.Resolve(0);
+        Action act = () => _resolver.Resolve(0);
 
         // Assert
-        result.Should().Be(BracketType.SingleElimination);
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("CompetitorsCount must be greater than 0");
     }
 
     [Test]

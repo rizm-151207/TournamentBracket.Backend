@@ -7,272 +7,280 @@ namespace TournamentBracket.Domain.Brackets.SingleEliminationBracket;
 
 public class SingleEliminationBracketFactory : IBracketFactory
 {
-    private readonly BracketNodeFactory bracketNodeFactory;
-    private readonly MatchFactory matchFactory;
+	private readonly BracketNodeFactory bracketNodeFactory;
+	private readonly MatchFactory matchFactory;
 
-    public SingleEliminationBracketFactory(
-        BracketNodeFactory bracketNodeFactory,
-        MatchFactory matchFactory)
-    {
-        this.bracketNodeFactory = bracketNodeFactory;
-        this.matchFactory = matchFactory;
-    }
+	public SingleEliminationBracketFactory(
+		BracketNodeFactory bracketNodeFactory,
+		MatchFactory matchFactory)
+	{
+		this.bracketNodeFactory = bracketNodeFactory;
+		this.matchFactory = matchFactory;
+	}
 
-    public Bracket CreateBracket(IList<Competitor> competitors)
-    {
-        //if (competitors.Count < 4)
-        //    throw new ArgumentOutOfRangeException(nameof(competitors), "Division must have at least 4 competitors");
+	public Bracket CreateBracket(IList<Competitor> competitors)
+	{
+		if (competitors.Count < 4)
+		   throw new ArgumentOutOfRangeException(nameof(competitors), "Division must have at least 4 competitors");
 
-        var trainersToCompetitors = GetGroupedOrderByTrainersCompetitors(competitors)
-            .SelectMany(kvp => kvp.Value)
-            .ToList();
+		var trainersToCompetitors = GetGroupedOrderByTrainersCompetitors(competitors)
+			.SelectMany(kvp => kvp.Value)
+			.ToList();
 
-        var seed = BracketsHelpers.GetSeed(trainersToCompetitors.Count);
-        var placedCompetitors = PlaceCompetitorsBySeed(seed, trainersToCompetitors);
+		var seed = BracketsHelpers.GetSeed(trainersToCompetitors.Count);
+		var placedCompetitors = PlaceCompetitorsBySeed(seed, trainersToCompetitors);
 
-        var roundFromFinal = (int)Math.Log2(placedCompetitors.Count) - 1;
-        var bracketLeafs = CreateTreeLeafs(placedCompetitors, roundFromFinal);
-        var rootNode = CreateTournamentTree(bracketLeafs, roundFromFinal);
+		var roundFromFinal = (int)Math.Log2(placedCompetitors.Count) - 1;
+		var bracketLeafs = CreateTreeLeafs(placedCompetitors, roundFromFinal);
+		var rootNode = CreateTournamentTree(bracketLeafs, roundFromFinal);
 
-        var bracket = new SingleEliminationBracket
-        {
-            Id = Guid.NewGuid(),
-            Root = rootNode,
-            ThirdPlace = bracketNodeFactory.Create(matchFactory.CreateEmptyUnplannedMatch(), 0, 1),
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
-        };
+		var bracket = new SingleEliminationBracket
+		{
+			Id = Guid.NewGuid(),
+			Root = rootNode,
+			ThirdPlace = bracketNodeFactory.Create(matchFactory.CreateEmptyUnplannedMatch(), 0, 1),
+			CreatedAt = DateTime.UtcNow,
+			UpdatedAt = DateTime.UtcNow,
+		};
 
-        foreach (var node in bracket.GetAllNodes())
-            node.BracketId = bracket.Id;
+		foreach (var node in bracket.GetAllNodes())
+			node.BracketId = bracket.Id;
 
-        return bracket;
-    }
+		return bracket;
+	}
 
-    public SingleEliminationBracket EnrichBracketWithNodes(SingleEliminationBracket baseBracket,
-        List<BracketNode> nodes)
-    {
-        baseBracket.ThirdPlace = nodes.Single(n => n.Id == baseBracket.ThirdPlaceId);
-        baseBracket.Root = ConstructTournamentTreeFromNodes(nodes, baseBracket.RootId);
-        return baseBracket;
-    }
+	public SingleEliminationBracket EnrichBracketWithNodes(SingleEliminationBracket baseBracket,
+		List<BracketNode> nodes)
+	{
+		baseBracket.ThirdPlace = nodes.Single(n => n.Id == baseBracket.ThirdPlaceId);
+		baseBracket.Root = ConstructTournamentTreeFromNodes(nodes, baseBracket.RootId);
+		return baseBracket;
+	}
 
-    public void ExtendBracket(Bracket bracket)
-    {
-        var singleEliminationBracket = bracket as SingleEliminationBracket ?? throw new ArgumentException();
-        var sortedLeafsWithMatches = singleEliminationBracket.GetAllNodesWithCompetitorsMatches()
-            .Where(n => n.Children is null || n.Children.Count == 0
-                                           || n is { IndexInRound: 1, RoundFromFinal: 0 })
-            .OrderBy(n => n.IndexInRound)
-            .ToList();
-        var competitors = sortedLeafsWithMatches.Select(n => n.Match)
-            .SelectMany(m => new List<Competitor?> { m.FirstCompetitor, m.SecondCompetitor })
-            .Where(c => c is not null)
-            .Distinct()
-            .ToList();
-        var sortedCompetitors = GetGroupedOrderByTrainersCompetitors(competitors!)
-            .SelectMany(kvp => kvp.Value)
-            .ToList();
+	public void ExtendBracket(Bracket bracket)
+	{
+		var singleEliminationBracket = bracket as SingleEliminationBracket ?? throw new ArgumentException();
+		var sortedLeafsWithMatches = singleEliminationBracket.GetAllNodesWithCompetitorsMatches()
+			.Where(n => n.Children is null || n.Children.Count == 0
+										   || n is { IndexInRound: 1, RoundFromFinal: 0 })
+			.OrderBy(n => n.IndexInRound)
+			.ToList();
+		var competitors = sortedLeafsWithMatches.Select(n => n.Match)
+			.SelectMany(m => new List<Competitor?> { m.FirstCompetitor, m.SecondCompetitor })
+			.Where(c => c is not null)
+			.Distinct()
+			.ToList();
+		var sortedCompetitors = GetGroupedOrderByTrainersCompetitors(competitors!)
+			.SelectMany(kvp => kvp.Value)
+			.ToList();
 
-        var seed = BracketsHelpers.GetSeed(sortedCompetitors.Count);
-        var placedCompetitors = PlaceCompetitorsBySeed(seed, sortedCompetitors);
+		var seed = BracketsHelpers.GetSeed(sortedCompetitors.Count);
+		var placedCompetitors = PlaceCompetitorsBySeed(seed, sortedCompetitors);
 
-        var roundFromFinal = (int)Math.Log2(placedCompetitors.Count);
-        var bracketLeafs = CreateTreeLeafsWithByeMatch(placedCompetitors!, roundFromFinal);
-        bracketLeafs.ForEach(l => l.BracketId = bracket.Id);
+		var roundFromFinal = (int)Math.Log2(placedCompetitors.Count);
+		var bracketLeafs = CreateTreeLeafsWithByeMatch(placedCompetitors!, roundFromFinal);
+		bracketLeafs.ForEach(l => l.BracketId = bracket.Id);
 
-        for (var i = 0; i < sortedLeafsWithMatches.Count; i++)
-        {
-            var leafWithMatch = sortedLeafsWithMatches[i];
-            leafWithMatch.Match.Clear();
+		for (var i = 0; i < sortedLeafsWithMatches.Count; i++)
+		{
+			var leafWithMatch = sortedLeafsWithMatches[i];
+			leafWithMatch.Match.Clear();
 
-            var firstNewLeaf = bracketLeafs[2 * i];
-            var secondNewLeaf = bracketLeafs[2 * i + 1];
-            firstNewLeaf.SetParent(leafWithMatch);
-            secondNewLeaf.SetParent(leafWithMatch);
-            leafWithMatch.Children = [firstNewLeaf, secondNewLeaf];
-        }
-    }
+			var firstNewLeaf = bracketLeafs[2 * i];
+			var secondNewLeaf = bracketLeafs[2 * i + 1];
+			firstNewLeaf.SetParent(leafWithMatch);
+			secondNewLeaf.SetParent(leafWithMatch);
+			leafWithMatch.Children = [firstNewLeaf, secondNewLeaf];
+		}
+	}
 
-    public void ReduceBracket(Bracket bracket)
-    {
-        var seBracket = bracket as SingleEliminationBracket ?? throw new ArgumentException();
-        var leafs = GetLeafs(seBracket).ToList();
-        var competitors = leafs
-            .Select(l => l.Match)
-            .SelectMany(m => new List<Competitor?> { m.FirstCompetitor, m.SecondCompetitor })
-            .Where(c => c is not null)
-            .Select(c => c!)
-            .ToList();
+	public bool NeedToReduce(Bracket bracket)
+	{
+		var currentCompetitorsCount = bracket.GetAllCompetitors().Count;
+		return BracketsHelpers.NearestPowerOfTwo(currentCompetitorsCount)
+				!= BracketsHelpers.NearestPowerOfTwo(currentCompetitorsCount - 1)
+				&& currentCompetitorsCount != 2;
+	}
 
-        var parents = leafs
-            .Select(l => l.Parent
-                         ?? throw new InvalidOperationException("Can't reduce SE bracket. There is only root node"))
-            .ToHashSet();
-        foreach (var p in parents)
-            p.Children!.Clear();
+	public void ReduceBracket(Bracket bracket)
+	{
+		var seBracket = bracket as SingleEliminationBracket ?? throw new ArgumentException();
+		var leafs = GetLeafs(seBracket).ToList();
+		var competitors = leafs
+			.Select(l => l.Match)
+			.SelectMany(m => new List<Competitor?> { m.FirstCompetitor, m.SecondCompetitor })
+			.Where(c => c is not null)
+			.Select(c => c!)
+			.ToList();
 
-        var seed = BracketsHelpers.GetSeed(competitors.Count);
-        var placedCompetitor = PlaceCompetitorsBySeed(seed, competitors);
-        PutCompetitorsToMatches(placedCompetitor, parents.ToList());
-    }
+		var parents = leafs
+			.Select(l => l.Parent
+						 ?? throw new InvalidOperationException("Can't reduce SE bracket. There is only root node"))
+			.ToHashSet();
+		foreach (var p in parents)
+			p.Children!.Clear();
 
-    public void RebalanceBracket(Bracket bracket)
-    {
-        var seBracket = bracket as SingleEliminationBracket ?? throw new ArgumentException();
-        var leafs = GetLeafs(seBracket).ToList();
+		var seed = BracketsHelpers.GetSeed(competitors.Count);
+		var placedCompetitor = PlaceCompetitorsBySeed(seed, competitors);
+		PutCompetitorsToMatches(placedCompetitor, parents.ToList());
+	}
 
-        var leafMatches = leafs.Select(l => l.Match).ToList();
-        var competitors = leafMatches
-            .SelectMany(m => new List<Competitor?> { m.FirstCompetitor, m.SecondCompetitor })
-            .Where(c => c is not null)
-            .Select(c => c!)
-            .ToList();
+	public void RebalanceBracket(Bracket bracket)
+	{
+		var seBracket = bracket as SingleEliminationBracket ?? throw new ArgumentException();
+		var leafs = GetLeafs(seBracket).ToList();
 
-        foreach (var match in leafMatches)
-            match.Clear();
+		var leafMatches = leafs.Select(l => l.Match).ToList();
+		var competitors = leafMatches
+			.SelectMany(m => new List<Competitor?> { m.FirstCompetitor, m.SecondCompetitor })
+			.Where(c => c is not null)
+			.Select(c => c!)
+			.ToList();
 
-        var seed = BracketsHelpers.GetSeed(competitors.Count);
-        var placedCompetitor = PlaceCompetitorsBySeed(seed, competitors);
-        PutCompetitorsToMatches(placedCompetitor, leafs);
-    }
+		foreach (var match in leafMatches)
+			match.Clear();
 
-    private Dictionary<string, List<Competitor>> GetGroupedOrderByTrainersCompetitors(IList<Competitor> competitors)
-    {
-        //Группируем по субъектам и сортируем по размеру полученных групп
-        return competitors
-            .GroupBy(c => c.Subject)
-            .ToDictionary(g => g.Key, g => g.ToList())
-            .OrderByDescending(kvp => kvp.Value.Count)
-            .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+		var seed = BracketsHelpers.GetSeed(competitors.Count);
+		var placedCompetitor = PlaceCompetitorsBySeed(seed, competitors);
+		PutCompetitorsToMatches(placedCompetitor, leafs);
+	}
 
-        //string GetTrainersListId(IReadOnlyList<Trainer> trainers) =>
-        //    string.Join(",", trainers.OrderBy(t => t.Id).Select(t => t.Id));
-    }
+	private Dictionary<string, List<Competitor>> GetGroupedOrderByTrainersCompetitors(IList<Competitor> competitors)
+	{
+		//Группируем по субъектам и сортируем по размеру полученных групп
+		return competitors
+			.GroupBy(c => c.Subject)
+			.ToDictionary(g => g.Key, g => g.ToList())
+			.OrderByDescending(kvp => kvp.Value.Count)
+			.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
-    private List<Competitor?> PlaceCompetitorsBySeed(int[] seed, List<Competitor> competitors)
-    {
-        var placedCompetitors = new List<Competitor?>(seed.Length);
-        foreach (var place in seed)
-        {
-            var index = place - 1;
-            placedCompetitors.Add(index >= competitors.Count ? null : competitors[index]);
-        }
+		//string GetTrainersListId(IReadOnlyList<Trainer> trainers) =>
+		//    string.Join(",", trainers.OrderBy(t => t.Id).Select(t => t.Id));
+	}
 
-        return placedCompetitors;
-    }
+	private List<Competitor?> PlaceCompetitorsBySeed(int[] seed, List<Competitor> competitors)
+	{
+		var placedCompetitors = new List<Competitor?>(seed.Length);
+		foreach (var place in seed)
+		{
+			var index = place - 1;
+			placedCompetitors.Add(index >= competitors.Count ? null : competitors[index]);
+		}
 
-    private List<BracketNode> CreateTreeLeafs(List<Competitor?> placedCompetitors, int roundFromFinal)
-    {
-        if (placedCompetitors.Count == 1)
-        {
-            var match = matchFactory.CreateLeafMatch(placedCompetitors[0], null);
-            return [bracketNodeFactory.Create(match, 0, 0)];
-        }
+		return placedCompetitors;
+	}
 
-        var indexInRound = 0;
-        var bracketLeafs = new List<BracketNode>();
-        for (var i = 0; i < placedCompetitors.Count; i += 2, indexInRound++)
-        {
-            var firstCompetitor = placedCompetitors[i];
-            var secondCompetitor = placedCompetitors[i + 1];
-            if (firstCompetitor is null && secondCompetitor is null)
-                throw new Exception("Error while create bracket. Two competitors are null");
+	private List<BracketNode> CreateTreeLeafs(List<Competitor?> placedCompetitors, int roundFromFinal)
+	{
+		if (placedCompetitors.Count == 1)
+		{
+			var match = matchFactory.CreateMatchByCompetitors(placedCompetitors[0], null);
+			return [bracketNodeFactory.Create(match, 0, 0)];
+		}
 
-            var match = matchFactory.CreateLeafMatch(firstCompetitor, secondCompetitor);
-            bracketLeafs.Add(bracketNodeFactory.Create(match, roundFromFinal, indexInRound));
-        }
+		var indexInRound = 0;
+		var bracketLeafs = new List<BracketNode>();
+		for (var i = 0; i < placedCompetitors.Count; i += 2, indexInRound++)
+		{
+			var firstCompetitor = placedCompetitors[i];
+			var secondCompetitor = placedCompetitors[i + 1];
+			if (firstCompetitor is null && secondCompetitor is null)
+				throw new Exception("Error while create bracket. Two competitors are null");
 
-        return bracketLeafs;
-    }
+			var match = matchFactory.CreateMatchByCompetitors(firstCompetitor, secondCompetitor);
+			bracketLeafs.Add(bracketNodeFactory.Create(match, roundFromFinal, indexInRound));
+		}
 
-    private void PutCompetitorsToMatches(List<Competitor?> placedCompetitors, List<BracketNode> nodesWithMatches)
-    {
-        var orderedMatches = nodesWithMatches
-            .OrderBy(n => n.IndexInRound)
-            .Select(n => n.Match)
-            .ToList();
+		return bracketLeafs;
+	}
 
-        for (var i = 0; i < orderedMatches.Count; i++)
-        {
-            var match = orderedMatches[i];
-            var firstCompetitor = placedCompetitors[2 * i];
-            var secondCompetitor = placedCompetitors[2 * i + 1];
+	private void PutCompetitorsToMatches(List<Competitor?> placedCompetitors, List<BracketNode> nodesWithMatches)
+	{
+		var orderedMatches = nodesWithMatches
+			.OrderBy(n => n.IndexInRound)
+			.Select(n => n.Match)
+			.ToList();
 
-            if (firstCompetitor is not null)
-                match.AddCompetitor(firstCompetitor);
-            if (secondCompetitor is not null)
-                match.AddCompetitor(secondCompetitor);
-        }
-    }
+		for (var i = 0; i < orderedMatches.Count; i++)
+		{
+			var match = orderedMatches[i];
+			var firstCompetitor = placedCompetitors[2 * i];
+			var secondCompetitor = placedCompetitors[2 * i + 1];
 
-    private List<BracketNode> CreateTreeLeafsWithByeMatch(List<Competitor> placedCompetitors, int roundFromFinal)
-    {
-        var bracketLeafs = new List<BracketNode>();
-        for (var i = 0; i < placedCompetitors.Count; i++)
-        {
-            var match = matchFactory.CreateLeafMatch(placedCompetitors[i], null);
-            bracketLeafs.Add(bracketNodeFactory.Create(match, roundFromFinal, i));
-        }
+			if (firstCompetitor is not null)
+				match.AddCompetitor(firstCompetitor);
+			if (secondCompetitor is not null)
+				match.AddCompetitor(secondCompetitor);
+		}
+	}
 
-        return bracketLeafs;
-    }
+	private List<BracketNode> CreateTreeLeafsWithByeMatch(List<Competitor> placedCompetitors, int roundFromFinal)
+	{
+		var bracketLeafs = new List<BracketNode>();
+		for (var i = 0; i < placedCompetitors.Count; i++)
+		{
+			var match = matchFactory.CreateMatchByCompetitors(placedCompetitors[i], null);
+			bracketLeafs.Add(bracketNodeFactory.Create(match, roundFromFinal, i));
+		}
 
-    private BracketNode CreateTournamentTree(List<BracketNode> bracketLeafs, int roundFromFinal)
-    {
-        var currentRoundNodes = bracketLeafs.ToList();
-        while (roundFromFinal > 0)
-        {
-            var nextRoundNodes = new List<BracketNode>();
-            var indexInRound = 0;
-            roundFromFinal--;
+		return bracketLeafs;
+	}
 
-            for (var i = 0; i < currentRoundNodes.Count; i += 2, indexInRound++)
-            {
-                var leftNode = currentRoundNodes[i];
-                var rightNode = currentRoundNodes[i + 1];
+	private BracketNode CreateTournamentTree(List<BracketNode> bracketLeafs, int roundFromFinal)
+	{
+		var currentRoundNodes = bracketLeafs.ToList();
+		while (roundFromFinal > 0)
+		{
+			var nextRoundNodes = new List<BracketNode>();
+			var indexInRound = 0;
+			roundFromFinal--;
 
-                var match = matchFactory.CreateEmptyUnplannedMatch();
-                var node = bracketNodeFactory.Create(match, roundFromFinal, indexInRound,
-                    children: [leftNode, rightNode]);
-                leftNode.SetParent(node);
-                rightNode.SetParent(node);
+			for (var i = 0; i < currentRoundNodes.Count; i += 2, indexInRound++)
+			{
+				var leftNode = currentRoundNodes[i];
+				var rightNode = currentRoundNodes[i + 1];
 
-                nextRoundNodes.Add(node);
-            }
+				var match = matchFactory.CreateEmptyUnplannedMatch();
+				var node = bracketNodeFactory.Create(match, roundFromFinal, indexInRound,
+					children: [leftNode, rightNode]);
+				leftNode.SetParent(node);
+				rightNode.SetParent(node);
 
-            currentRoundNodes = nextRoundNodes;
-        }
+				nextRoundNodes.Add(node);
+			}
 
-        return currentRoundNodes.Count != 1
-            ? throw new Exception(
-                $"Error while create bracket. Nodes after bracket creation is {currentRoundNodes.Count}, but 1 expected")
-            : currentRoundNodes[0];
-    }
+			currentRoundNodes = nextRoundNodes;
+		}
 
-    private BracketNode ConstructTournamentTreeFromNodes(List<BracketNode> nodes, Guid rootId)
-    {
-        // var nodesIds = nodes.ToDictionary(n => n.Id, n => n);
-        // foreach (var node in nodes)
-        // {
-        //     if (node.ParentNodeId is null)
-        //         continue;
-        //
-        //     var parent = nodesIds[node.ParentNodeId.Value];
-        //     if (parent.Children is null)
-        //         parent.Children = new List<BracketNode>(2) { node };
-        //     else
-        //         parent.Children.Add(node);
-        //node.SetParent(parent);
-        //}
+		return currentRoundNodes.Count != 1
+			? throw new Exception(
+				$"Error while create bracket. Nodes after bracket creation is {currentRoundNodes.Count}, but 1 expected")
+			: currentRoundNodes[0];
+	}
 
-        return nodes.Single(n => n.Id == rootId);
-    }
+	private BracketNode ConstructTournamentTreeFromNodes(List<BracketNode> nodes, Guid rootId)
+	{
+		// var nodesIds = nodes.ToDictionary(n => n.Id, n => n);
+		// foreach (var node in nodes)
+		// {
+		//     if (node.ParentNodeId is null)
+		//         continue;
+		//
+		//     var parent = nodesIds[node.ParentNodeId.Value];
+		//     if (parent.Children is null)
+		//         parent.Children = new List<BracketNode>(2) { node };
+		//     else
+		//         parent.Children.Add(node);
+		//node.SetParent(parent);
+		//}
 
-    private IEnumerable<BracketNode> GetLeafs(SingleEliminationBracket bracket)
-    {
-        return bracket.GetAllNodes()
-            .Where(n => !(n.RoundFromFinal == 0 && n.IndexInRound == 1)
-                        && (n.Children is null || n.Children.Count == 0));
-    }
+		return nodes.Single(n => n.Id == rootId);
+	}
+
+	private IEnumerable<BracketNode> GetLeafs(SingleEliminationBracket bracket)
+	{
+		return bracket.GetAllNodes()
+			.Where(n => !(n.RoundFromFinal == 0 && n.IndexInRound == 1)
+						&& (n.Children is null || n.Children.Count == 0));
+	}
 }
