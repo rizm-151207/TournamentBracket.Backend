@@ -79,6 +79,8 @@ jobs:
   push-to-registry:
     runs-on: ubuntu-latest
 
+    needs: [lint, test, security]
+
     permissions:
       contents: read
       packages: write
