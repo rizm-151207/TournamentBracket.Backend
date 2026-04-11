@@ -13,73 +13,73 @@ namespace TournamentBracket.Api.Controllers;
 [Route("api/competitors")]
 public class CompetitorsController : ExtendedControllerBase
 {
-    private readonly ICompetitorService competitorService;
+	private readonly ICompetitorService competitorService;
 
-    public CompetitorsController(ICompetitorService competitorService)
-    {
-        this.competitorService = competitorService;
-    }
+	public CompetitorsController(ICompetitorService competitorService)
+	{
+		this.competitorService = competitorService;
+	}
 
-    [HttpGet]
-    public async Task<IActionResult> GetCompetitors(
-        [FromQuery] CompetitorsPageQuery query,
-        [FromServices] CompetitorsPageQueryValidator queryValidator)
-    {
-        var validationResult = await queryValidator.ValidateAsync(query);
-        if (!validationResult.IsValid)
-            return BadRequest(validationResult.Errors);
+	[HttpGet]
+	public async Task<IActionResult> GetCompetitors(
+		[FromQuery] CompetitorsPageQuery query,
+		[FromServices] CompetitorsPageQueryValidator queryValidator)
+	{
+		var validationResult = await queryValidator.ValidateAsync(query);
+		if (!validationResult.IsValid)
+			return BadRequest(validationResult.Errors);
 
-        var competitorsResult = await competitorService.GetCompetitors(query);
-        if (!competitorsResult.IsSuccess)
-            return BadRequest(competitorsResult.Error);
+		var competitorsResult = await competitorService.GetCompetitors(query);
+		if (!competitorsResult.IsSuccess)
+			return BadRequest(competitorsResult.Error);
 
-        var countResult = await competitorService.GetCount(query.CreateFilter());
-        if (!countResult.IsSuccess)
-            return BadRequest(countResult.Error);
+		var countResult = await competitorService.GetCount(query.CreateFilter());
+		if (!countResult.IsSuccess)
+			return BadRequest(countResult.Error);
 
-        return Ok(new PageResponse<Competitor>(competitorsResult.Item!, countResult.Item));
-    }
+		return Ok(new PageResponse<Competitor>(competitorsResult.Item!, countResult.Item));
+	}
 
-    [HttpPost]
-    [Authorize(Roles = "Organizer, Administrator")]
-    public async Task<IActionResult> CreateCompetitor(
-        [FromBody] CreateCompetitorCommand command,
-        [FromServices] CreateCompetitorCommandValidator commandValidator)
-    {
-        var validationResult = await commandValidator.ValidateAsync(command);
-        if (!validationResult.IsValid)
-            return BadRequest(validationResult.Errors);
+	[HttpPost]
+	[Authorize(Roles = "Organizer, Administrator")]
+	public async Task<IActionResult> CreateCompetitor(
+		[FromBody] CreateCompetitorCommand command,
+		[FromServices] CreateCompetitorCommandValidator commandValidator)
+	{
+		var validationResult = await commandValidator.ValidateAsync(command);
+		if (!validationResult.IsValid)
+			return BadRequest(validationResult.Errors);
 
-        var creationResult = await competitorService.CreateCompetitor(command);
-        return ToActionResult(creationResult, 201);
-    }
+		var creationResult = await competitorService.CreateCompetitor(command);
+		return ToActionResult(creationResult, 201);
+	}
 
-    [HttpPatch]
-    [Authorize(Roles = "Organizer, Administrator")]
-    public async Task<IActionResult> UpdateCompetitor(
-        [FromBody] UpdateCompetitorCommand command,
-        [FromServices] UpdateCompetitorCommandValidator commandValidator)
-    {
-        var validationResult = await commandValidator.ValidateAsync(command);
-        if (!validationResult.IsValid)
-            return BadRequest(validationResult.Errors);
+	[HttpPatch]
+	[Authorize(Roles = "Organizer, Administrator")]
+	public async Task<IActionResult> UpdateCompetitor(
+		[FromBody] UpdateCompetitorCommand command,
+		[FromServices] UpdateCompetitorCommandValidator commandValidator)
+	{
+		var validationResult = await commandValidator.ValidateAsync(command);
+		if (!validationResult.IsValid)
+			return BadRequest(validationResult.Errors);
 
-        var updateResult = await competitorService.UpdateCompetitor(command);
-        return ToActionResult(updateResult);
-    }
+		var updateResult = await competitorService.UpdateCompetitor(command);
+		return ToActionResult(updateResult);
+	}
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetCompetitorById([FromRoute] Guid id)
-    {
-        var result = await competitorService.GetCompetitor(id);
-        return ToActionResult(result);
-    }
+	[HttpGet("{id}")]
+	public async Task<IActionResult> GetCompetitorById([FromRoute] Guid id)
+	{
+		var result = await competitorService.GetCompetitor(id);
+		return ToActionResult(result);
+	}
 
-    [HttpDelete("{id}")]
-    [Authorize(Roles = "Organizer, Administrator")]
-    public async Task<IActionResult> DeleteCompetitor([FromRoute] Guid id)
-    {
-        var result = await competitorService.DeleteCompetitor(id);
-        return ToActionResult(result);
-    }
+	[HttpDelete("{id}")]
+	[Authorize(Roles = "Organizer, Administrator")]
+	public async Task<IActionResult> DeleteCompetitor([FromRoute] Guid id)
+	{
+		var result = await competitorService.DeleteCompetitor(id);
+		return ToActionResult(result);
+	}
 }

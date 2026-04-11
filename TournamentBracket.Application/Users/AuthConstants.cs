@@ -2,5 +2,5 @@
 
 public static class AuthConstants
 {
-    public const string AccessTokenName = "TournamentAcc";
+	public const string AccessTokenName = "TournamentAcc";
 }

@@ -21,7 +21,7 @@ public class SingleEliminationBracketFactory : IBracketFactory
 	public Bracket CreateBracket(IList<Competitor> competitors)
 	{
 		if (competitors.Count < 4)
-		   throw new ArgumentOutOfRangeException(nameof(competitors), "Division must have at least 4 competitors");
+			throw new ArgumentOutOfRangeException(nameof(competitors), "Division must have at least 4 competitors");
 
 		var trainersToCompetitors = GetGroupedOrderByTrainersCompetitors(competitors)
 			.SelectMany(kvp => kvp.Value)

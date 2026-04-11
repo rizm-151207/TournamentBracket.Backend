@@ -3,6 +3,6 @@
 namespace TournamentBracket.Application.Users.Commands;
 
 public record RegisterUserCommand(
-    string Email,
-    string Password,
-    UserRole Role);
+	string Email,
+	string Password,
+	UserRole Role);

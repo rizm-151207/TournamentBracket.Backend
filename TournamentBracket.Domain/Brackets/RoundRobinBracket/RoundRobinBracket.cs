@@ -65,7 +65,7 @@ public class RoundRobinBracket : Bracket
 		if (Matches.Count != 3)
 			return false;
 
-		foreach(var byeMatch in Matches.Where(m => m.IsByeMatch))
+		foreach (var byeMatch in Matches.Where(m => m.IsByeMatch))
 		{
 			byeMatch.AddCompetitor(competitor);
 		}

@@ -2,5 +2,5 @@
 
 public class AddCompetitorCommand
 {
-    public Guid CompetitorId { get; set; }
+	public Guid CompetitorId { get; set; }
 }

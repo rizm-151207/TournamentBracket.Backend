@@ -5,9 +5,9 @@ namespace TournamentBracket.Application.Users.Validation;
 
 public class RefreshTokenCommandValidator : AbstractValidator<RefreshTokenCommand>
 {
-    public RefreshTokenCommandValidator()
-    {
-        RuleFor(c => c.RefreshToken)
-            .NotEmpty();
-    }
+	public RefreshTokenCommandValidator()
+	{
+		RuleFor(c => c.RefreshToken)
+			.NotEmpty();
+	}
 }

@@ -7,63 +7,63 @@ namespace TournamentBracket.Domain.Tests.Brackets;
 [TestFixture]
 public class BracketTypeResolverSpec
 {
-    private BracketTypeResolver _resolver;
+	private BracketTypeResolver _resolver;
 
-    [SetUp]
-    public void Setup()
-    {
-        _resolver = new BracketTypeResolver();
-    }
+	[SetUp]
+	public void Setup()
+	{
+		_resolver = new BracketTypeResolver();
+	}
 
-    [Test]
-    [TestCase(1)]
-    [TestCase(2)]
-    [TestCase(3)]
-    public void Resolve_WithOneToThreeCompetitors_Should_ReturnRoundRobin(int competitorsCount)
-    {
-        // Act
-        var result = _resolver.Resolve(competitorsCount);
+	[Test]
+	[TestCase(1)]
+	[TestCase(2)]
+	[TestCase(3)]
+	public void Resolve_WithOneToThreeCompetitors_Should_ReturnRoundRobin(int competitorsCount)
+	{
+		// Act
+		var result = _resolver.Resolve(competitorsCount);
 
-        // Assert
-        result.Should().Be(BracketType.RoundRobin);
-    }
+		// Assert
+		result.Should().Be(BracketType.RoundRobin);
+	}
 
-    [Test]
-    [TestCase(4)]
-    [TestCase(5)]
-    [TestCase(8)]
-    [TestCase(10)]
-    [TestCase(16)]
-    [TestCase(32)]
-    [TestCase(64)]
-    [TestCase(100)]
-    public void Resolve_WithFourOrMoreCompetitors_Should_ReturnSingleElimination(int competitorsCount)
-    {
-        // Act
-        var result = _resolver.Resolve(competitorsCount);
+	[Test]
+	[TestCase(4)]
+	[TestCase(5)]
+	[TestCase(8)]
+	[TestCase(10)]
+	[TestCase(16)]
+	[TestCase(32)]
+	[TestCase(64)]
+	[TestCase(100)]
+	public void Resolve_WithFourOrMoreCompetitors_Should_ReturnSingleElimination(int competitorsCount)
+	{
+		// Act
+		var result = _resolver.Resolve(competitorsCount);
 
-        // Assert
-        result.Should().Be(BracketType.SingleElimination);
-    }
+		// Assert
+		result.Should().Be(BracketType.SingleElimination);
+	}
 
-    [Test]
-    public void Resolve_WithZeroCompetitors_Should_ThrowArgumentException()
-    {
-        // Act
-        Action act = () => _resolver.Resolve(0);
+	[Test]
+	public void Resolve_WithZeroCompetitors_Should_ThrowArgumentException()
+	{
+		// Act
+		Action act = () => _resolver.Resolve(0);
 
-        // Assert
-        act.Should().Throw<ArgumentException>()
-            .WithMessage("CompetitorsCount must be greater than 0");
-    }
+		// Assert
+		act.Should().Throw<ArgumentException>()
+			.WithMessage("CompetitorsCount must be greater than 0");
+	}
 
-    [Test]
-    public void Resolve_WithLargeNumberOfCompetitors_Should_ReturnSingleElimination()
-    {
-        // Act
-        var result = _resolver.Resolve(1000);
+	[Test]
+	public void Resolve_WithLargeNumberOfCompetitors_Should_ReturnSingleElimination()
+	{
+		// Act
+		var result = _resolver.Resolve(1000);
 
-        // Assert
-        result.Should().Be(BracketType.SingleElimination);
-    }
+		// Assert
+		result.Should().Be(BracketType.SingleElimination);
+	}
 }

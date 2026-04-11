@@ -2,6 +2,6 @@
 
 public enum UserRole
 {
-    Administrator,
-    Organizer
+	Administrator,
+	Organizer
 }

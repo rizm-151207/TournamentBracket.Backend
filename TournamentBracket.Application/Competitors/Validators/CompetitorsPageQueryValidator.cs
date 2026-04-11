@@ -6,10 +6,10 @@ namespace TournamentBracket.Application.Competitors.Validators;
 
 public class CompetitorsPageQueryValidator : AbstractValidator<CompetitorsPageQuery>
 {
-    public CompetitorsPageQueryValidator(PageQueryValidator pageQueryValidator)
-    {
-        Include(pageQueryValidator);
-        RuleFor(q => q.FIO)
-            .MaximumLength(256);
-    }
+	public CompetitorsPageQueryValidator(PageQueryValidator pageQueryValidator)
+	{
+		Include(pageQueryValidator);
+		RuleFor(q => q.FIO)
+			.MaximumLength(256);
+	}
 }

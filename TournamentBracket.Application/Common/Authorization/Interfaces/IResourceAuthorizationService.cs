@@ -5,5 +5,5 @@ namespace TournamentBracket.Application.Common.Authorization.Interfaces;
 
 public interface IResourceAuthorizationService
 {
-    public Task<Result> Authorize<TResource>(TResource resource, IAuthorizationRequirement? requirement = null);
+	public Task<Result> Authorize<TResource>(TResource resource, IAuthorizationRequirement? requirement = null);
 }

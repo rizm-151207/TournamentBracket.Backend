@@ -8,17 +8,17 @@ namespace TournamentBracket.Api.Controllers;
 [Route("api/divisions")]
 public class DivisionsController : ExtendedControllerBase
 {
-    private readonly IDivisionsService divisionsService;
+	private readonly IDivisionsService divisionsService;
 
-    public DivisionsController(IDivisionsService divisionsService)
-    {
-        this.divisionsService = divisionsService;
-    }
+	public DivisionsController(IDivisionsService divisionsService)
+	{
+		this.divisionsService = divisionsService;
+	}
 
-    [HttpGet]
-    public async Task<IActionResult> GetDivisions([FromQuery] DivisionsQuery query)
-    {
-        var result = await divisionsService.GetDivisionsByCompetitionId(query.CompetitionId);
-        return ToActionResult(result);
-    }
+	[HttpGet]
+	public async Task<IActionResult> GetDivisions([FromQuery] DivisionsQuery query)
+	{
+		var result = await divisionsService.GetDivisionsByCompetitionId(query.CompetitionId);
+		return ToActionResult(result);
+	}
 }

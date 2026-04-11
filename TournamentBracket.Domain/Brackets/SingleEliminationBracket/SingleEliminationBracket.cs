@@ -67,7 +67,7 @@ public class SingleEliminationBracket : Bracket
 	{
 		var nodesWithMatches = GetAllNodesWithCompetitorsMatches().ToList();
 		return nodesWithMatches.Any(n => n.Match.IsByeMatch);
-	}	
+	}
 
 	public override List<Competitor> GetAllCompetitors()
 	{

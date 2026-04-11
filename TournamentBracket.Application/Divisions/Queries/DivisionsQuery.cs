@@ -2,5 +2,5 @@
 
 public class DivisionsQuery
 {
-    public Guid CompetitionId { get; set; }
+	public Guid CompetitionId { get; set; }
 }

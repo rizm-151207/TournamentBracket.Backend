@@ -8,18 +8,18 @@ namespace TournamentBracket.Api.Controllers;
 [Route("api/brackets")]
 public class BracketsController : ExtendedControllerBase
 {
-    private readonly ITournamentBracketsService tournamentBracketsService;
+	private readonly ITournamentBracketsService tournamentBracketsService;
 
-    public BracketsController(
-        ITournamentBracketsService tournamentBracketsService)
-    {
-        this.tournamentBracketsService = tournamentBracketsService;
-    }
+	public BracketsController(
+		ITournamentBracketsService tournamentBracketsService)
+	{
+		this.tournamentBracketsService = tournamentBracketsService;
+	}
 
-    [HttpGet("{bracketType}/{bracketId}")]
-    public async Task<IActionResult> GetBracket([FromRoute] Guid bracketId, [FromRoute] BracketType bracketType)
-    {
-        var result = await tournamentBracketsService.GetBracket(bracketId, bracketType);
-        return ToActionResult(result);
-    }
+	[HttpGet("{bracketType}/{bracketId}")]
+	public async Task<IActionResult> GetBracket([FromRoute] Guid bracketId, [FromRoute] BracketType bracketType)
+	{
+		var result = await tournamentBracketsService.GetBracket(bracketId, bracketType);
+		return ToActionResult(result);
+	}
 }

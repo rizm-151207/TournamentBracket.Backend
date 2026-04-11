@@ -2,9 +2,9 @@
 
 public enum CompetitionStatus
 {
-    Planned,
-    Started,
-    Finished,
-    Canceled,
-    Postponed
+	Planned,
+	Started,
+	Finished,
+	Canceled,
+	Postponed
 }

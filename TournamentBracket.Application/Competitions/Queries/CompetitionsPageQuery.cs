@@ -5,7 +5,7 @@ namespace TournamentBracket.Application.Competitions.Queries;
 
 public class CompetitionsPageQuery : PageQuery
 {
-    public string? Name { get; set; }
+	public string? Name { get; set; }
 
-    public CompetitionsFilter CreateFilter() => new(Name);
+	public CompetitionsFilter CreateFilter() => new(Name);
 }
