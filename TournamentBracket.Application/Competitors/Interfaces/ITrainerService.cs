@@ -7,10 +7,10 @@ namespace TournamentBracket.Application.Competitors.Interfaces;
 
 public interface ITrainerService
 {
-    public Task<Result> CreateTrainer(CreateTrainerCommand command, CancellationToken ct = default);
-    public Task<Result<IReadOnlyCollection<Trainer>>> GetTrainers(PageQuery query, CancellationToken ct = default);
-    public Task<Result<int>> GetCount(CancellationToken ct = default);
-    public Task<Result<Trainer>> GetTrainer(Guid id, CancellationToken ct = default);
-    public Task<Result> UpdateTrainer(UpdateTrainerCommand command, CancellationToken ct = default);
-    public Task<Result> DeleteTrainer(Guid id, CancellationToken ct = default);
+	public Task<Result> CreateTrainer(CreateTrainerCommand command, CancellationToken ct = default);
+	public Task<Result<IReadOnlyCollection<Trainer>>> GetTrainers(PageQuery query, CancellationToken ct = default);
+	public Task<Result<int>> GetCount(CancellationToken ct = default);
+	public Task<Result<Trainer>> GetTrainer(Guid id, CancellationToken ct = default);
+	public Task<Result> UpdateTrainer(UpdateTrainerCommand command, CancellationToken ct = default);
+	public Task<Result> DeleteTrainer(Guid id, CancellationToken ct = default);
 }

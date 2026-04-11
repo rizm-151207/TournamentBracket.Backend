@@ -5,5 +5,5 @@ namespace TournamentBracket.Application.Competitions.Interfaces;
 
 public interface ICompetitionPlanner
 {
-    public Task<Result> PlanMatches(Competition competition, CancellationToken ct = default);
+	public Task<Result> PlanMatches(Competition competition, CancellationToken ct = default);
 }

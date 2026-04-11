@@ -7,10 +7,10 @@ namespace TournamentBracket.Application.Users.Interfaces;
 
 public interface IAuthService
 {
-    public Task<Result<User>> Register(RegisterUserCommand command, CancellationToken ct = default);
-    public Task<Result<TokensPair>> Login(LoginUserCommand command, CancellationToken ct = default);
-    public Task<Result> Logout(string userEmail, CancellationToken ct = default);
+	public Task<Result<User>> Register(RegisterUserCommand command, CancellationToken ct = default);
+	public Task<Result<TokensPair>> Login(LoginUserCommand command, CancellationToken ct = default);
+	public Task<Result> Logout(string userEmail, CancellationToken ct = default);
 
-    public Task<Result<TokensPair>> RefreshTokens(RefreshTokenCommand command, string userEmail,
-        CancellationToken ct = default);
+	public Task<Result<TokensPair>> RefreshTokens(RefreshTokenCommand command, string userEmail,
+		CancellationToken ct = default);
 }

@@ -2,6 +2,6 @@
 
 public enum BracketType
 {
-    RoundRobin,
-    SingleElimination
+	RoundRobin,
+	SingleElimination
 }

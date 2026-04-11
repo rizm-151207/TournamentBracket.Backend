@@ -2,10 +2,10 @@
 
 public class CreateCompetitionResponse
 {
-    public CreateCompetitionResponse(Guid competitionId)
-    {
-        CompetitionId = competitionId;
-    }
+	public CreateCompetitionResponse(Guid competitionId)
+	{
+		CompetitionId = competitionId;
+	}
 
-    public Guid CompetitionId { get; set; }
+	public Guid CompetitionId { get; set; }
 }

@@ -2,16 +2,16 @@
 
 public class MatchUpdateEvent
 {
-    public MatchUpdateType Type { get; set; }
-    public bool IsFirstCompetitor { get; set; }
+	public MatchUpdateType Type { get; set; }
+	public bool IsFirstCompetitor { get; set; }
 }
 
 public enum MatchUpdateType
 {
-    Keikoku,
-    Chui,
-    Genten,
-    Disqualification,
-    Ippon,
-    Wazari
+	Keikoku,
+	Chui,
+	Genten,
+	Disqualification,
+	Ippon,
+	Wazari
 }

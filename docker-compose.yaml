@@ -1,0 +1,77 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - BUILD_CONFIGURATION=Release
+        - DB_HOST=db
+        - TOURNAMENT_DB_USER=${TOURNAMENT_DB_USER}
+        - TOURNAMENT_DB_PASSWORD=${TOURNAMENT_DB_PASSWORD}
+    container_name: tournament-bracket-api
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      - DB_HOST=db
+      - TOURNAMENT_DB_USER=${TOURNAMENT_DB_USER}
+      - TOURNAMENT_DB_PASSWORD=${TOURNAMENT_DB_PASSWORD}
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_started
+    networks:
+      - tournament-net
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    container_name: tournament-bracket-db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=tournaments
+      - POSTGRES_USER=${TOURNAMENT_DB_USER}
+      - POSTGRES_PASSWORD=${TOURNAMENT_DB_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - tournament-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${TOURNAMENT_DB_USER} -d tournaments"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  cache:
+    image: redis:7-alpine
+    container_name: tournament-bracket-cache
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis-data:/data
+    networks:
+      - tournament-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+    name: tournament-bracket-postgres-data
+  redis-data:
+    name: tournament-bracket-redis-data
+
+networks:
+  tournament-net:
+    driver: bridge
+    name: tournament-bracket-network

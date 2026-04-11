@@ -9,53 +9,53 @@ namespace TournamentBracket.Application.Divisions.Services;
 
 public class DivisionsService : IDivisionsService
 {
-    private readonly AppDbContext dbContext;
-    private readonly DivisionsFactory divisionsFactory;
+	private readonly AppDbContext dbContext;
+	private readonly DivisionsFactory divisionsFactory;
 
-    public DivisionsService(AppDbContext dbContext, DivisionsFactory divisionsFactory)
-    {
-        this.dbContext = dbContext;
-        this.divisionsFactory = divisionsFactory;
-    }
+	public DivisionsService(AppDbContext dbContext, DivisionsFactory divisionsFactory)
+	{
+		this.dbContext = dbContext;
+		this.divisionsFactory = divisionsFactory;
+	}
 
-    public async Task<Result<IReadOnlyCollection<Division>>> GetDivisionsByCompetitionId(Guid competitionId,
-        CancellationToken ct = default)
-    {
-        var divisions = await dbContext.Divisions
-            .Include(d => d.Competitors)
-            .Where(d => d.CompetitionId == competitionId)
-            .ToListAsync(ct);
-        return Result<IReadOnlyCollection<Division>>.Success(divisions);
-    }
+	public async Task<Result<IReadOnlyCollection<Division>>> GetDivisionsByCompetitionId(Guid competitionId,
+		CancellationToken ct = default)
+	{
+		var divisions = await dbContext.Divisions
+			.Include(d => d.Competitors)
+			.Where(d => d.CompetitionId == competitionId)
+			.ToListAsync(ct);
+		return Result<IReadOnlyCollection<Division>>.Success(divisions);
+	}
 
-    public async Task<Result<Division?>> GetSuitableDivision(Guid competitionId, Competitor competitor,
-        CancellationToken ct = default)
-    {
-        var competitionsResult = await GetDivisionsByCompetitionId(competitionId, ct);
-        if (!competitionsResult.IsSuccess)
-            return Result<Division?>.FailedWith(competitionsResult.Error!);
+	public async Task<Result<Division?>> GetSuitableDivision(Guid competitionId, Competitor competitor,
+		CancellationToken ct = default)
+	{
+		var competitionsResult = await GetDivisionsByCompetitionId(competitionId, ct);
+		if (!competitionsResult.IsSuccess)
+			return Result<Division?>.FailedWith(competitionsResult.Error!);
 
-        var suitableDivision = competitionsResult.Item!.FirstOrDefault(d => d.IsCompetitorFits(competitor));
-        return Result<Division?>.Success(suitableDivision);
-    }
+		var suitableDivision = competitionsResult.Item!.FirstOrDefault(d => d.IsCompetitorFits(competitor));
+		return Result<Division?>.Success(suitableDivision);
+	}
 
-    public Task<Result<Division>> ConstructSuitableDivision(Guid competitionId, Competitor competitor,
-        CancellationToken ct = default)
-    {
-        var defaultDivisions = divisionsFactory.CreateDefaultDivisions(competitionId);
-        var suitableDivision = defaultDivisions.SingleOrDefault(d => d.IsCompetitorFits(competitor))
-            ?? throw new NullReferenceException($"Can't find division for competitor {competitor.FirstName} {competitor.LastName} {competitor.MiddleName}");
+	public Task<Result<Division>> ConstructSuitableDivision(Guid competitionId, Competitor competitor,
+		CancellationToken ct = default)
+	{
+		var defaultDivisions = divisionsFactory.CreateDefaultDivisions(competitionId);
+		var suitableDivision = defaultDivisions.SingleOrDefault(d => d.IsCompetitorFits(competitor))
+			?? throw new NullReferenceException($"Can't find division for competitor {competitor.FirstName} {competitor.LastName} {competitor.MiddleName}");
 
-        return Task.FromResult(Result<Division>.Success(suitableDivision));
-    }
+		return Task.FromResult(Result<Division>.Success(suitableDivision));
+	}
 
-    public async Task<Result<IReadOnlyCollection<Division>>> GetDivisionsWithCompetitor(Guid competitorId,
-        CancellationToken ct = default)
-    {
-        var divisions = await dbContext.Divisions
-            .Where(d => d.Competitors.Any(c => c.Id == competitorId))
-            .ToListAsync(ct);
+	public async Task<Result<IReadOnlyCollection<Division>>> GetDivisionsWithCompetitor(Guid competitorId,
+		CancellationToken ct = default)
+	{
+		var divisions = await dbContext.Divisions
+			.Where(d => d.Competitors.Any(c => c.Id == competitorId))
+			.ToListAsync(ct);
 
-        return Result<IReadOnlyCollection<Division>>.Success(divisions);
-    }
+		return Result<IReadOnlyCollection<Division>>.Success(divisions);
+	}
 }

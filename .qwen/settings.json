@@ -1,7 +1,6 @@
 {
   "permissions": {
-    "allow": [
-      "Bash(dotnet *)"
-    ]
-  }
+    "allow": ["Bash(dotnet *)"]
+  },
+  "$version": 3
 }

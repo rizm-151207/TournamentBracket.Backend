@@ -84,13 +84,13 @@ public class RoundRobinBracketFactory : IBracketFactory
 	{
 		var rrBracket = GetRRBracket(bracket);
 		var matches = rrBracket.GetAllMatches();
-		if(matches.Count != 3)
+		if (matches.Count != 3)
 			throw new InvalidOperationException($"Can reduce bracket only with 3 matches. Current mathces is: {matches.Count}");
-			
+
 		var matchesToRemove = matches
 			.Where(m => m.IsByeMatch)
 			.ToList();
-		
+
 		rrBracket.Matches = [.. rrBracket.Matches.Except(matchesToRemove)];
 	}
 

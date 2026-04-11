@@ -33,27 +33,27 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    });
+	.AddJsonOptions(options =>
+	{
+		options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+		options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+	});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionStringWithEnvironmentVariables("DefaultConnection"),
-            b => b.MigrationsAssembly("TournamentBracket.Api"))
-        .ConfigureWarnings(b =>
-            b.Ignore(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning));
+	options.UseNpgsql(builder.Configuration.GetConnectionStringWithEnvironmentVariables("DefaultConnection"),
+			b => b.MigrationsAssembly("TournamentBracket.Api"))
+		.ConfigureWarnings(b =>
+			b.Ignore(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning));
 });
 
 builder.Services.Configure<JwtTokenConfiguration>(builder.Configuration.GetSection("Jwt"));
 
 builder.AddSwaggerWithJwtAuth()
-    .AddIdentityUser()
-    .AddJwtBearerAuth()
-    .AddTunedCors()
-    .AddFluentValidation();
+	.AddIdentityUser()
+	.AddJwtBearerAuth()
+	.AddTunedCors()
+	.AddFluentValidation();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
@@ -83,8 +83,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+	app.UseSwagger();
+	app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
@@ -95,9 +95,9 @@ app.MapControllers();
 
 if (args.Contains("--migrate"))
 {
-    using var scope = app.Services.CreateScope();
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.Migrate();
+	using var scope = app.Services.CreateScope();
+	var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+	dbContext.Database.Migrate();
 }
 
 app.Run();
