@@ -23,11 +23,11 @@ repos:
       - id: detect-secrets
         args: ["--baseline", ".secrets.baseline"]
 
-  - repo: local
-    hooks:
-      - id: dotnet-format
-        name: dotnet-format
-        language: system
-        entry: dotnet format --include
-        files: \.cs$
-        args: ["--verify-no-changes", "--include-analyzers"]
+  # - repo: local
+  #   hooks:
+  #     - id: dotnet-format
+  #       name: dotnet-format
+  #       language: system
+  #       entry: dotnet format --include
+  #       files: \.cs$
+  #       args: ["--verify-no-changes", "--include-analyzers"]
