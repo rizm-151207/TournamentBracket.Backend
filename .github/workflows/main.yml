@@ -76,10 +76,47 @@ jobs:
       - name: Run static code analysis (Roslyn analyzers)
         run: dotnet build --no-restore /p:TreatWarningsAsErrors=false\
 
+  push-to-registry:
+    runs-on: ubuntu-latest
+
+    needs: [lint, test, security]
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for the Docker image
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            DB_HOST=${{ vars.DB_HOST }}
+            TOURNAMENT_DB_USER=${{ secrets.TOURNAMENT_DB_USER }}
+            TOURNAMENT_DB_PASSWORD=${{ secrets.TOURNAMENT_DB_PASSWORD }}
+
   notify:
     name: Send Telegram Notification
     runs-on: ubuntu-latest
-    needs: [lint, test, security]
+    needs: [lint, test, security, push-to-registry]
     if: always()
     steps:
       - name: Determine overall status
