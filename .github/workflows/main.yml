@@ -54,7 +54,7 @@ jobs:
 
       - name: Run tests
         run: dotnet test --no-restore --verbosity normal
-        
+
   test_8_0:
     name: Unit Tests .net 8.0
     runs-on: ubuntu-latest
