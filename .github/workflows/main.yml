@@ -134,7 +134,7 @@ jobs:
   notify:
     name: Send Telegram Notification
     runs-on: ubuntu-latest
-    needs: [lint, test, security, push-to-registry]
+    needs: [lint, test_6_0, test_8_0, security, push-to-registry]
     if: always()
     steps:
       - name: Determine overall status
