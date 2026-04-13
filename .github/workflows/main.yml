@@ -37,7 +37,7 @@ jobs:
       - name: Run pre-commit hooks on all files
         run: python -m pre_commit run --all-files --show-diff-on-failure
 
-  test:
+  test_6_0:
     name: Unit Tests
     runs-on: ubuntu-latest
     steps:
@@ -48,6 +48,24 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "8.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Run tests
+        run: dotnet test --no-restore --verbosity normal
+        
+  test_8_0:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "6.0.x"
 
       - name: Restore dependencies
         run: dotnet restore
