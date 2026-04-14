@@ -120,6 +120,8 @@ jobs:
             DB_HOST=${{ vars.DB_HOST }}
             TOURNAMENT_DB_USER=${{ secrets.TOURNAMENT_DB_USER }}
             TOURNAMENT_DB_PASSWORD=${{ secrets.TOURNAMENT_DB_PASSWORD }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   notify:
     name: Send Telegram Notification
