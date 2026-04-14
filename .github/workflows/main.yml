@@ -83,7 +83,7 @@ jobs:
   push-to-registry:
     runs-on: ubuntu-latest
 
-    needs: [test]
+    needs: [lint, security, test]
 
     permissions:
       contents: read
