@@ -59,7 +59,7 @@ jobs:
   test_8_0:
     name: Unit Tests .net 8.0
     runs-on: ubuntu-latest
-    needs: [lint, security]
+    needs: [lint, security, test_6_0]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
