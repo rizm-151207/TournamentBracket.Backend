@@ -80,14 +80,22 @@ jobs:
 
       - name: Check for vulnerable packages
         run: dotnet list package --vulnerable --include-transitive
+        
+  security-sast:
+    runs-on: ubuntu-latest
 
-      - name: Run static code analysis (Roslyn analyzers)
-        run: dotnet build --no-restore /p:TreatWarningsAsErrors=false\
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: auto
 
   push-to-registry:
     runs-on: ubuntu-latest
 
-    needs: [lint, security, test]
+    needs: [lint, security, security-sast, test]
 
     permissions:
       contents: read
@@ -141,6 +149,7 @@ jobs:
         run: |
           if [[ "${{ needs.lint.result }}" == "success" && \
                 "${{ needs.test.result }}" == "success" && \
+                "${{ needs.security_sast.result }}" == "success" && \
                 "${{ needs.security.result }}" == "success" ]]; then
             echo "overall=success" >> $GITHUB_OUTPUT
           else
