@@ -80,7 +80,7 @@ jobs:
 
       - name: Check for vulnerable packages
         run: dotnet list package --vulnerable --include-transitive
-  
+
   security-sast:
     runs-on: ubuntu-latest
 
