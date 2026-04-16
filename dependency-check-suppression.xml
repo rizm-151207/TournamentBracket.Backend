@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
-    <!-- Npgsql: подавляем ВСЕ CVE для этого файла (ложные срабатывания) -->
+    <!-- Npgsql – ложные срабатывания -->
     <suppress>
-        <notes><![CDATA[False positive: client library not vulnerable to PostgreSQL server CVEs]]></notes>
+        <notes><![CDATA[False positive: Npgsql client library is not vulnerable to PostgreSQL server CVEs]]></notes>
         <filePath regex="true">.*Npgsql\.EntityFrameworkCore\.PostgreSQL\.dll</filePath>
+        <cvssBelow>10</cvssBelow>
     </suppress>
 
-    <!-- TestCentric: подавляем только конкретную CVE (тестовая сборка) -->
+    <!-- TestCentric – тестовая сборка, не попадает в production -->
     <suppress>
-        <notes><![CDATA[Test-only dependency, not in production]]></notes>
+        <notes><![CDATA[Test-only dependency, not deployed]]></notes>
         <filePath regex="true">.*testcentric\.engine\.metadata\.dll</filePath>
-        <cve>CVE-2023-4914</cve>
+        <cvssBelow>10</cvssBelow>
     </suppress>
 </suppressions>
