@@ -91,6 +91,33 @@ jobs:
         uses: returntocorp/semgrep-action@v1
         with:
           config: auto
+  dependency-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+          cache: true
+          cache-dependency-path: "**/*.csproj"
+
+      - name: Restore and Build
+        run: |
+          dotnet restore
+          dotnet build --no-restore
+
+      - name: Run OWASP Dependency-Check
+        uses: dependency-check/Dependency-Check_Action@main
+        id: Depcheck
+        with:
+          project: 'Tournamentbracket'
+          path: '.'
+          args: >
+            --failOnCVSS 7
+            --suppression ./dependency-check-suppression.xml
 
   push-to-registry:
     runs-on: ubuntu-latest
