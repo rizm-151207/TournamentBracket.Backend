@@ -119,7 +119,6 @@ jobs:
           format: 'HTML'
           args: >
             --failOnCVSS 7
-            --suppression ./dependency-check-suppression.xml
 
   push-to-registry:
     runs-on: ubuntu-latest
