@@ -1,0 +1,5 @@
+<suppress>
+    <notes><![CDATA[False positive for Npgsql client]]></notes>
+    <packageUrl regex="true">^pkg:generic/Npgsql\.EntityFrameworkCore\.PostgreSQL\.dll@.*$</packageUrl>
+    <cpe regex="true">^cpe:2\.3:a:postgresql:.*$</cpe>
+</suppress>
