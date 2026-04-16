@@ -91,6 +91,7 @@ jobs:
         uses: returntocorp/semgrep-action@v1
         with:
           config: auto
+
   dependency-check:
     runs-on: ubuntu-latest
     steps:
@@ -113,8 +114,9 @@ jobs:
         uses: dependency-check/Dependency-Check_Action@main
         id: Depcheck
         with:
-          project: 'Tournamentbracket'
+          project: 'TournamentBracket'
           path: '.'
+          format: 'HTML'
           args: >
             --failOnCVSS 7
             --suppression ./dependency-check-suppression.xml
