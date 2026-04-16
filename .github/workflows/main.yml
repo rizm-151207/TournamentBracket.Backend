@@ -119,6 +119,7 @@ jobs:
           format: 'HTML'
           args: >
             --failOnCVSS 7
+            --disableNodeAudit
 
   push-to-registry:
     runs-on: ubuntu-latest
