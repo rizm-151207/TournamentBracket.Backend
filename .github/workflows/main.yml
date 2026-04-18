@@ -110,17 +110,11 @@ jobs:
           dotnet restore
           dotnet build --no-restore
 
-      - name: Run OWASP Dependency-Check
-        uses: dependency-check/Dependency-Check_Action@main
-        id: Depcheck
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
         with:
-          project: 'TournamentBracket'
-          path: '.'
-          format: 'HTML'
-          args: >
-            --failOnCVSS 7
-            --suppression dependency-check-suppression.xml
-            --disableNodeAudit
+          fail-on-severity: high
+          vulnerability-check: true
 
   push-to-registry:
     runs-on: ubuntu-latest
