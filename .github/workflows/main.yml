@@ -113,10 +113,24 @@ jobs:
           fail-on-severity: high
           vulnerability-check: true
 
+  security-gate:
+    runs-on: ubuntu-latest
+    needs: [security-sast, dependency-check]
+
+    steps:
+      - name: Check security status
+        run: |
+          echo "Checking security status..."
+          if [ "${{ needs.security-sast.result }}" = "failure" ] || [ "${{ needs.security-sca.result }}" = "failure" ]; then
+            echo "❌ Critical vulnerabilities found!"
+            exit 1
+          fi
+          echo "✅ Security checks passed!"
+
   push-to-registry:
     runs-on: ubuntu-latest
 
-    needs: [lint, security, security-sast, test]
+    needs: [lint, test, security-gate]
 
     permissions:
       contents: read
@@ -170,8 +184,7 @@ jobs:
         run: |
           if [[ "${{ needs.lint.result }}" == "success" && \
                 "${{ needs.test.result }}" == "success" && \
-                "${{ needs.security_sast.result }}" == "success" && \
-                "${{ needs.security.result }}" == "success" ]]; then
+                "${{ needs.security-gate.result }}" == "success" ]]; then
             echo "overall=success" >> $GITHUB_OUTPUT
           else
             echo "overall=failure" >> $GITHUB_OUTPUT
