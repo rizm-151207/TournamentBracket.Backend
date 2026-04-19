@@ -161,6 +161,9 @@ jobs:
           driver-opts: |
             image=moby/buildkit:latest
 
+      - name: Set lowercase repository name
+        run: echo "REPO_LOWER=${GITHUB_REPOSITORY@L}" >> $GITHUB_ENV
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -174,10 +177,10 @@ jobs:
             TOURNAMENT_DB_PASSWORD=${{ secrets.TOURNAMENT_DB_PASSWORD }}
           cache-from: |
             type=gha
-            type=registry,ref=ghcr.io/${{ github.repository }}:buildcache
+            type=registry,ref=ghcr.io/${{ env.REPO_LOWER }}:buildcache
           cache-to: |
             type=gha,mode=max
-            type=registry,ref=ghcr.io/${{ github.repository }}:buildcache,mode=max
+            type=registry,ref=ghcr.io/${{ env.REPO_LOWER }}:buildcache,mode=max
 
   notify:
     name: Send Telegram Notification
