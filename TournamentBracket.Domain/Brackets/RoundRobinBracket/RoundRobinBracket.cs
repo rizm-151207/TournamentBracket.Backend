@@ -17,6 +17,8 @@ public class RoundRobinBracket : Bracket
 			matches = value;
 		}
 	}
+	
+	public Competitor? Winner;
 
 	public override List<Competitor> GetAllCompetitors()
 	{
@@ -48,7 +50,33 @@ public class RoundRobinBracket : Bracket
 		return Matches.Any(m => m.IsByeMatch);
 	}
 
-	public override void RefreshBracketAfterMatchUpdate(Match match) { }
+	public override void RefreshBracketAfterMatchUpdate(Match match)
+	{
+		if(matches.Any(m => m.Status is not MatchStatus.Finished))
+		{
+			Winner = null;
+			return;
+		}
+
+		var matchesGroupedByWinners = matches
+			.Where(m => m.TryGetWinner(out _))
+			.GroupBy(m =>
+			{
+				m.TryGetWinner(out var winner);
+				return winner!;
+			})
+			.ToDictionary(g => g.Key, g => g.ToList());
+
+		var maxWinsCount = matchesGroupedByWinners.MaxBy(kvp => kvp.Value.Count).Value.Count;
+		var competitorWithMaxWins = matchesGroupedByWinners
+			.Where(kvp => kvp.Value.Count == maxWinsCount)
+			.ToList();
+
+		if (competitorWithMaxWins.Count == 1)
+			Winner = competitorWithMaxWins[0].Key;
+		else
+			Winner = null;
+	}
 
 	public override bool TryAddCompetitorAuto(Competitor competitor)
 	{
@@ -92,6 +120,15 @@ public class RoundRobinBracket : Bracket
 			matchesWithCompetitor.First().RemoveCompetitor(competitor);
 
 		hasEmptyMatch = true;
+		return true;
+	}
+
+	public bool SetWinner(Competitor winner)
+	{
+		if(matches.Any(m => m.Status is not MatchStatus.Finished))
+			return false;
+
+		Winner = winner;
 		return true;
 	}
 }

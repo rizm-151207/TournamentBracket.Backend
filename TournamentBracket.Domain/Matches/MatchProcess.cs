@@ -1,4 +1,6 @@
-﻿namespace TournamentBracket.Domain.Matches;
+﻿using TournamentBracket.Domain.Competitors;
+
+namespace TournamentBracket.Domain.Matches;
 
 public class MatchProcess
 {

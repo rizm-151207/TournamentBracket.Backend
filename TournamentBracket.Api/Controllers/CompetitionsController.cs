@@ -81,6 +81,21 @@ public class CompetitionsController : ExtendedControllerBase
 		return ToActionResult(result);
 	}
 
+	[HttpPatch("{id}/setwinner")]
+	[Authorize(Roles = "Organizer, Administrator")]
+	public async Task<IActionResult> SetWinner(
+		[FromRoute] Guid id,
+		[FromBody] SetWinnerCommand command,
+		[FromServices] SetWinnerCommandValidator validator)
+	{
+		var validationResult = await validator.ValidateAsync(command);
+		if (!validationResult.IsValid)
+			return BadRequest(validationResult.Errors);
+
+		var result = await competitionsService.SetWinnerForRoundRobin(id, command);
+		return ToActionResult(result);
+	}
+
 	[HttpGet("{id}")]
 	public async Task<IActionResult> GetCompetitionById([FromRoute] Guid id)
 	{
