@@ -14,6 +14,9 @@ using TournamentBracket.Application.Competitors.Interfaces;
 using TournamentBracket.Application.Divisions.Interfaces;
 using TournamentBracket.Application.Matches.Commands;
 using TournamentBracket.Application.Matches.Interface;
+using TournamentBracket.Domain.Brackets;
+using TournamentBracket.Domain.Brackets.Abstractions;
+using TournamentBracket.Domain.Brackets.RoundRobinBracket;
 using TournamentBracket.Domain.Competitions;
 using TournamentBracket.Domain.Matches;
 using TournamentBracket.Domain.Users;
@@ -363,6 +366,37 @@ public class CompetitionsService : ICompetitionsService
 		competition.Status = CompetitionStatus.Started;
 
 		return await matchesService.AddMatchEvent(command, ct);
+	}
+
+	public async Task<Result> SetWinnerForRoundRobin(Guid competitionId, SetWinnerCommand command, CancellationToken ct = default)
+	{
+		var competitionResult = await GetCompetitionWithoutCompetitors(competitionId, ct);
+		if (!competitionResult.IsSuccess)
+			return competitionResult;
+		var competition = competitionResult.Item!;
+
+		if (competition.Divisions?.All(d => d.TournamentBracketId != command.BracketId) ?? true)
+			return Result.Failed($"Can't find bracket {command.BracketId} in competition {competition.Id}");
+
+		var authorizeResult = await authorizationService.Authorize(competition);
+		if (!authorizeResult.IsSuccess)
+			return authorizeResult;
+
+		var bracketResult = await tournamentBracketsService.GetBracket(command.BracketId, BracketType.RoundRobin, ct);
+		if (!bracketResult.IsSuccess)
+			return Result.Failed(bracketResult.Error!);
+		var bracket = bracketResult.Item!;
+
+		var competitorResult = await competitorService.GetCompetitor(command.CompetitorId, ct);
+		if (!competitorResult.IsSuccess)
+			return Result.Failed(competitorResult.Error!);
+
+		var successSetWinner = (bracket as RoundRobinBracket)!.SetWinner(competitorResult.Item!);
+		if (!successSetWinner)
+			return Result.Failed($"Something goes wrong when set winner in {bracket.Id}");
+
+		await dbContext.SaveChangesAsync(ct);
+		return Result.Success();
 	}
 
 	private IQueryable<Competition> ApplyFilter(IQueryable<Competition> queryable, CompetitionsFilter filter,

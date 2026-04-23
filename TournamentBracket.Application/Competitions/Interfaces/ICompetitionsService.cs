@@ -22,4 +22,5 @@ public interface ICompetitionsService
 	public Task<Result> AddCompetitorAuto(Guid competitionId, AddCompetitorCommand command, CancellationToken ct = default);
 	public Task<Result> RemoveCompetitor(Guid competitionId, RemoveCompetitorCommand command, CancellationToken ct = default);
 	public Task<Result> AddMatchEvent(Guid competitionId, UpdateMatchCommand command, CancellationToken ct = default);
+	public Task<Result> SetWinnerForRoundRobin(Guid competitionId, SetWinnerCommand command, CancellationToken ct = default);
 }

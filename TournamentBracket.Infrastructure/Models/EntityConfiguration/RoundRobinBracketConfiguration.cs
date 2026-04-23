@@ -13,5 +13,8 @@ public class RoundRobinBracketConfiguration : IEntityTypeConfiguration<RoundRobi
 		builder.HasMany(e => e.Matches);
 		builder.Navigation(e => e.Matches)
 			.AutoInclude();
+		builder.HasOne(e => e.Winner);
+		builder.Navigation(e => e.Winner)
+			.AutoInclude();
 	}
 }
