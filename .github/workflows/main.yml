@@ -135,6 +135,15 @@ jobs:
           name: sbom
           path: artifacts/sbom.json
 
+      - name: Scan SBOM for vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'sbom'
+          scan-ref: 'artifacts/sbom.json'
+          format: 'table'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+
   security-gate:
     runs-on: ubuntu-latest
     needs: [security-sast, dependency-check, security]
