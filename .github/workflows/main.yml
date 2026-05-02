@@ -196,13 +196,28 @@ jobs:
 
   image-scan:
     runs-on: ubuntu-latest
-    needs: [build-image] # После сборки образа
+    needs: [build-image]
 
     steps:
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image
+
+      - name: Load Docker image from tar
+        run: docker load -i image.tar
+
+      - name: Get image tag
+        id: get-tag
+        run: |
+          # Получаем первый тег из загруженного образа (формат repository:tag)
+          IMAGE_TAG=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -1)
+          echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+
       - name: Scan Docker image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: "myapp:${{ github.sha }}"
+          image-ref: ${{ steps.get-tag.outputs.image_tag }}
           format: "table"
           severity: "CRITICAL,HIGH"
           exit-code: "1"
@@ -211,7 +226,7 @@ jobs:
       - name: Save JSON report
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: "myapp:${{ github.sha }}"
+          image-ref: ${{ steps.get-tag.outputs.image_tag }}
           format: "json"
           severity: "CRITICAL,HIGH,MEDIUM,LOW"
           output: "artifacts/trivy-image-report.json"
