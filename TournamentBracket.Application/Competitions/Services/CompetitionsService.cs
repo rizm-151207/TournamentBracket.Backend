@@ -15,7 +15,6 @@ using TournamentBracket.Application.Divisions.Interfaces;
 using TournamentBracket.Application.Matches.Commands;
 using TournamentBracket.Application.Matches.Interface;
 using TournamentBracket.Domain.Brackets;
-using TournamentBracket.Domain.Brackets.Abstractions;
 using TournamentBracket.Domain.Brackets.RoundRobinBracket;
 using TournamentBracket.Domain.Competitions;
 using TournamentBracket.Domain.Matches;

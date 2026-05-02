@@ -2,6 +2,8 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
 using TournamentBracket.Api.Extensions;
 using TournamentBracket.Application.Brackets.Interfaces;
 using TournamentBracket.Application.Brackets.Services;
@@ -28,6 +30,7 @@ using TournamentBracket.Domain.Matches;
 using TournamentBracket.Infrastructure.Brackets;
 using TournamentBracket.Infrastructure.Brackets.Interfaces;
 using TournamentBracket.Infrastructure.Common;
+using TournamentBracket.Infrastructure.Metrics;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
@@ -59,6 +62,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IResourceAuthorizationService, ResourceAuthorizationService>();
 builder.Services.AddSingleton<IAuthorizationHandler, CompetitionAuthorizationHandler>();
+builder.Services.AddSingleton<MetricsRegistry>();
 builder.Services.AddScoped<ICompetitorService, CompetitorService>();
 builder.Services.AddScoped<ITrainerService, TrainerService>();
 builder.Services.AddScoped<ICompetitionsService, CompetitionsService>();
@@ -76,6 +80,12 @@ builder.Services.AddScoped<IMatchesService, MatchesService>();
 builder.Services.AddScoped<ICompetitionPlanner, CompetitionPlanner>();
 builder.Services.AddScoped<TatamiDistributor>();
 builder.Services.AddScoped<MatchPlanner>();
+builder.Services.AddOpenTelemetry()
+	.ConfigureResource(resource => resource
+		.AddService("TournamentBracket.Api"))
+	.WithMetrics(metrics => metrics
+		.AddAspNetCoreInstrumentation()
+		.AddPrometheusExporter());
 
 
 var app = builder.Build();
@@ -87,10 +97,13 @@ if (app.Environment.IsDevelopment())
 	app.UseSwaggerUI();
 }
 
+app.UseRouting();
+app.UseOpenTelemetryPrometheusScrapingEndpoint("/metrics");
 app.UseHttpsRedirection();
 app.UseTunedCors();
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 
 if (args.Contains("--migrate"))

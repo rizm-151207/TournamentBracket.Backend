@@ -21,4 +21,10 @@ public class DivisionsController : ExtendedControllerBase
 		var result = await divisionsService.GetDivisionsByCompetitionId(query.CompetitionId);
 		return ToActionResult(result);
 	}
+
+	[HttpGet("error")]
+	public async Task<IActionResult> Error()
+	{
+		return Problem();
+	}
 }
