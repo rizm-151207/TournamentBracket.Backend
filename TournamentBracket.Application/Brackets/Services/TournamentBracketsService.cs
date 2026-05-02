@@ -7,6 +7,7 @@ using TournamentBracket.Domain.Matches;
 using TournamentBracket.Infrastructure.Brackets.Interfaces;
 using TournamentBracket.Infrastructure.Common;
 using TournamentBracket.Infrastructure.Common.Results;
+using TournamentBracket.Infrastructure.Metrics;
 
 namespace TournamentBracket.Application.Brackets.Services;
 
@@ -16,12 +17,14 @@ public class TournamentBracketsService : ITournamentBracketsService
 	private readonly BracketFactoryResolver bracketFactoryResolver;
 	private readonly BracketTypeResolver bracketTypeResolver;
 	private readonly IBracketsRepository bracketsRepository;
+	private readonly MetricsRegistry metricsRegistry;
 
 	public TournamentBracketsService(
 		AppDbContext dbContext,
 		BracketFactoryResolver bracketFactoryResolver,
 		BracketTypeResolver bracketTypeResolver,
-		IBracketsRepository bracketsRepository)
+		IBracketsRepository bracketsRepository,
+		MetricsRegistry metricsRegistry)
 	{
 		this.dbContext = dbContext;
 		this.bracketFactoryResolver = bracketFactoryResolver;
@@ -84,6 +87,7 @@ public class TournamentBracketsService : ITournamentBracketsService
 			var newBracketType = bracketTypeResolver.Resolve(competitors.Count + 1);
 			if (bracket.Type != newBracketType)
 			{
+				metricsRegistry.ChangeTablesTypes.Inc();
 				await bracketsRepository.RemoveBracket(bracket, ct);
 				return await CreateBracket([.. competitors, competitor], ct);
 			}
@@ -133,6 +137,7 @@ public class TournamentBracketsService : ITournamentBracketsService
 			var newBracketType = bracketTypeResolver.Resolve(competitors.Count - 1);
 			if (bracket.Type != newBracketType)
 			{
+				metricsRegistry.ChangeTablesTypes.Inc();
 				var removeOldBracketResult = await bracketsRepository.RemoveBracket(bracket, ct);
 				if (!removeOldBracketResult.IsSuccess)
 					return Result<Bracket>.FailedWith(removeOldBracketResult.Error!);
