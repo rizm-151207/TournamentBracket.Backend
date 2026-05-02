@@ -15,12 +15,12 @@ groups:
           team: backend
         annotations:
           summary: "Высокий уровень ошибок API"
-          description: "Уровень 5xx ошибок {{ $value | printf \"%.2f\" }}% превышает порог 10%"
+          description: 'Уровень 5xx ошибок {{ $value | printf "%.2f" }}% превышает порог 10%'
           runbook_url: "https://wiki.example.com/runbooks/high-error-rate"
 
       - alert: HighLatency
         expr: |
-          histogram_quantile(0.95, 
+          histogram_quantile(0.95,
             rate(http_server_request_duration_seconds_bucket[5m])
           ) > 1
         for: 10m
@@ -29,7 +29,7 @@ groups:
           team: backend
         annotations:
           summary: "Высокая задержка API"
-          description: "95-й перцентиль latency {{ $value | printf \"%.2f\" }}s превышает 1с"
+          description: '95-й перцентиль latency {{ $value | printf "%.2f" }}s превышает 1с'
 
       - alert: ServiceDown
         expr: up{job="api"} == 0
