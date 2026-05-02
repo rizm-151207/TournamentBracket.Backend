@@ -223,6 +223,9 @@ jobs:
           exit-code: "1"
           output: "trivy-image-report.txt"
 
+      - name: Create artifacts directory
+        run: mkdir -p artifacts
+
       - name: Save JSON report
         uses: aquasecurity/trivy-action@master
         with:
