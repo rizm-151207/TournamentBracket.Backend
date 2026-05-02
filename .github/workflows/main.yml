@@ -128,13 +128,13 @@ jobs:
             exit 1
           fi
           echo "✅ Security checks passed!"
-          
+
   build-image:
     runs-on: ubuntu-latest
     needs: [lint, test, security-gate]
     permissions:
       contents: read
-      packages: write  
+      packages: write
     steps:
       - uses: actions/checkout@v4
 
@@ -166,7 +166,7 @@ jobs:
         with:
           context: .
           push: false
-          load: true   # загрузить образ в докердемон, чтобы потом сохранить в tar
+          load: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
@@ -175,7 +175,7 @@ jobs:
             TOURNAMENT_DB_PASSWORD=${{ secrets.TOURNAMENT_DB_PASSWORD }}
           # cache-from: type=gha
           # cache-to: type=gha,mode=max
-          
+
           cache-from: |
             type=gha
             type=registry,ref=ghcr.io/${{ env.REPO_LOWER }}:buildcache
@@ -199,13 +199,12 @@ jobs:
     needs: build-image
     permissions:
       contents: read
-      packages: write 
+      packages: write
 
     steps:
-
       - name: Set lowercase repository name
         run: echo "REPO_LOWER=${GITHUB_REPOSITORY@L}" >> $GITHUB_ENV
-        
+
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
@@ -290,7 +289,7 @@ jobs:
   notify:
     name: Send Telegram Notification
     runs-on: ubuntu-latest
-    needs: [push-to-registry]
+    needs: [push-image]
     if: always()
     steps:
       - name: Determine overall status
