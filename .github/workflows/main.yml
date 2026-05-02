@@ -113,6 +113,28 @@ jobs:
           fail-on-severity: high
           vulnerability-check: true
 
+  sbom-generation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create artifacts directory
+        run: mkdir -p artifacts
+
+      - name: Generate SBOM with Syft
+        uses: anchore/sbom-action@v0
+        with:
+          path: "."
+          format: "cyclonedx-json"
+          output-file: "artifacts/sbom.json"
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: artifacts/sbom.json
+
   security-gate:
     runs-on: ubuntu-latest
     needs: [security-sast, dependency-check, security]
