@@ -30,7 +30,7 @@ limits_config:
 memberlist:
   bind_port: 7946
   join_members:
-    - loki   # имя вашего контейнера Loki (из docker-compose)
+    - loki # имя вашего контейнера Loki (из docker-compose)
 
 # Настройка распределителя (distributor)
 distributor:

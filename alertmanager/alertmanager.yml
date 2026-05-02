@@ -1,36 +1,36 @@
 global:
   resolve_timeout: 5m
-  
-  smtp_smarthost: 'smtp.mail.ru:465'
-  smtp_from: 'masalov.kirill03@mail.ru'
-  smtp_auth_username: 'masalov.kirill03@mail.ru'
-  smtp_auth_password: ''
+
+  smtp_smarthost: "smtp.mail.ru:465"
+  smtp_from: "masalov.kirill03@mail.ru"
+  smtp_auth_username: "masalov.kirill03@mail.ru"
+  smtp_auth_password: ""
   smtp_require_tls: true
 
 route:
-  receiver: 'email-default'
-  group_by: ['alertname', 'severity']
+  receiver: "email-default"
+  group_by: ["alertname", "severity"]
   group_wait: 30s
   group_interval: 5m
   repeat_interval: 4h
-  
+
   routes:
     - match:
         severity: critical
-      receiver: 'email-critical'
+      receiver: "email-critical"
       continue: true
-    
+
     - match:
         severity: warning
-      receiver: 'email-warning'
+      receiver: "email-warning"
 
 receivers:
-  - name: 'email-default'
+  - name: "email-default"
     email_configs:
-      - to: 'masalov.kirill03@mail.ru'
+      - to: "masalov.kirill03@mail.ru"
         send_resolved: true
         headers:
-          Subject: '[{{ .Status | toUpper }}] {{ .CommonLabels.alertname }}'
+          Subject: "[{{ .Status | toUpper }}] {{ .CommonLabels.alertname }}"
         html: |
           <h2>{{ .CommonLabels.alertname }}</h2>
           <p><strong>Status:</strong> {{ .Status }}</p>
@@ -40,9 +40,9 @@ receivers:
           <p><a href="{{ .CommonAnnotations.runbook_url }}">Runbook</a></p>
           {{ end }}
 
-  - name: 'email-critical'
+  - name: "email-critical"
     email_configs:
-      - to: 'masalov.kirill03@mail.ru'
+      - to: "masalov.kirill03@mail.ru"
         send_resolved: true
         html: |
           <h2 style="color: red;">🚨 CRITICAL: {{ .CommonLabels.alertname }}</h2>
@@ -50,9 +50,9 @@ receivers:
           <p><strong>Description:</strong> {{ .CommonAnnotations.description }}</p>
           <p><strong>Runbook:</strong> <a href="{{ .CommonAnnotations.runbook_url }}">Link</a></p>
 
-  - name: 'email-warning'
+  - name: "email-warning"
     email_configs:
-      - to: 'masalov.kirill03@mail.ru'
+      - to: "masalov.kirill03@mail.ru"
         send_resolved: true
         html: |
           <h2 style="color: orange;">⚠️ WARNING: {{ .CommonLabels.alertname }}</h2>
@@ -60,7 +60,7 @@ receivers:
 
 inhibit_rules:
   - source_match:
-      severity: 'critical'
+      severity: "critical"
     target_match:
-      severity: 'warning'
-    equal: ['alertname', 'instance']
+      severity: "warning"
+    equal: ["alertname", "instance"]

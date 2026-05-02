@@ -17,7 +17,7 @@ public class RoundRobinBracket : Bracket
 			matches = value;
 		}
 	}
-	
+
 	public Competitor? Winner;
 
 	public override List<Competitor> GetAllCompetitors()
