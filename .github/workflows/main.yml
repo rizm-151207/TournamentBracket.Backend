@@ -98,16 +98,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Check if pull request event
-        id: check_pr
-        run: |
-          if [[ "${{ github.event_name }}" != "pull_request" ]]; then
-            echo "Skipping dependency review because event is not pull_request"
-            echo "skip=true" >> $GITHUB_OUTPUT
-          fi
+      # - name: Check if pull request event
+      #   id: check_pr
+      #   run: |
+      #     if [[ "${{ github.event_name }}" != "pull_request" ]]; then
+      #       echo "Skipping dependency review because event is not pull_request"
+      #       echo "skip=true" >> $GITHUB_OUTPUT
+      #     fi
 
       - name: Dependency Review
-        if: steps.check_pr.outputs.skip != 'true'
+        # if: steps.check_pr.outputs.skip != 'true'
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: high
