@@ -118,7 +118,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      security-events: write  
+      security-events: write
 
     steps:
       - name: Checkout code
@@ -127,7 +127,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.x' 
+          dotnet-version: "8.x"
 
       - name: Restore dependencies
         run: |
@@ -136,12 +136,12 @@ jobs:
       - name: Run Trivy SCA scan
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          scanners: 'vuln'
-          format: 'sarif'
-          output: 'trivy-sca-results.sarif'
-          severity: 'CRITICAL,HIGH' 
+          scan-type: "fs"
+          scan-ref: "."
+          scanners: "vuln"
+          format: "sarif"
+          output: "trivy-sca-results.sarif"
+          severity: "CRITICAL,HIGH"
 
       - name: Upload SARIF result to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
