@@ -113,7 +113,7 @@ jobs:
 
       - name: Restore dependencies
         run: |
-          dotnet restore
+          dotnet restore --use-lock-file
 
       - name: Verify project.assets.json files
         run: |
