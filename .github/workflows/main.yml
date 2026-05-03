@@ -135,7 +135,7 @@ jobs:
         with:
           name: trivy-sca-report
           path: artifacts/trivy-sca-results.json
-          retention-days: 30  
+          retention-days: 30
 
   sbom-generation:
     runs-on: ubuntu-latest
