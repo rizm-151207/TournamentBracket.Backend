@@ -171,6 +171,12 @@ jobs:
             --verbose \
             --exit-code 1
 
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitleaks-report
+          path: artifacts/gitleaks-report.json
+
   sbom-generation:
     runs-on: ubuntu-latest
 
