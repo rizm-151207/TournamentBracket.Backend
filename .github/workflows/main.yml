@@ -145,6 +145,8 @@ jobs:
           format: "json"
           output: "artifacts/trivy-sca-results.json"
           severity: "CRITICAL,HIGH"
+          trivy-config: |
+            --file-pattern '**/*.csproj'
 
       - name: Upload scan report as artifact
         uses: actions/upload-artifact@v4
