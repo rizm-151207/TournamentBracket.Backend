@@ -210,14 +210,16 @@ jobs:
 
   security-gate:
     runs-on: ubuntu-latest
-    needs: [security-sast, security]
+    needs: [security-sast, security, trivy-sca, secret-detection, sbom-generation]
 
     steps:
       - name: Check security status
         run: |
           echo "Checking security status..."
           if [ "${{ needs.security-sast.result }}" = "failure" ] ||
-          [ "${{ needs.dependency-check.result }}" = "failure" ||
+          [ "${{ needs.trivy-sca.result }}" = "failure" ||
+          [ "${{ needs.secret-detection.result }}" = "failure" ||
+          [ "${{ needs.sbom-generation.result }}" = "failure" ||
           [ "${{ needs.security.result }}" = "failure" ]; then
             echo "❌ Critical vulnerabilities found!"
             exit 1
