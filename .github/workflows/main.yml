@@ -115,6 +115,11 @@ jobs:
         run: |
           dotnet restore
 
+      - name: Verify project.assets.json files
+        run: |
+          find . -name "project.assets.json" -type f
+          echo "Number of assets files: $(find . -name 'project.assets.json' | wc -l)"
+
       - name: Run Trivy SCA scan
         uses: aquasecurity/trivy-action@master
         with:
@@ -124,9 +129,6 @@ jobs:
           format: "json"
           output: "artifacts/trivy-sca-results.json"
           severity: "CRITICAL,HIGH"
-          trivy-config: |
-              --file-pattern '**/obj/project.assets.json'
-              --file-pattern '**/packages.lock.json'
 
       - name: Upload scan report as artifact
         uses: actions/upload-artifact@v4
