@@ -124,6 +124,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Create artifacts directory
+        run: mkdir -p artifacts
+
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
@@ -147,7 +150,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: trivy-sca-report
-          path: trivy-sca-results.json
+          path: artifacts/trivy-sca-results.json
           retention-days: 30  
 
   sbom-generation:
