@@ -134,7 +134,7 @@ jobs:
           dotnet restore
 
       - name: Run Trivy SCA scan
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.29.0
         with:
           scan-type: 'fs'
           scan-ref: '.'
