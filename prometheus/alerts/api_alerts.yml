@@ -40,7 +40,7 @@ groups:
         annotations:
           summary: "Сервис API недоступен"
           description: "Prometheus не может скрейпить метрики с API более 1 минуты"
-      
+
       - alert: AbnormalRequestRate
         expr: |
           sum(rate(http_server_request_duration_seconds_bucket[5m])) > 1000
