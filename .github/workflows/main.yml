@@ -113,6 +113,40 @@ jobs:
           fail-on-severity: high
           vulnerability-check: true
 
+  sca-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create artifacts directory
+        run: mkdir -p artifacts
+
+      - name: Run Trivy filesystem scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "."
+          format: "table"
+          severity: "CRITICAL,HIGH"
+          exit-code: "1"
+          output: "trivy-fs-report.txt"
+
+      - name: Save JSON report
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "."
+          format: "json"
+          severity: "CRITICAL,HIGH,MEDIUM,LOW"
+          output: "artifacts/trivy-fs-report.json"
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-fs-report
+          path: artifacts/trivy-fs-report.json
+
   sbom-generation:
     runs-on: ubuntu-latest
 
